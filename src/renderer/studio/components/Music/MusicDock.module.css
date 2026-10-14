@@ -1,0 +1,140 @@
+.dock {
+  position: fixed;
+  right: 24px;
+  bottom: 43px;
+  left: 24px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0 22px;
+  padding: 10px 16px;
+  background: rgba(13, 17, 24, 0.94);
+  border: 1px solid var(--line-2);
+  border-radius: 16px;
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(14px);
+}
+
+.left {
+  display: flex;
+  flex: 0 1 280px;
+  align-items: center;
+  gap: 12px;
+  min-width: 190px;
+}
+
+.cover {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, #3b2a8c, #a8327f);
+  border-radius: 10px;
+}
+
+.info {
+  min-width: 0;
+}
+
+.title {
+  overflow: hidden;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sub {
+  overflow: hidden;
+  font-size: 12px;
+  color: var(--muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.transport {
+  display: flex;
+  flex: 1 1 340px;
+  align-items: center;
+  gap: 10px;
+  min-width: 300px;
+}
+
+.round {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background: var(--raised);
+  border: 1px solid var(--line-2);
+  border-radius: 50%;
+}
+
+.play {
+  width: 44px;
+  height: 44px;
+  font-weight: 800;
+  color: var(--accent-ink);
+  background: var(--accent);
+  border: none;
+}
+
+.round:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.time {
+  flex: none;
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.seek {
+  flex: 1 1 80px;
+  min-width: 60px;
+}
+
+.right {
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 14px;
+}
+
+.volume,
+.duck {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.duck {
+  color: var(--soft);
+}
+
+.volume .mono {
+  min-width: 32px;
+  color: var(--text);
+}
+
+.volSlider {
+  width: 90px;
+}
+
+.add {
+  flex: none;
+  padding: 8px 12px;
+  font-size: 13.3333px;
+  white-space: nowrap;
+  background: var(--raised);
+  border: 1px solid var(--line-2);
+  border-radius: 10px;
+}

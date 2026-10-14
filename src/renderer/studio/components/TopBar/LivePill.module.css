@@ -1,0 +1,36 @@
+.pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px 8px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  background: var(--btn);
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  background: #4a5468;
+  border-radius: 50%;
+}
+
+.stats {
+  font-size: 12px;
+  font-weight: 400;
+  color: #6fbfae;
+}
+
+.on {
+  color: #8ff5e0;
+  background: #0f2a26;
+  border-color: #1f6b5c;
+}
+
+.on .dot {
+  background: var(--live);
+  box-shadow: 0 0 12px var(--live);
+}

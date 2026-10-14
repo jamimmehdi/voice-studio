@@ -1,0 +1,30 @@
+.hint {
+  margin: -8px 0 8px;
+  font-size: 12px;
+  color: var(--dim);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 0;
+  border-top: 1px solid #1a2230;
+}
+
+.text {
+  min-width: 0;
+}
+
+.text b {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.text span {
+  display: block;
+  font-size: 11px;
+  color: var(--dim);
+}

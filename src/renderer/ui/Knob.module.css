@@ -1,0 +1,59 @@
+.knob {
+  width: 78px;
+  text-align: center;
+  cursor: ns-resize;
+  touch-action: none;
+  border-radius: 10px;
+}
+
+.knob svg {
+  display: block;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto;
+}
+
+.compact {
+  width: 100%;
+}
+
+.compact svg {
+  width: 44px;
+  height: 44px;
+}
+
+.track {
+  fill: none;
+  stroke: #2a303b;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.val {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.knob:hover .val,
+.dragging .val {
+  stroke: #7ff0e3;
+}
+
+.ind {
+  stroke: var(--text);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+
+.value {
+  margin-top: 1px;
+  font-size: 11px;
+}
+
+.label {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}

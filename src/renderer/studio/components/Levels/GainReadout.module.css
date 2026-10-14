@@ -1,0 +1,12 @@
+.readout {
+  padding: 0 6px;
+  font-size: 12px;
+  color: var(--text);
+  cursor: ns-resize;
+  border-radius: 6px;
+  touch-action: none;
+}
+
+.readout:hover {
+  background: var(--raised);
+}

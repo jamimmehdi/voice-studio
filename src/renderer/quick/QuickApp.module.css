@@ -1,0 +1,55 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 100%;
+  padding: 0 18px 14px;
+  border: 1px solid #2a3550;
+}
+
+/* the header is the drag handle of the frameless window */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 12px;
+  -webkit-app-region: drag;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: linear-gradient(135deg, #1f2a44, #0b0e14);
+  border: 1px solid #2a3550;
+  border-radius: 9px;
+}
+
+.title {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.headBtn {
+  padding: 6px 10px;
+  font-size: 12px;
+  color: var(--soft);
+  background: var(--btn);
+  border: 1px solid var(--line-2);
+  border-radius: 9px;
+  -webkit-app-region: no-drag;
+}
+
+.headBtn:hover {
+  border-color: var(--accent);
+}
+
+.square {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  font-size: 15px;
+}

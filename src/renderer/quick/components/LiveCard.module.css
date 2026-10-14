@@ -1,0 +1,93 @@
+.card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+
+.button {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 84px;
+  height: 84px;
+  color: #6a7488;
+  background: radial-gradient(circle at 50% 40%, #1b2230, #0d1118);
+  border: 2px solid #3a4458;
+  border-radius: 50%;
+}
+
+.on {
+  color: #8ff5e0;
+  background: radial-gradient(circle at 50% 40%, #145a4b, #0b2a24);
+  border-color: var(--live);
+  box-shadow: 0 0 28px rgba(52, 245, 197, 0.35);
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+}
+
+.state {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.live {
+  color: #8ff5e0;
+}
+
+.preset {
+  overflow: hidden;
+  font-size: 13px;
+  color: var(--soft);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stats {
+  min-height: 17px;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #6fbfae;
+}
+
+.meter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.meter span {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+.bar {
+  position: relative;
+  width: 14px;
+  height: 74px;
+  overflow: hidden;
+  background: #05070a;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+}
+
+.bar i {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(0deg, #2fe3a5 0%, #2fe3a5 62%, #e9d758 80%, #ff5c6c 100%);
+  background-position: bottom;
+  background-size: 100% 74px;
+}

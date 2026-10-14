@@ -1,0 +1,124 @@
+.pad {
+  position: relative;
+  flex: 3 1 300px;
+  min-width: 280px;
+  height: 332px;
+  overflow: hidden;
+  cursor: crosshair;
+  touch-action: none;
+  background: linear-gradient(90deg, #12285f 0%, #3b2a8c 48%, #a8327f 100%);
+  border: 1px solid #2a3550;
+  border-radius: 14px;
+}
+
+.pad::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 50%, rgba(10, 13, 18, 0) 0%, rgba(10, 13, 18, 0.55) 100%);
+}
+
+.grid {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.grid line {
+  stroke: rgba(255, 255, 255, 0.14);
+  stroke-width: 0.3;
+}
+
+.grid .fine {
+  stroke: rgba(255, 255, 255, 0.06);
+}
+
+.zone {
+  fill: rgba(255, 255, 255, 0.1);
+  stroke: rgba(255, 255, 255, 0.28);
+  stroke-width: 0.3;
+  stroke-dasharray: 1.2 1.2;
+}
+
+.label {
+  position: absolute;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+  pointer-events: none;
+}
+
+.bl {
+  bottom: 10px;
+  left: 14px;
+}
+
+.br {
+  right: 14px;
+  bottom: 10px;
+}
+
+.tl {
+  top: 10px;
+  left: 14px;
+}
+
+.bc {
+  bottom: 36px;
+  left: 50%;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: rgba(255, 255, 255, 0.55);
+  transform: translateX(-50%);
+}
+
+.mark {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+.mark i {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 50%;
+}
+
+.mark span {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.82);
+  white-space: nowrap;
+}
+
+.puck {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+  pointer-events: none;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.22), 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+
+.puck i {
+  width: 8px;
+  height: 8px;
+  background: #a8327f;
+  border-radius: 50%;
+}

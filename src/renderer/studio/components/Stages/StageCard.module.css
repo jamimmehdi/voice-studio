@@ -1,0 +1,44 @@
+.card {
+  padding: 18px 18px 16px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 10px 14px;
+  min-width: 0;
+  margin-bottom: 14px;
+}
+
+.title {
+  flex: none;
+  font-size: 18px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.description {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 13px;
+  color: var(--muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spacer {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.off {
+  opacity: 0.4;
+}
+
+.body {
+  min-width: 0;
+}

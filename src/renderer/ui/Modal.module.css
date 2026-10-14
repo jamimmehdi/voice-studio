@@ -1,0 +1,56 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.62);
+}
+
+.sheet {
+  position: relative;
+  width: min(620px, 92vw);
+  max-height: 90vh;
+  overflow: auto;
+  padding: 22px 26px;
+  background: var(--panel);
+  border: 1px solid var(--line-2);
+  border-radius: 16px;
+  user-select: text;
+  outline: none;
+}
+
+.sheet h2 {
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.sheet li {
+  margin-bottom: 8px;
+}
+
+.sheet code {
+  padding: 1px 5px;
+  color: var(--accent);
+  background: var(--raised);
+  border-radius: 4px;
+}
+
+.sheet a {
+  color: var(--accent);
+}
+
+.centered {
+  text-align: center;
+}
+
+.close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 22px;
+  color: var(--muted);
+  background: none;
+  border: none;
+}

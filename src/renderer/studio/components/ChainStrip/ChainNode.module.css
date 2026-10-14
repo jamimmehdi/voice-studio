@@ -1,0 +1,81 @@
+.node {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+  padding: 11px 8px 12px 10px;
+  font-size: 13.3333px;
+  line-height: normal;
+  text-align: left;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  cursor: pointer;
+}
+
+.node:hover {
+  border-color: #33415a;
+}
+
+.selected {
+  background: #10241f;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(94, 234, 212, 0.14), 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.off {
+  opacity: 0.5;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.selected .tag {
+  color: var(--accent);
+}
+
+.name {
+  overflow: hidden;
+  font-size: 15px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.value {
+  overflow: hidden;
+  font-size: 11px;
+  color: var(--muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gr {
+  display: block;
+  height: 4px;
+  margin-top: 3px;
+  overflow: hidden;
+  background: #05070a;
+  border-radius: 2px;
+}
+
+.grFill {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--warn);
+}

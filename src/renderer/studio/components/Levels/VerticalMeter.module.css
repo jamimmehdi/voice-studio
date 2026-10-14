@@ -1,0 +1,48 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.db {
+  font-size: 11px;
+  color: var(--soft);
+}
+
+.meter {
+  position: relative;
+  width: 24px;
+  height: 152px;
+  overflow: hidden;
+  background: #05070a;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.fill {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 0;
+  background: linear-gradient(0deg, #2fe3a5 0%, #2fe3a5 62%, #e9d758 78%, #ff5c6c 100%);
+  background-position: bottom;
+  background-size: 100% 150px;
+}
+
+.hold {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: #fff;
+}
+
+.label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}

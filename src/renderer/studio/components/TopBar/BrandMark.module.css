@@ -1,0 +1,22 @@
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: linear-gradient(135deg, #1f2a44, #0b0e14);
+  border: 1px solid #2a3550;
+  border-radius: 10px;
+}
+
+.name {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}

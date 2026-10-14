@@ -1,0 +1,47 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  /* the window never gets narrower than this: three columns always fit */
+  min-width: 1200px;
+  height: 100%;
+  padding-bottom: 31px; /* the fixed credit bar */
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+.withMusic {
+  padding-bottom: 107px; /* credit bar + floating music dock */
+}
+
+.workspace {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 12px 24px 24px;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.left {
+  flex: 1 1 250px;
+  min-width: 250px;
+  max-width: 330px;
+}
+
+.center {
+  flex: 999 1 520px;
+  min-width: 520px;
+}
+
+.right {
+  flex: 1 1 280px;
+  min-width: 280px;
+  max-width: 360px;
+}

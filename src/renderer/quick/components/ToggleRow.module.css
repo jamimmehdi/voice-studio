@@ -1,0 +1,36 @@
+.row {
+  display: flex;
+  gap: 8px;
+}
+
+.toggle {
+  flex: 1;
+  padding: 10px 6px;
+  font-size: 12px;
+  line-height: 1.35;
+  text-align: center;
+  color: var(--soft);
+  background: var(--btn);
+  border: 1px solid var(--line-2);
+  border-radius: 12px;
+}
+
+.toggle b {
+  display: block;
+  font-weight: 700;
+}
+
+.toggle span {
+  font-weight: 500;
+  color: var(--dim);
+}
+
+.on {
+  color: #8ff5e0;
+  background: #10241f;
+  border-color: var(--accent);
+}
+
+.on span {
+  color: #6fbfae;
+}

@@ -1,0 +1,51 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+  gap: 10px;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 11px 12px;
+  text-align: left;
+  background: var(--raised);
+  border: 1px solid var(--line-2);
+  border-radius: 12px;
+}
+
+.tile:hover {
+  border-color: #3b4a66;
+}
+
+.active {
+  background: #10241f;
+  border-color: var(--accent);
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.name {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.values {
+  font-size: 11px;
+  color: var(--muted);
+}

@@ -1,0 +1,28 @@
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px 16px;
+  height: 65px;
+  padding: 0 24px;
+  /* room for the native window buttons Windows draws over the right edge */
+  padding-right: calc(100vw - env(titlebar-area-width, 100vw) + 16px);
+  background: var(--bar);
+  border-bottom: 1px solid var(--bar-line);
+  -webkit-app-region: drag;
+}
+
+/* interactive children must not start a window drag */
+.topbar button,
+.topbar select,
+.topbar label,
+.topbar input {
+  -webkit-app-region: no-drag;
+}
+
+.spacer {
+  flex: 1 1 20px;
+}

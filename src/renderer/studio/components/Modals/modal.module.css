@@ -1,0 +1,82 @@
+.heading {
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.small {
+  font-size: 12px;
+}
+
+.center {
+  text-align: center;
+}
+
+.icon {
+  width: 88px;
+  height: 88px;
+  border-radius: 20px;
+}
+
+.dev {
+  margin: 6px 0;
+  font-size: 14px;
+}
+
+.dev b {
+  color: var(--accent);
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin: 12px 0;
+}
+
+.section {
+  margin: 16px 0 6px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-align: left;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.list {
+  padding-left: 18px;
+  margin: 0 0 10px;
+  text-align: left;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+}
+
+.ok {
+  color: var(--ok);
+}
+
+.warn {
+  color: var(--warn);
+}
+
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  margin: 12px 0;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--raised);
+  border: 1px solid var(--line-2);
+  border-radius: 10px;
+  user-select: text;
+}

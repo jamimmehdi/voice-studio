@@ -40,3 +40,8 @@ export function formatTime(seconds: number): string {
 export function prettyAccelerator(accelerator: string): string {
   return accelerator.replace(/Control/g, 'Ctrl').replace(/\+/g, ' + ');
 }
+
+/** "43 ms · 0 dropouts" */
+export function formatEngineStats(latencyMs: number, dropouts: number): string {
+  return `${latencyMs} ms · ${dropouts} dropout${dropouts === 1 ? '' : 's'}`;
+}

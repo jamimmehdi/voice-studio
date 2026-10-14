@@ -1,0 +1,42 @@
+.hint {
+  margin-top: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+  color: var(--muted);
+  border-radius: 10px;
+}
+
+.ok {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--ok);
+  background: #0e1f1c;
+  border: 1px solid #1b4a3f;
+}
+
+.ok::before {
+  content: '';
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-top: 2px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12l5 5 9-10' stroke='%236fe0b5' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+
+.bad {
+  color: var(--warn);
+  background: #26170f;
+  border: 1px solid #5a3519;
+}
+
+.install {
+  margin-top: 8px;
+}
+
+.divider {
+  height: 1px;
+  margin: 14px 0;
+  background: var(--line);
+}

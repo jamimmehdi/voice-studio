@@ -1,0 +1,70 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+  margin-top: auto;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cover {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  background: linear-gradient(135deg, #3b2a8c, #a8327f);
+  border-radius: 9px;
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  overflow: hidden;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sub {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.play {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  font-weight: 800;
+  color: var(--accent-ink);
+  background: var(--accent);
+  border: none;
+  border-radius: 50%;
+}
+
+.play:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.bar {
+  height: 5px;
+  overflow: hidden;
+  background: #05070a;
+  border-radius: 3px;
+}
+
+.bar i {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}

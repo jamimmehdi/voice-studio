@@ -1,0 +1,17 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.select {
+  padding: 7px 8px;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--raised);
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+}

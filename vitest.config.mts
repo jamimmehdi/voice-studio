@@ -14,13 +14,29 @@ export default defineConfig({
   },
   test: {
     globals: true,
-    include: ['tests/**/*.test.{ts,tsx}'],
-    environmentMatchGlobs: [['tests/renderer/**', 'jsdom']],
-    setupFiles: ['tests/setup.ts'],
     coverage: {
       provider: 'v8',
       include: ['src/engine/**', 'src/shared/**', 'src/main/**', 'src/renderer/**'],
-      exclude: ['src/**/*.d.ts', 'src/renderer/**/*.module.css'],
+      exclude: ['src/**/*.d.ts', 'src/**/main.tsx', 'src/main/index.ts', 'src/main/app.ts', 'src/preload/**'],
     },
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'node',
+          environment: 'node',
+          include: ['tests/engine/**/*.test.ts', 'tests/main/**/*.test.ts', 'tests/shared/**/*.test.ts'],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'dom',
+          environment: 'jsdom',
+          include: ['tests/renderer/**/*.test.{ts,tsx}'],
+          setupFiles: ['tests/setup.ts'],
+        },
+      },
+    ],
   },
 });

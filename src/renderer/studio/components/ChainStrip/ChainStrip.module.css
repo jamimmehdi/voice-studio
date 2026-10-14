@@ -1,0 +1,45 @@
+.wrap {
+  flex: none;
+  padding: 18px 24px 4px;
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.sub {
+  font-size: 12px;
+  color: var(--dim);
+}
+
+.strip {
+  display: flex;
+  align-items: stretch;
+  padding-bottom: 6px;
+}
+
+.cell {
+  display: flex;
+  align-items: stretch;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.chevron {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+}
