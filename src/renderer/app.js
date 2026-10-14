@@ -33,6 +33,7 @@ const state = {
   monitor: { on: false, vol: 0.8 },
   ns: false, agc: false,
   music: { vol: 60, duck: true, loop: false },
+  buffer: 'balanced',
   v: 2,
   preset: 'Female – Natural',
 };
@@ -47,6 +48,7 @@ function loadState() {
       Object.assign(state.monitor, s.monitor || {});
       state.ns = !!s.ns; state.agc = !!s.agc;
       Object.assign(state.music, s.music || {});
+      if (s.buffer) state.buffer = s.buffer;
       state.preset = s.preset || state.preset;
       return true;
     }
@@ -266,6 +268,7 @@ const grBars = {}; // key -> {fill, txt}
 function makeCard(key, title, sub, hasGR) {
   const card = document.createElement('section');
   card.className = 'card';
+  card.dataset.mod = key;
   const head = document.createElement('header');
   head.innerHTML = `<h3>${title}</h3><small>${sub}</small>`;
   const sw = makeSwitch(() => state.params[key].on, (v) => { state.params[key].on = v; }, sync);
@@ -373,7 +376,6 @@ function buildChain() {
       grid.appendChild(b);
     }
     body.appendChild(grid); body.firstChild.classList.add('wide');
-    card.style.gridColumn = 'span 2';
     chain.appendChild(card);
   }
 
@@ -485,7 +487,8 @@ async function startEngine() {
   try {
     const src = await window.studio.dspSource();
     const url = URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
-    const ctx = new AudioContext({ latencyHint: 'interactive' });
+    const hint = { low: 'interactive', balanced: 'balanced', safe: 'playback' }[state.buffer] || 'balanced';
+    const ctx = new AudioContext({ latencyHint: hint });
     if (state.dev.out !== 'default' && ctx.setSinkId) await ctx.setSinkId(state.dev.out);
     await ctx.audioWorklet.addModule(url);
     URL.revokeObjectURL(url);
@@ -787,6 +790,8 @@ async function init() {
   fillPresetSelect();
   $('presetSelect').value = state.preset || $('presetSelect').value;
 
+  $('selBuffer').value = state.buffer;
+  $('selBuffer').addEventListener('change', (e) => { state.buffer = e.target.value; saveState(); restartEngine(); });
   $('chkMonitor').checked = state.monitor.on;
   $('rngMon').value = state.monitor.vol;
   $('chkNs').checked = state.ns; $('chkAgc').checked = state.agc;

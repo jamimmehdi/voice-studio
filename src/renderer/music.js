@@ -143,7 +143,7 @@ function musicUpdateUi() {
 function buildMusic(chain) {
   const card = document.createElement('section');
   card.className = 'card music';
-  card.style.gridColumn = 'span 2';
+  card.dataset.mod = 'music';
   const head = document.createElement('header');
   head.innerHTML = '<h3>Music player</h3><small>plays through your mic – teammates hear it too</small>';
   card.appendChild(head);

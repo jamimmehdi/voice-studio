@@ -173,3 +173,41 @@ label.inline { display: flex !important; align-items: center; gap: 6px; color: v
 .about ul { text-align: left; padding-left: 18px; margin: 0 0 10px; }
 .small { font-size: 12px; }
 .sheet a { color: var(--accent); }
+
+/* ---- layout v2: fixed 12-column studio grid ---- */
+.chain { grid-template-columns: repeat(12, minmax(0, 1fr)); align-items: stretch; }
+.chain > .card { min-width: 0; grid-column: span 4; }
+.card[data-mod="voice"]  { grid-column: span 5; }
+.card[data-mod="hpf"]    { grid-column: span 2; }
+.card[data-mod="exp"]    { grid-column: span 5; }
+.card[data-mod="deess"]  { grid-column: span 5; }
+.card[data-mod="eq"]     { grid-column: span 7; }
+.card[data-mod="comp"]   { grid-column: span 4; }
+.card[data-mod="lim"]    { grid-column: span 2; }
+.card[data-mod="music"]  { grid-column: span 6; }
+@media (max-width: 1240px) {
+  .chain { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .chain > .card, .card[data-mod] { grid-column: span 3; }
+  .card[data-mod="eq"], .card[data-mod="music"] { grid-column: span 6; }
+}
+
+/* tidy card headers: one line, subtitle truncates, GR meter keeps its size */
+.card header { flex-wrap: nowrap; min-width: 0; }
+.card header h3 { white-space: nowrap; flex: none; }
+.card header small { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.card header .grmeter { flex: none; width: 64px; margin-left: 0; }
+.card header .grtxt { flex: none; width: 40px; }
+.card .body { gap: 10px 8px; }
+
+/* EQ: roomier bands */
+.eqgrid { gap: 8px; }
+.eqband { padding: 8px 4px 6px; }
+.eqband .knob svg { width: 44px; height: 44px; }
+
+/* music card: never overflow */
+.musicbody { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.mleft, .mright { min-width: 0; }
+.mtitle { max-width: 100%; }
+.plist { height: 150px; }
+.track { padding-right: 30px; }
+.urlbox { min-width: 0; }

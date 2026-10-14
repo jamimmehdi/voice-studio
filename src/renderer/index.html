@@ -54,6 +54,14 @@
         <div id="cableStatus" class="hint"></div>
         <button id="btnInstallCable" class="chip primary full" hidden>Install virtual microphone (VB-CABLE)</button>
       </div>
+      <div class="field">
+        <label for="selBuffer">Audio buffer <span class="muted">(raise it if you hear crackling)</span></label>
+        <select id="selBuffer">
+          <option value="low">Low latency</option>
+          <option value="balanced">Balanced (recommended)</option>
+          <option value="safe">Safe – fewest glitches</option>
+        </select>
+      </div>
       <div class="field monitor">
         <label class="inline"><input type="checkbox" id="chkMonitor"> Monitor in my headphones</label>
         <select id="selMon"></select>
