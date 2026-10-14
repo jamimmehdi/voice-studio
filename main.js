@@ -8,6 +8,7 @@ const fs = require('fs');
 const os = require('os');
 const https = require('https');
 const { execFile } = require('child_process');
+const overlay = require('./overlay');
 
 const YTDLP_URL = 'https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe';
 const VBCABLE_PAGE = 'https://vb-audio.com/Cable/';
@@ -183,6 +184,7 @@ function createWindow() {
     return { action: 'deny' };
   });
   win.loadFile(path.join(__dirname, 'src', 'renderer', 'index.html'));
+  overlay.attachMain(win);
   setupUpdater(win);
   return win;
 }
@@ -191,10 +193,7 @@ const gotLock = app.requestSingleInstanceLock();
 if (!gotLock) {
   app.quit();
 } else {
-  app.on('second-instance', () => {
-    const w = BrowserWindow.getAllWindows()[0];
-    if (w) { if (w.isMinimized()) w.restore(); w.focus(); }
-  });
+  app.on('second-instance', () => { overlay.showMain(); });
 
   app.whenReady().then(() => {
     // only the microphone / audio output selection is needed
@@ -260,7 +259,8 @@ if (!gotLock) {
     });
 
     createWindow();
-    app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });
+    overlay.init();
+    app.on('activate', () => overlay.showMain());
   });
 
   app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });

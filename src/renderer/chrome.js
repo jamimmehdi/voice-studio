@@ -40,6 +40,44 @@
     }
   });
 
+  /* compact mode shortcut + quit */
+  const scBtn = $('btnShortcut'), scMsg = $('shortcutMsg');
+  api.settings.get().then((s) => { if (s && s.shortcutLabel) scBtn.textContent = s.shortcutLabel; }).catch(() => {});
+  const keyName = (e) => {
+    const c = e.code;
+    if (/^Key[A-Z]$/.test(c)) return c.slice(3);
+    if (/^Digit[0-9]$/.test(c)) return c.slice(5);
+    if (/^F([1-9]|1[0-9]|2[0-4])$/.test(c)) return c;
+    const map = { Space: 'Space', Enter: 'Enter', Tab: 'Tab', Backquote: '`', Minus: '-', Equal: '=', Comma: ',', Period: '.',
+      Slash: '/', Semicolon: ';', Quote: "'", BracketLeft: '[', BracketRight: ']', Backslash: '\\', Insert: 'Insert',
+      Delete: 'Delete', Home: 'Home', End: 'End', PageUp: 'PageUp', PageDown: 'PageDown', ArrowUp: 'Up', ArrowDown: 'Down',
+      ArrowLeft: 'Left', ArrowRight: 'Right' };
+    return map[c] || null;
+  };
+  let capturing = false;
+  const stopCapture = () => { capturing = false; scBtn.classList.remove('capturing'); };
+  scBtn.addEventListener('click', () => {
+    capturing = true; scBtn.classList.add('capturing'); scBtn.textContent = 'Press the new shortcut…';
+    scMsg.textContent = 'Use at least one of Ctrl / Alt / Shift. Press Esc to cancel.';
+  });
+  window.addEventListener('keydown', async (e) => {
+    if (!capturing) return;
+    e.preventDefault();
+    if (e.key === 'Escape') { stopCapture(); const s = await api.settings.get(); scBtn.textContent = s.shortcutLabel; scMsg.textContent = ''; return; }
+    if (['Control', 'Alt', 'Shift', 'Meta'].includes(e.key)) return;
+    const k = keyName(e);
+    const mods = [e.ctrlKey && 'Control', e.altKey && 'Alt', e.shiftKey && 'Shift', e.metaKey && 'Super'].filter(Boolean);
+    if (!k || !mods.length) { scMsg.textContent = 'Please include Ctrl, Alt or Shift together with a key.'; return; }
+    stopCapture();
+    const r = await api.settings.setShortcut([...mods, k].join('+'));
+    const s = await api.settings.get();
+    scBtn.textContent = s.shortcutLabel;
+    scMsg.style.color = r.ok ? 'var(--ok)' : 'var(--warn)';
+    scMsg.textContent = r.ok ? 'Shortcut saved.' : r.error;
+  }, true);
+  $('btnOpenCompact').addEventListener('click', () => api.openCompact());
+  $('btnQuit').addEventListener('click', () => api.quitApp());
+
   /* updater: a chip in the header (same look as the design board) */
   const chip = $('btnUpdate');
   let state = 'idle';

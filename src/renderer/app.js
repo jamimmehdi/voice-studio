@@ -307,7 +307,7 @@ function pushParams() {
   saveState();
   if (!pushQueued) {
     pushQueued = true;
-    requestAnimationFrame(() => {
+    (document.hidden ? (fn) => setTimeout(fn, 0) : requestAnimationFrame)(() => {
       pushQueued = false;
       if (engine.node) engine.node.port.postMessage({ type: 'params', params: state.params });
       drawScope();

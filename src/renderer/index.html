@@ -183,6 +183,17 @@
       <button class="btn" data-ext="https://github.com/jamimmehdi/voice-studio/releases">Releases</button>
     </div>
     <div id="aboutUpdateMsg" class="muted small"></div>
+    <h3>Compact mode</h3>
+    <div class="settingsrow">
+      <span class="small muted">Shortcut to show / shrink the compact panel</span>
+      <button class="btn" id="btnShortcut" title="Click, then press the new key combination">Ctrl + Alt + V</button>
+    </div>
+    <div id="shortcutMsg" class="small muted"></div>
+    <div class="aboutbtns">
+      <button class="btn" id="btnOpenCompact">Open compact panel</button>
+      <button class="btn" id="btnQuit">Quit Voice Studio</button>
+    </div>
+    <p class="muted small">Closing or minimising the window keeps Voice Studio running in the system tray.</p>
     <h3>Credits</h3>
     <ul class="small">
       <li><b>VB-CABLE</b> virtual audio driver by Vincent Burel / VB-Audio (donationware) –
@@ -222,5 +233,6 @@
 <script src="ui.js"></script>
 <script src="app.js"></script>
 <script src="chrome.js"></script>
+<script src="remote.js"></script>
 </body>
 </html>

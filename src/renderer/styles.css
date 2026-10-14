@@ -322,3 +322,7 @@ body.show-music .dock { display: flex; }
 
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb { background: #2a303b; border-radius: 5px; }
+
+/* settings rows in About */
+.settingsrow { display: flex; align-items: center; justify-content: space-between; gap: 12px; text-align: left; }
+.btn.capturing { border-color: var(--accent); color: var(--accent); }

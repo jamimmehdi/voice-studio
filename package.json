@@ -52,7 +52,9 @@
     },
     "files": [
       "main.js",
+      "overlay.js",
       "preload.js",
+      "preload-quick.js",
       "src/**/*",
       "build/icon.png",
       "package.json"

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; script-src 'self';">
+  <title>Voice Studio – Compact</title>
+  <link rel="stylesheet" href="quick.css">
+</head>
+<body>
+<div class="q">
+  <header class="qhead">
+    <div class="logotile">
+      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11v2M8 8v8M12 4v16M16 8v8M20 11v2" stroke="#5eead4" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg>
+    </div>
+    <div class="qtitle">Voice Studio</div>
+    <button id="btnStudio" class="qbtn" title="Open the full studio">Full studio ⤢</button>
+    <button id="btnIcon" class="qbtn sq" title="Shrink to a floating icon" aria-label="Shrink to a floating icon">—</button>
+    <button id="btnHide" class="qbtn sq" title="Hide (keeps running in the tray)" aria-label="Hide">×</button>
+  </header>
+
+  <section class="card livecard">
+    <button id="liveBtn" class="livebtn" aria-label="Start or stop the engine">
+      <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v9M7 6.5a8 8 0 1 0 10 0" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>
+    </button>
+    <div class="livetext">
+      <div id="liveText" class="livestate">OFFLINE</div>
+      <div id="presetName" class="presetname">–</div>
+      <div id="stats" class="mono stats"></div>
+    </div>
+    <div class="micmeter">
+      <div class="vm"><i id="meterFill"></i></div>
+      <span>MIC</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Voice</div>
+    <div id="chips" class="chips"></div>
+  </section>
+
+  <section class="card tune">
+    <div>
+      <div class="trow"><span>Pitch · deeper ↔ higher</span><span id="pitchVal" class="mono">+0.0 st</span></div>
+      <input id="pitch" type="range" min="-12" max="12" step="0.1" value="0" aria-label="Pitch">
+    </div>
+    <div>
+      <div class="trow"><span>Formant · larger ↔ smaller throat</span><span id="formantVal" class="mono">+0.0 st</span></div>
+      <input id="formant" type="range" min="-12" max="12" step="0.1" value="0" aria-label="Formant">
+    </div>
+  </section>
+
+  <section class="toggles">
+    <button id="tMonitor" class="tgl"><b>Hear myself</b><span>Off</span></button>
+    <button id="tBypass" class="tgl"><b>Bypass</b><span>Off</span></button>
+    <button id="tGate" class="tgl"><b>Noise gate</b><span>On</span></button>
+  </section>
+
+  <section class="card player">
+    <div class="prow">
+      <div class="cover"></div>
+      <div class="pinfo">
+        <div id="trackTitle" class="ptitle">No music loaded</div>
+        <div class="psub">Teammates hear this · ducks when you talk</div>
+      </div>
+      <button id="playBtn" class="playbtn" aria-label="Play or pause" disabled>▶</button>
+    </div>
+    <div class="pbar"><i id="progress"></i></div>
+  </section>
+</div>
+<script src="quick.js"></script>
+</body>
+</html>
