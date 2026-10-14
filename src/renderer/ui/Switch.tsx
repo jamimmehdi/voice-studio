@@ -11,7 +11,14 @@ export interface SwitchProps {
 }
 
 /** Toggle switch rendered as a real `<button role="switch">` so it is keyboard and screen-reader friendly. */
-export function Switch({ checked, onChange, label, size = 'md', disabled, className }: SwitchProps): React.ReactElement {
+export function Switch({
+  checked,
+  onChange,
+  label,
+  size = 'md',
+  disabled,
+  className,
+}: SwitchProps): React.ReactElement {
   return (
     <button
       type="button"

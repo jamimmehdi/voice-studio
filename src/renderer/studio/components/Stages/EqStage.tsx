@@ -20,11 +20,47 @@ export function EqStage(): React.ReactElement {
           <div className={styles.band} key={BAND_NAMES[i]} data-band={i}>
             <div className={styles.bandHead}>
               <span>{BAND_NAMES[i]}</span>
-              <Switch size="xs" label={`${BAND_NAMES[i]} on/off`} checked={band.on} onChange={(on) => setEqBand(i, { on })} />
+              <Switch
+                size="xs"
+                label={`${BAND_NAMES[i]} on/off`}
+                checked={band.on}
+                onChange={(on) => setEqBand(i, { on })}
+              />
             </div>
-            <Knob compact label="FREQ" min={20} max={20000} log unit=" Hz" value={band.freq} defaultValue={DEFAULT_FREQ[i]!} onChange={(v) => setEqBand(i, { freq: v })} />
-            <Knob compact label="GAIN" min={-18} max={18} step={0.1} unit=" dB" value={band.gain} defaultValue={0} onChange={(v) => setEqBand(i, { gain: v })} />
-            <Knob compact label="Q" min={0.3} max={8} log unit="" dec={2} value={band.q} defaultValue={i === 0 || i === 5 ? 0.7 : 1} onChange={(v) => setEqBand(i, { q: v })} />
+            <Knob
+              compact
+              label="FREQ"
+              min={20}
+              max={20000}
+              log
+              unit=" Hz"
+              value={band.freq}
+              defaultValue={DEFAULT_FREQ[i]!}
+              onChange={(v) => setEqBand(i, { freq: v })}
+            />
+            <Knob
+              compact
+              label="GAIN"
+              min={-18}
+              max={18}
+              step={0.1}
+              unit=" dB"
+              value={band.gain}
+              defaultValue={0}
+              onChange={(v) => setEqBand(i, { gain: v })}
+            />
+            <Knob
+              compact
+              label="Q"
+              min={0.3}
+              max={8}
+              log
+              unit=""
+              dec={2}
+              value={band.q}
+              defaultValue={i === 0 || i === 5 ? 0.7 : 1}
+              onChange={(v) => setEqBand(i, { q: v })}
+            />
           </div>
         ))}
       </div>

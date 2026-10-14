@@ -12,8 +12,21 @@ import type { MeterHub } from './meter-hub';
 
 type EnginePort = Pick<
   AudioEngine,
-  | 'start' | 'stop' | 'running' | 'setParams' | 'setMonitor' | 'setMonitorDevice' | 'setOutputDevice'
-  | 'startRecording' | 'stopRecording' | 'musicBus' | 'meters' | 'latencyMs' | 'events' | 'isRecording' | 'context'
+  | 'start'
+  | 'stop'
+  | 'running'
+  | 'setParams'
+  | 'setMonitor'
+  | 'setMonitorDevice'
+  | 'setOutputDevice'
+  | 'startRecording'
+  | 'stopRecording'
+  | 'musicBus'
+  | 'meters'
+  | 'latencyMs'
+  | 'events'
+  | 'isRecording'
+  | 'context'
 >;
 type PlayerPort = Pick<MusicPlayer, 'addBuffer' | 'pause' | 'loop'>;
 type ApiPort = Pick<StudioApi, 'dspSource' | 'ytFetch' | 'saveFile' | 'installVbCable'>;
@@ -28,7 +41,11 @@ export interface ControllerDeps {
   now?: () => number;
 }
 
-const LATENCY_HINT: Record<BufferMode, LatencyHint> = { low: 'interactive', balanced: 'balanced', safe: 'playback' };
+const LATENCY_HINT: Record<BufferMode, LatencyHint> = {
+  low: 'interactive',
+  balanced: 'balanced',
+  safe: 'playback',
+};
 
 const errorText = (e: unknown): string => (e instanceof Error ? e.message : String(e));
 

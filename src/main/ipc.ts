@@ -44,7 +44,10 @@ export function registerIpc(deps: IpcDeps): void {
 
   ipcMain.handle(
     IPC.fileSave,
-    async (_e, args: { name: string; data: ArrayBuffer; filters: SaveFileFilter[] }): Promise<string | null> => {
+    async (
+      _e,
+      args: { name: string; data: ArrayBuffer; filters: SaveFileFilter[] },
+    ): Promise<string | null> => {
       const res = await dialog.showSaveDialog({ defaultPath: args.name, filters: args.filters });
       if (res.canceled || !res.filePath) return null;
       writeFileSync(res.filePath, Buffer.from(args.data));

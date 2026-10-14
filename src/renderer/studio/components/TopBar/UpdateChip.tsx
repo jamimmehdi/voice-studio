@@ -12,7 +12,11 @@ export function UpdateChip(): React.ReactElement | null {
       return null;
     case 'available':
       return (
-        <Button variant="update" title={update.info.notes.split('\n')[0] || 'A new version is available'} onClick={() => void startUpdateDownload(api, store)}>
+        <Button
+          variant="update"
+          title={update.info.notes.split('\n')[0] || 'A new version is available'}
+          onClick={() => void startUpdateDownload(api, store)}
+        >
           ↑ Update {update.info.version}
         </Button>
       );

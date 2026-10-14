@@ -27,7 +27,8 @@ export function wireUpdates(api: UpdateApi, store: StudioStoreApi): () => void {
 /** Click on "Update": start the download and surface a failed request. */
 export async function startUpdateDownload(api: UpdateApi, store: StudioStoreApi): Promise<void> {
   const current = store.getState().update;
-  const info = current.phase === 'available' ? current.info : current.phase === 'failed' ? current.info : null;
+  const info =
+    current.phase === 'available' ? current.info : current.phase === 'failed' ? current.info : null;
   store.getState().setUpdate({ phase: 'downloading', percent: 0 });
   const result = await api.update.download();
   if (!result.ok) store.getState().setUpdate({ phase: 'failed', message: result.error, info });

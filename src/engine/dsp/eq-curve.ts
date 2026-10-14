@@ -5,7 +5,11 @@ import { biquadCoeffs, biquadMagnitudeDb } from './biquad';
  * Combined magnitude response (dB) of the high-pass filter and the EQ bands at `freq`.
  * Pure function used by the live graph; mirrors what the worklet actually applies.
  */
-export function eqCurveDb(params: Pick<StudioParams, 'hpf' | 'eq'>, freq: number, sampleRate: number): number {
+export function eqCurveDb(
+  params: Pick<StudioParams, 'hpf' | 'eq'>,
+  freq: number,
+  sampleRate: number,
+): number {
   let db = 0;
   const { hpf, eq } = params;
   if (hpf.on) {

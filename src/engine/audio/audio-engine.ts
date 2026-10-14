@@ -132,7 +132,11 @@ export class AudioEngine {
       const monitorEl = new Audio();
       monitorEl.srcObject = monitorDest.stream;
       if (opts.monitorDeviceId !== 'default') {
-        try { await setSink(monitorEl, opts.monitorDeviceId); } catch { /* keep the default device */ }
+        try {
+          await setSink(monitorEl, opts.monitorDeviceId);
+        } catch {
+          /* keep the default device */
+        }
       }
       await monitorEl.play();
 
@@ -168,7 +172,11 @@ export class AudioEngine {
     this.stream?.getTracks().forEach((t) => t.stop());
     this.monitorElement?.pause();
     this.bus?.dispose();
-    try { this.node?.disconnect(); } catch { /* already disconnected */ }
+    try {
+      this.node?.disconnect();
+    } catch {
+      /* already disconnected */
+    }
     this.reset();
     await ctx.close().catch(() => undefined);
     this.events.emit('musicBus', null);

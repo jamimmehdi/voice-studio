@@ -18,7 +18,9 @@ const PACK_URL = /https:\/\/download\.vb-audio\.com\/Download_CABLE\/VBCABLE_Dri
 
 /** Picks the newest `VBCABLE_Driver_PackNN.zip` link from the vendor page. */
 export function findLatestPackUrl(html: string): string | null {
-  const found = [...html.matchAll(PACK_URL)].map((m) => ({ url: m[0], n: Number(m[1]) })).sort((a, b) => b.n - a.n);
+  const found = [...html.matchAll(PACK_URL)]
+    .map((m) => ({ url: m[0], n: Number(m[1]) }))
+    .sort((a, b) => b.n - a.n);
   return found[0]?.url ?? null;
 }
 
@@ -64,14 +66,17 @@ export class VbCableInstaller {
       await this.download(url, zip);
 
       const out = join(dir, 'pkg');
-      await this.powershell(`Expand-Archive -LiteralPath ${psQuote(zip)} -DestinationPath ${psQuote(out)} -Force`);
+      await this.powershell(
+        `Expand-Archive -LiteralPath ${psQuote(zip)} -DestinationPath ${psQuote(out)} -Force`,
+      );
       const setup = join(out, 'VBCABLE_Setup_x64.exe');
       if (!this.fileExists(setup)) throw new Error('Setup file missing in the VB-CABLE package');
 
       const sig = await this.powershell(
         `$s = Get-AuthenticodeSignature -LiteralPath ${psQuote(setup)}; "$($s.Status)|$($s.SignerCertificate.Subject)"`,
       );
-      if (!isTrustedSignature(sig)) throw new Error('The downloaded installer signature could not be verified.');
+      if (!isTrustedSignature(sig))
+        throw new Error('The downloaded installer signature could not be verified.');
 
       // Windows shows its administrator prompt for the vendor's own installer
       await this.powershell(`Start-Process -FilePath ${psQuote(setup)} -Verb RunAs`);

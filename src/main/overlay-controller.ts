@@ -1,5 +1,12 @@
 import type { QuickState } from '@shared/protocols';
-import { clampToArea, defaultIconPosition, defaultPanelPosition, type Point, type Rect, type Size } from './geometry';
+import {
+  clampToArea,
+  defaultIconPosition,
+  defaultPanelPosition,
+  type Point,
+  type Rect,
+  type Size,
+} from './geometry';
 import type { SettingsStore } from './settings-store';
 
 /** What the controller needs from a compact window; implemented by Electron windows and by test doubles. */

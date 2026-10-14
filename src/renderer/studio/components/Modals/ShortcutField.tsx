@@ -48,7 +48,15 @@ export function ShortcutField(): React.ReactElement {
     <div>
       <div className={styles.row}>
         <span className={`${styles.small} ${styles.muted}`}>Shortcut to show / shrink the compact panel</span>
-        <Button onClick={() => { setCapturing(true); setMessage({ ok: true, text: 'Press the new shortcut (Ctrl / Alt / Shift + a key). Esc cancels.' }); }}>
+        <Button
+          onClick={() => {
+            setCapturing(true);
+            setMessage({
+              ok: true,
+              text: 'Press the new shortcut (Ctrl / Alt / Shift + a key). Esc cancels.',
+            });
+          }}
+        >
           {capturing ? 'Press the new shortcut…' : label}
         </Button>
       </div>

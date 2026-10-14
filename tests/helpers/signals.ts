@@ -15,7 +15,11 @@ export function sine(freq: number, seconds: number, amp = 0.5, fs = FS): Float32
 export function vowel(f0: number, seconds: number, amp = 0.12, fs = FS): Float32Array {
   const n = Math.round(seconds * fs);
   const out = new Float32Array(n);
-  const formants: Array<[number, number]> = [[700, 90], [1200, 110], [2600, 160]];
+  const formants: Array<[number, number]> = [
+    [700, 90],
+    [1200, 110],
+    [2600, 160],
+  ];
   for (let h = 1; h * f0 < 6000; h++) {
     let g = 0;
     for (const [fc, bw] of formants) g += 1 / (1 + Math.pow((h * f0 - fc) / bw, 2));
@@ -99,7 +103,8 @@ export function fundamental(x: Float32Array, from: number, length = 9600, fs = F
   }
   // first lag that is (nearly) as good as the best one avoids octave-down errors
   for (let lag = minLag; lag <= maxLag; lag++) {
-    if (corr[lag]! >= 0.9 * best && corr[lag]! >= corr[lag - 1]! && corr[lag]! >= corr[lag + 1]!) return fs / lag;
+    if (corr[lag]! >= 0.9 * best && corr[lag]! >= corr[lag - 1]! && corr[lag]! >= corr[lag + 1]!)
+      return fs / lag;
   }
   return 0;
 }

@@ -13,9 +13,19 @@ export interface CardProps {
 }
 
 /** Rounded panel with the small-caps heading used throughout the studio. */
-export function Card({ title, aside, children, className, padding = 'normal', label }: CardProps): React.ReactElement {
+export function Card({
+  title,
+  aside,
+  children,
+  className,
+  padding = 'normal',
+  label,
+}: CardProps): React.ReactElement {
   return (
-    <section className={`${styles.card} ${padding === 'roomy' ? styles.roomy : ''} ${className ?? ''}`} aria-label={label ?? title}>
+    <section
+      className={`${styles.card} ${padding === 'roomy' ? styles.roomy : ''} ${className ?? ''}`}
+      aria-label={label ?? title}
+    >
       {title && (
         <div className={aside ? styles.headRow : undefined}>
           <h2 className={styles.title}>{title}</h2>

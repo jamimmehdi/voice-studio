@@ -21,7 +21,9 @@ export function LivePill(): React.ReactElement {
     >
       <span className={styles.dot} />
       <span>{label}</span>
-      {running && <span className={`${styles.stats} mono`}>{formatEngineStats(stats.latencyMs, stats.dropouts)}</span>}
+      {running && (
+        <span className={`${styles.stats} mono`}>{formatEngineStats(stats.latencyMs, stats.dropouts)}</span>
+      )}
     </button>
   );
 }

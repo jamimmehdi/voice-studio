@@ -23,7 +23,13 @@ export function TopBar(): React.ReactElement {
       <MusicSwitch />
       <BypassButton />
       <UpdateChip />
-      <Button variant="ghost" icon aria-label="About Voice Studio" title="About Voice Studio" onClick={() => setModal('about')}>
+      <Button
+        variant="ghost"
+        icon
+        aria-label="About Voice Studio"
+        title="About Voice Studio"
+        onClick={() => setModal('about')}
+      >
         i
       </Button>
     </header>

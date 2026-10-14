@@ -63,17 +63,17 @@
     "playwright-core": "^1.64.1",
     "png-to-ico": "^3.0.2",
     "prettier": "^3.9.10",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "sharp": "^0.35.5",
     "typescript": "~5.9",
     "typescript-eslint": "^8.71.2",
     "vite": "^8.3.4",
-    "vitest": "^5.0.4"
+    "vitest": "^5.0.4",
+    "zustand": "^5.0.15"
   },
   "dependencies": {
-    "electron-updater": "^6.8.9",
-    "react": "^19.3.1",
-    "react-dom": "^19.3.1",
-    "zustand": "^5.0.15"
+    "electron-updater": "^6.8.9"
   },
   "build": {
     "appId": "com.voicestudio.app",

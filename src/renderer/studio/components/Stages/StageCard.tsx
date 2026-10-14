@@ -15,8 +15,17 @@ interface StageCardProps {
 }
 
 /** Frame shared by every stage editor: title, description, on/off switch and a body that dims when off. */
-export function StageCard({ title, description, module, headerAside, children }: StageCardProps): React.ReactElement {
-  const { on, toggle } = useStudio((s) => ({ on: module ? s.params[module].on : true, toggle: s.toggleModule }));
+export function StageCard({
+  title,
+  description,
+  module,
+  headerAside,
+  children,
+}: StageCardProps): React.ReactElement {
+  const { on, toggle } = useStudio((s) => ({
+    on: module ? s.params[module].on : true,
+    toggle: s.toggleModule,
+  }));
   return (
     <section className={styles.card} aria-label={title}>
       <div className={styles.head}>

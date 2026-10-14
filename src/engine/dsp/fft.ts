@@ -9,7 +9,8 @@ export class FFT {
   private readonly rev: Uint32Array;
 
   constructor(size: number) {
-    if (size < 2 || (size & (size - 1)) !== 0) throw new RangeError(`FFT size must be a power of two, got ${size}`);
+    if (size < 2 || (size & (size - 1)) !== 0)
+      throw new RangeError(`FFT size must be a power of two, got ${size}`);
     this.size = size;
     this.levels = Math.round(Math.log2(size));
     this.cos = new Float64Array(size / 2);
@@ -32,8 +33,12 @@ export class FFT {
     for (let i = 0; i < n; i++) {
       const j = rev[i]!;
       if (j > i) {
-        let t = re[i]!; re[i] = re[j]!; re[j] = t;
-        t = im[i]!; im[i] = im[j]!; im[j] = t;
+        let t = re[i]!;
+        re[i] = re[j]!;
+        re[j] = t;
+        t = im[i]!;
+        im[i] = im[j]!;
+        im[j] = t;
       }
     }
     for (let size = 2; size <= n; size <<= 1) {

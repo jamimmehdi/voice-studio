@@ -16,12 +16,17 @@ export class Compressor {
   private makeup = 1;
   private mix = 1;
 
-  constructor(private readonly sampleRate: number, params?: CompressorParams) {
+  constructor(
+    private readonly sampleRate: number,
+    params?: CompressorParams,
+  ) {
     this.peakRelease = smoothingCoef(5, sampleRate);
     if (params) this.set(params);
   }
 
-  set(p: Pick<CompressorParams, 'thresh' | 'ratio' | 'attack' | 'release' | 'knee' | 'makeup' | 'mix'>): void {
+  set(
+    p: Pick<CompressorParams, 'thresh' | 'ratio' | 'attack' | 'release' | 'knee' | 'makeup' | 'mix'>,
+  ): void {
     this.thresh = p.thresh;
     this.ratio = p.ratio;
     this.knee = Math.max(p.knee, 0.01);

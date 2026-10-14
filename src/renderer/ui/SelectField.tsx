@@ -15,7 +15,11 @@ export interface SelectFieldProps<V extends string | number> {
 
 /** Small labelled `<select>` (label above, like the knob labels). */
 export function SelectField<V extends string | number>({
-  label, value, options, onChange, className,
+  label,
+  value,
+  options,
+  onChange,
+  className,
 }: SelectFieldProps<V>): React.ReactElement {
   return (
     <label className={`${styles.field} ${className ?? ''}`}>

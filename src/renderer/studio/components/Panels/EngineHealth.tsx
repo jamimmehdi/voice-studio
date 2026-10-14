@@ -8,7 +8,9 @@ const QUALITY_NAME: Record<number, string> = { 512: 'Fast', 1024: 'Balanced', 20
 /** Latency, dropouts, quality, sample rate and the audio buffer size. */
 export function EngineHealth(): React.ReactElement {
   const { engine, quality, buffer } = useStudio((s) => ({
-    engine: s.engine, quality: s.params.voice.quality, buffer: s.buffer,
+    engine: s.engine,
+    quality: s.params.voice.quality,
+    buffer: s.buffer,
   }));
   const controller = useController();
   const stats = useEngineStats();
@@ -37,7 +39,9 @@ export function EngineHealth(): React.ReactElement {
         </div>
         <div className={styles.box}>
           <div className={styles.key}>Sample rate</div>
-          <div className={`${styles.value} mono`}>{running && stats.sampleRate ? `${(stats.sampleRate / 1000).toFixed(1)} kHz` : dash}</div>
+          <div className={`${styles.value} mono`}>
+            {running && stats.sampleRate ? `${(stats.sampleRate / 1000).toFixed(1)} kHz` : dash}
+          </div>
         </div>
       </div>
       <div className={styles.buffer}>

@@ -25,7 +25,13 @@ export default defineConfig({
         test: {
           name: 'node',
           environment: 'node',
-          include: ['tests/engine/**/*.test.ts', 'tests/main/**/*.test.ts', 'tests/shared/**/*.test.ts'],
+          include: [
+            'tests/engine/**/*.test.ts',
+            'tests/main/**/*.test.ts',
+            'tests/shared/**/*.test.ts',
+            'tests/renderer/lib/**/*.test.ts',
+            'tests/renderer/runtime/**/*.test.ts',
+          ],
         },
       },
       {
@@ -33,7 +39,7 @@ export default defineConfig({
         test: {
           name: 'dom',
           environment: 'jsdom',
-          include: ['tests/renderer/**/*.test.{ts,tsx}'],
+          include: ['tests/renderer/**/*.test.tsx'],
           setupFiles: ['tests/setup.ts'],
         },
       },

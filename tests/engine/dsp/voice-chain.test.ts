@@ -1,7 +1,19 @@
 import { eqCurveDb } from '@engine/dsp/eq-curve';
 import { VoiceChain } from '@engine/dsp/voice-chain';
 import { createDefaultParams } from '@shared/params';
-import { chainWith, flatParams, fundamental, FS, noise, peak, rms, runChain, sine, toDb, vowel } from '../../helpers/signals';
+import {
+  chainWith,
+  flatParams,
+  fundamental,
+  FS,
+  noise,
+  peak,
+  rms,
+  runChain,
+  sine,
+  toDb,
+  vowel,
+} from '../../helpers/signals';
 
 describe('VoiceChain', () => {
   it('is transparent when every module is off', () => {
@@ -11,7 +23,9 @@ describe('VoiceChain', () => {
   });
 
   it('high-pass removes 40 Hz and keeps 1 kHz', () => {
-    const p = flatParams((x) => { x.hpf = { on: true, freq: 100, slope: 24 }; });
+    const p = flatParams((x) => {
+      x.hpf = { on: true, freq: 100, slope: 24 };
+    });
     const low = runChain(chainWith(p), sine(40, 1, 0.5));
     const high = runChain(chainWith(p), sine(1000, 1, 0.5));
     expect(rms(low, 20000)).toBeLessThan(0.5 * 0.7071 * 0.1);
@@ -20,33 +34,44 @@ describe('VoiceChain', () => {
 
   it('the 12 dB slope is gentler than the 24 dB slope', () => {
     const run = (slope: 12 | 24): number => {
-      const p = flatParams((x) => { x.hpf = { on: true, freq: 200, slope }; });
+      const p = flatParams((x) => {
+        x.hpf = { on: true, freq: 200, slope };
+      });
       return rms(runChain(chainWith(p), sine(100, 1, 0.5)), 20000);
     };
     expect(run(12)).toBeGreaterThan(run(24));
   });
 
   it('pitch shifting through the chain moves the fundamental', () => {
-    const p = flatParams((x) => { x.voice = { ...x.voice, on: true, pitch: 12, formant: 12, mix: 100 }; });
+    const p = flatParams((x) => {
+      x.voice = { ...x.voice, on: true, pitch: 12, formant: 12, mix: 100 };
+    });
     const out = runChain(chainWith(p), vowel(150, 1.5));
     expect(Math.abs(fundamental(out, 40000) - 300)).toBeLessThan(6);
   });
 
   it('the limiter holds the ceiling for a hot signal', () => {
-    const p = flatParams((x) => { x.lim = { on: true, ceiling: -6, release: 80 }; });
+    const p = flatParams((x) => {
+      x.lim = { on: true, ceiling: -6, release: 80 };
+    });
     const out = runChain(chainWith(p), sine(330, 1, 1));
     expect(peak(out, 4000)).toBeLessThanOrEqual(Math.pow(10, -6 / 20) * 1.001);
   });
 
   it('bypass crossfades to the raw microphone signal', () => {
-    const p = flatParams((x) => { x.bypass = true; x.outGain = -24; });
+    const p = flatParams((x) => {
+      x.bypass = true;
+      x.outGain = -24;
+    });
     const input = sine(500, 1, 0.5);
     const out = runChain(chainWith(p), input);
     expect(Math.abs(rms(out, 30000) / rms(input, 30000) - 1)).toBeLessThan(0.02);
   });
 
   it('applies input gain with smoothing', () => {
-    const p = flatParams((x) => { x.inGain = 6; });
+    const p = flatParams((x) => {
+      x.inGain = 6;
+    });
     const input = sine(500, 1, 0.1);
     const out = runChain(chainWith(p), input);
     expect(toDb(rms(out, 30000) / rms(input, 30000))).toBeCloseTo(6, 0);
@@ -55,7 +80,13 @@ describe('VoiceChain', () => {
   it('reports latency from the enabled modules', () => {
     const off = chainWith(flatParams());
     expect(off.latencySamples).toBe(0);
-    const on = chainWith(flatParams((x) => { x.voice.on = true; x.voice.quality = 1024; x.lim.on = true; }));
+    const on = chainWith(
+      flatParams((x) => {
+        x.voice.on = true;
+        x.voice.quality = 1024;
+        x.lim.on = true;
+      }),
+    );
     expect(on.latencySamples).toBe(1024 + 97);
   });
 

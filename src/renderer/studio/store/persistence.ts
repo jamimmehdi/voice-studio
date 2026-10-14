@@ -56,7 +56,11 @@ export function loadSeed(storage: KeyValueStorage): StoreSeed {
  * Writes the persisted subset whenever it changes (debounced). Returns a function that flushes
  * synchronously and stops listening.
  */
-export function startPersistence(store: StudioStoreApi, storage: KeyValueStorage, debounceMs = 300): () => void {
+export function startPersistence(
+  store: StudioStoreApi,
+  storage: KeyValueStorage,
+  debounceMs = 300,
+): () => void {
   let timer: ReturnType<typeof setTimeout> | null = null;
   let lastState: PersistedState | null = null;
   let lastPresets: Record<string, StudioParams> | null = null;
@@ -77,7 +81,11 @@ export function startPersistence(store: StudioStoreApi, storage: KeyValueStorage
     const same =
       lastState !== null &&
       lastPresets === s.userPresets &&
-      Object.keys(persisted).every((k) => (persisted as unknown as Record<string, unknown>)[k] === (lastState as unknown as Record<string, unknown>)[k]);
+      Object.keys(persisted).every(
+        (k) =>
+          (persisted as unknown as Record<string, unknown>)[k] ===
+          (lastState as unknown as Record<string, unknown>)[k],
+      );
     if (same) return;
     lastState = persisted;
     lastPresets = s.userPresets;

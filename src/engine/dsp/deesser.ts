@@ -23,7 +23,10 @@ export class DeEsser {
   private wide = false;
   private listen = false;
 
-  constructor(private readonly sampleRate: number, params?: DeEsserParams) {
+  constructor(
+    private readonly sampleRate: number,
+    params?: DeEsserParams,
+  ) {
     this.detAttack = smoothingCoef(0.3, sampleRate);
     this.detRelease = smoothingCoef(15, sampleRate);
     this.attackCoef = smoothingCoef(0.5, sampleRate);

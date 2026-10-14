@@ -16,7 +16,9 @@
   border: 2px solid #3a4458;
   border-radius: 50%;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
 }
 
 .orb:hover {
@@ -25,7 +27,10 @@
 
 .live {
   border-color: var(--live);
-  box-shadow: 0 0 0 3px rgba(52, 245, 197, 0.18), 0 0 18px rgba(52, 245, 197, 0.55), 0 6px 18px rgba(0, 0, 0, 0.55);
+  box-shadow:
+    0 0 0 3px rgba(52, 245, 197, 0.18),
+    0 0 18px rgba(52, 245, 197, 0.55),
+    0 6px 18px rgba(0, 0, 0, 0.55);
 }
 
 .dot {

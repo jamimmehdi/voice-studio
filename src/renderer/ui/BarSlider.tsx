@@ -19,7 +19,16 @@ export interface BarSliderProps {
 
 /** Flat bar slider (native range input underneath, so keyboard and screen readers just work). */
 export function BarSlider({
-  value, min, max, step = 1, onChange, label, height = 6, fill = 'var(--accent)', className, defaultValue,
+  value,
+  min,
+  max,
+  step = 1,
+  onChange,
+  label,
+  height = 6,
+  fill = 'var(--accent)',
+  className,
+  defaultValue,
 }: BarSliderProps): React.ReactElement {
   const percent = max === min ? 0 : ((value - min) / (max - min)) * 100;
   const style = { '--p': `${percent}%`, '--h': `${height}px`, '--fill': fill } as CSSProperties;

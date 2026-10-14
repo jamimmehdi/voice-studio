@@ -28,7 +28,7 @@ export class ShortcutService {
 
     const previous = this.active;
     if (previous) this.api.unregister(previous);
-    let registered = false;
+    let registered: boolean;
     try {
       registered = this.api.register(accelerator, this.onTrigger);
     } catch {

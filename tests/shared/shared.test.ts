@@ -1,11 +1,22 @@
 import { createDefaultParams, cloneParams, mergeDeep, clamp, type StudioParams } from '@shared/params';
-import { applyBuiltinPreset, applyUserPreset, BUILTIN_PRESETS, BUILTIN_PRESET_NAMES, QUICK_CHIPS, VOICE_TILES } from '@shared/presets';
 import {
-  createDefaultPersisted,
-  migratePersisted,
-  PERSIST_VERSION,
-} from '@shared/persisted-state';
-import { formatDb, formatFreq, formatGain, formatTime, prettyAccelerator, shortSigned, signed } from '@shared/format';
+  applyBuiltinPreset,
+  applyUserPreset,
+  BUILTIN_PRESETS,
+  BUILTIN_PRESET_NAMES,
+  QUICK_CHIPS,
+  VOICE_TILES,
+} from '@shared/presets';
+import { createDefaultPersisted, migratePersisted, PERSIST_VERSION } from '@shared/persisted-state';
+import {
+  formatDb,
+  formatFreq,
+  formatGain,
+  formatTime,
+  prettyAccelerator,
+  shortSigned,
+  signed,
+} from '@shared/format';
 import { STAGES, isStageId } from '@shared/stages';
 
 describe('params', () => {
@@ -26,7 +37,10 @@ describe('params', () => {
 
   it('mergeDeep never mutates its inputs and replaces arrays wholesale', () => {
     const base = createDefaultParams();
-    const patch = { voice: { pitch: 3 }, eq: { bands: base.eq.bands.map((b) => ({ ...b, gain: 2 })) as StudioParams['eq']['bands'] } };
+    const patch = {
+      voice: { pitch: 3 },
+      eq: { bands: base.eq.bands.map((b) => ({ ...b, gain: 2 })) as StudioParams['eq']['bands'] },
+    };
     const frozen = cloneParams(base);
     const merged = mergeDeep(base, patch);
     expect(base).toEqual(frozen);

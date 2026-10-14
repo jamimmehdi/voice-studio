@@ -54,7 +54,12 @@ export function TuneCard({ pitch, formant, onPitch, onFormant }: TuneCardProps):
   return (
     <section className={styles.card} aria-label="Fine tune">
       <TuneSlider label="Pitch" caption="Pitch · deeper ↔ higher" value={pitch} onChange={onPitch} />
-      <TuneSlider label="Formant" caption="Formant · larger ↔ smaller throat" value={formant} onChange={onFormant} />
+      <TuneSlider
+        label="Formant"
+        caption="Formant · larger ↔ smaller throat"
+        value={formant}
+        onChange={onFormant}
+      />
     </section>
   );
 }

@@ -7,7 +7,13 @@ export interface ToggleButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonE
 }
 
 /** A button that stays pressed (e.g. "Robot voice", "Listen"). */
-export function ToggleButton({ pressed, onChange, className, children, ...rest }: ToggleButtonProps): React.ReactElement {
+export function ToggleButton({
+  pressed,
+  onChange,
+  className,
+  children,
+  ...rest
+}: ToggleButtonProps): React.ReactElement {
   return (
     <button
       type="button"

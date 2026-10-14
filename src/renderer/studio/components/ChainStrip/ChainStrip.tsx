@@ -5,7 +5,14 @@ import styles from './ChainStrip.module.css';
 const Chevron = (): React.ReactElement => (
   <span className={styles.chevron} aria-hidden="true">
     <svg viewBox="0 0 12 12" width="12" height="12">
-      <path d="M3 2l5 4-5 4" stroke="#3b475c" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M3 2l5 4-5 4"
+        stroke="#3b475c"
+        strokeWidth="1.8"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   </span>
 );

@@ -98,7 +98,8 @@ export class PitchShifter {
 
     // analysis: magnitude and true frequency (in bins)
     for (let k = 0; k <= half; k++) {
-      const r = re[k]!, i = im[k]!;
+      const r = re[k]!,
+        i = im[k]!;
       mag[k] = Math.sqrt(r * r + i * i);
       const ph = Math.atan2(i, r);
       let d = ph - this.lastPhase[k]! - k * expct;

@@ -82,7 +82,14 @@ export function LiveOutput(): React.ReactElement {
         ...hd,
         active: current.params.eq.on && (current.params.eq.bands[hd.index]?.on ?? false),
       }));
-      drawScope(ctx, { width: w, height: h, bars, curveY, handles, showHandles: current.stage === 'eq' || hoverRef.current || drag.current !== null });
+      drawScope(ctx, {
+        width: w,
+        height: h,
+        bars,
+        curveY,
+        handles,
+        showHandles: current.stage === 'eq' || hoverRef.current || drag.current !== null,
+      });
     };
     raf = requestAnimationFrame(render);
     return () => cancelAnimationFrame(raf);
@@ -156,7 +163,9 @@ export function LiveOutput(): React.ReactElement {
         <span>5k</span>
         <span>20k</span>
       </div>
-      <span className={styles.srOnly}>{`High-pass ${params.hpf.on ? 'on' : 'off'}, EQ ${params.eq.on ? 'on' : 'off'}`}</span>
+      <span
+        className={styles.srOnly}
+      >{`High-pass ${params.hpf.on ? 'on' : 'off'}, EQ ${params.eq.on ? 'on' : 'off'}`}</span>
     </Card>
   );
 }

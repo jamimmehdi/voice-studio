@@ -34,8 +34,7 @@ export interface AppInfo {
 }
 
 export type YtFetchResult =
-  | { ok: true; title: string; ext: string; data: ArrayBuffer }
-  | { ok: false; error: string };
+  { ok: true; title: string; ext: string; data: ArrayBuffer } | { ok: false; error: string };
 
 export type SimpleResult = { ok: true } | { ok: false; error: string };
 

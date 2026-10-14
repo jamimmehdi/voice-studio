@@ -33,13 +33,37 @@ export function isStageId(value: unknown): value is StageId {
 }
 
 export const STAGE_INFO: Readonly<Record<StageId, { title: string; description: string }>> = {
-  mic: { title: 'Microphone', description: 'Where your voice comes in. Speak normally: the IN meter should peak around −12 dB.' },
-  hpf: { title: 'High-pass filter', description: 'Removes rumble, desk bumps and breath plosives below the cut-off.' },
-  exp: { title: 'Gate (downward expander)', description: 'Quietens the mic between words so room noise and keyboard clicks disappear.' },
+  mic: {
+    title: 'Microphone',
+    description: 'Where your voice comes in. Speak normally: the IN meter should peak around −12 dB.',
+  },
+  hpf: {
+    title: 'High-pass filter',
+    description: 'Removes rumble, desk bumps and breath plosives below the cut-off.',
+  },
+  exp: {
+    title: 'Gate (downward expander)',
+    description: 'Quietens the mic between words so room noise and keyboard clicks disappear.',
+  },
   voice: { title: 'Voice', description: 'Drag the dot to move between male, female and cartoon voices.' },
-  deess: { title: 'De-esser', description: 'Softens harsh “S” and “T” sounds, which pitch-shifting tends to exaggerate.' },
-  eq: { title: 'Parametric EQ', description: 'Six bands. Drag the numbered dots in the Live output graph, or use the knobs.' },
-  comp: { title: 'Compressor', description: 'Evens out loud and soft parts so teammates hear you at a steady level.' },
-  lim: { title: 'Limiter', description: 'A brick wall that stops shouting from clipping or blasting your teammates.' },
-  out: { title: 'Output', description: 'What leaves Voice Studio. Pick CABLE Output as the microphone in your game.' },
+  deess: {
+    title: 'De-esser',
+    description: 'Softens harsh “S” and “T” sounds, which pitch-shifting tends to exaggerate.',
+  },
+  eq: {
+    title: 'Parametric EQ',
+    description: 'Six bands. Drag the numbered dots in the Live output graph, or use the knobs.',
+  },
+  comp: {
+    title: 'Compressor',
+    description: 'Evens out loud and soft parts so teammates hear you at a steady level.',
+  },
+  lim: {
+    title: 'Limiter',
+    description: 'A brick wall that stops shouting from clipping or blasting your teammates.',
+  },
+  out: {
+    title: 'Output',
+    description: 'What leaves Voice Studio. Pick CABLE Output as the microphone in your game.',
+  },
 };

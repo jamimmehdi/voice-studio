@@ -25,8 +25,13 @@ describe('PitchShifter', () => {
     expect(Math.abs(fundamental(bright, 40000) - fundamental(plain, 40000))).toBeLessThan(5);
     // more high-frequency energy once the formants move up
     const hf = (x: Float32Array): number => {
-      let hi = 0, all = 0;
-      for (let i = 1; i < x.length; i++) { const d = x[i]! - x[i - 1]!; hi += d * d; all += x[i]! * x[i]!; }
+      let hi = 0,
+        all = 0;
+      for (let i = 1; i < x.length; i++) {
+        const d = x[i]! - x[i - 1]!;
+        hi += d * d;
+        all += x[i]! * x[i]!;
+      }
       return hi / all;
     };
     expect(hf(bright.subarray(30000))).toBeGreaterThan(hf(plain.subarray(30000)));

@@ -23,7 +23,11 @@ export function VoicePad({ pitch, formant, onChange, onReset }: VoicePadProps): 
   const fromPointer = (e: React.PointerEvent): void => {
     const rect = pad.current?.getBoundingClientRect();
     if (!rect || rect.width === 0 || rect.height === 0) return;
-    const v = padValue((e.clientX - rect.left) / rect.width, (e.clientY - rect.top) / rect.height, e.shiftKey);
+    const v = padValue(
+      (e.clientX - rect.left) / rect.width,
+      (e.clientY - rect.top) / rect.height,
+      e.shiftKey,
+    );
     onChange(v.pitch, v.formant);
   };
 
@@ -57,11 +61,22 @@ export function VoicePad({ pitch, formant, onChange, onReset }: VoicePadProps): 
       onKeyDown={(e) => {
         const step = e.shiftKey ? 0.1 : 0.5;
         const clamp = (v: number): number => Math.max(-12, Math.min(12, Math.round(v * 10) / 10));
-        if (e.key === 'ArrowRight') { e.preventDefault(); onChange(clamp(pitch + step), formant); }
-        else if (e.key === 'ArrowLeft') { e.preventDefault(); onChange(clamp(pitch - step), formant); }
-        else if (e.key === 'ArrowUp') { e.preventDefault(); onChange(pitch, clamp(formant + step)); }
-        else if (e.key === 'ArrowDown') { e.preventDefault(); onChange(pitch, clamp(formant - step)); }
-        else if (e.key === 'Home') { e.preventDefault(); onReset(); }
+        if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          onChange(clamp(pitch + step), formant);
+        } else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          onChange(clamp(pitch - step), formant);
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          onChange(pitch, clamp(formant + step));
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          onChange(pitch, clamp(formant - step));
+        } else if (e.key === 'Home') {
+          e.preventDefault();
+          onReset();
+        }
       }}
     >
       <svg className={styles.grid} viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">

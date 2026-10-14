@@ -6,7 +6,8 @@ export function friendlyYtdlpError(stderr: string): string {
   }
   if (/private video|members-only/i.test(text)) return 'This video is private or members-only.';
   if (/not a bot/i.test(text)) return 'YouTube asked for a bot check. Try again later or use another video.';
-  if (/unavailable|not available/i.test(text)) return 'This video is unavailable (removed or blocked in your region).';
+  if (/unavailable|not available/i.test(text))
+    return 'This video is unavailable (removed or blocked in your region).';
 
   const lines = text.split(/\r?\n/).filter(Boolean);
   const errorLine = [...lines].reverse().find((l) => /ERROR/.test(l));

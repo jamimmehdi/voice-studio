@@ -18,8 +18,11 @@ const csp: Plugin = {
       "media-src 'self' blob:",
       "connect-src 'self' blob:",
     ].join('; ');
-    return html.replace('<head>', `<head>
-    <meta http-equiv="Content-Security-Policy" content="${policy}" />`);
+    return html.replace(
+      '<head>',
+      `<head>
+    <meta http-equiv="Content-Security-Policy" content="${policy}" />`,
+    );
   },
 };
 
@@ -41,7 +44,9 @@ export default defineConfig({
     build: {
       isolatedEntries: true,
       externalizeDeps: false,
-      rollupOptions: { input: { studio: resolve('src/preload/studio.ts'), quick: resolve('src/preload/quick.ts') } },
+      rollupOptions: {
+        input: { studio: resolve('src/preload/studio.ts'), quick: resolve('src/preload/quick.ts') },
+      },
     },
   },
   renderer: {

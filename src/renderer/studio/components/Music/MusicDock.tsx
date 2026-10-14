@@ -13,7 +13,11 @@ import styles from './MusicDock.module.css';
  */
 export function MusicDock(): React.ReactElement | null {
   const { show, vol, duck, setMusic, engine } = useStudio((s) => ({
-    show: s.music.show, vol: s.music.vol, duck: s.music.duck, setMusic: s.setMusic, engine: s.engine,
+    show: s.music.show,
+    vol: s.music.vol,
+    duck: s.music.duck,
+    setMusic: s.setMusic,
+    engine: s.engine,
   }));
   const music = useMusic();
   const { player } = useRuntime();
@@ -28,19 +32,34 @@ export function MusicDock(): React.ReactElement | null {
       <div className={styles.left}>
         <div className={styles.cover} aria-hidden="true">
           <svg width="20" height="20" viewBox="0 0 24 24">
-            <path d="M9 18V6l10-2v12" stroke="#fff" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d="M9 18V6l10-2v12"
+              stroke="#fff"
+              strokeWidth="2"
+              fill="none"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
             <circle cx="7" cy="18" r="2.4" stroke="#fff" strokeWidth="2" fill="none" />
             <circle cx="17" cy="16" r="2.4" stroke="#fff" strokeWidth="2" fill="none" />
           </svg>
         </div>
         <div className={styles.info}>
-          <div className={styles.title} title={title}>{title}</div>
+          <div className={styles.title} title={title}>
+            {title}
+          </div>
           <div className={styles.sub}>Plays through your mic · teammates hear it</div>
         </div>
       </div>
 
       <div className={styles.transport}>
-        <button type="button" className={styles.round} aria-label="Previous track" disabled={music.trackCount === 0} onClick={() => player.previous()}>
+        <button
+          type="button"
+          className={styles.round}
+          aria-label="Previous track"
+          disabled={music.trackCount === 0}
+          onClick={() => player.previous()}
+        >
           ⏮
         </button>
         <button
@@ -52,7 +71,13 @@ export function MusicDock(): React.ReactElement | null {
         >
           {music.playing ? '❚❚' : '▶'}
         </button>
-        <button type="button" className={styles.round} aria-label="Next track" disabled={music.trackCount === 0} onClick={() => player.next(false)}>
+        <button
+          type="button"
+          className={styles.round}
+          aria-label="Next track"
+          disabled={music.trackCount === 0}
+          onClick={() => player.next(false)}
+        >
           ⏭
         </button>
         <span className={`${styles.time} mono`}>{formatTime(music.currentTime)}</span>

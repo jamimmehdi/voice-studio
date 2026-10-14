@@ -18,7 +18,8 @@ export interface DisplayMeters {
 export const METER_FLOOR_DB = -60;
 
 /** dB -> 0..100 percent of a meter spanning −60..0 dB. */
-export const meterPercent = (db: number): number => Math.max(0, Math.min(100, ((db - METER_FLOOR_DB) / -METER_FLOOR_DB) * 100));
+export const meterPercent = (db: number): number =>
+  Math.max(0, Math.min(100, ((db - METER_FLOOR_DB) / -METER_FLOOR_DB) * 100));
 
 const PEAK_FALL = 0.9; // per update
 const GR_FALL = 0.9;
@@ -30,7 +31,14 @@ const HOLD_MS = 1200;
  */
 export class MeterSmoother {
   private display: DisplayMeters = {
-    inPeak: 0, outPeak: 0, exp: 0, deess: 0, comp: 0, lim: 0, inHoldDb: METER_FLOOR_DB, outHoldDb: METER_FLOOR_DB,
+    inPeak: 0,
+    outPeak: 0,
+    exp: 0,
+    deess: 0,
+    comp: 0,
+    lim: 0,
+    inHoldDb: METER_FLOOR_DB,
+    outHoldDb: METER_FLOOR_DB,
   };
   private holdInAt = 0;
   private holdOutAt = 0;

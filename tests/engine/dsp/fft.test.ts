@@ -28,7 +28,8 @@ describe('FFT', () => {
     const im = new Float64Array(N);
     fft.forward(re, im);
     let best = 0;
-    for (let k = 1; k < N / 2; k++) if (Math.hypot(re[k]!, im[k]!) > Math.hypot(re[best]!, im[best]!)) best = k;
+    for (let k = 1; k < N / 2; k++)
+      if (Math.hypot(re[k]!, im[k]!) > Math.hypot(re[best]!, im[best]!)) best = k;
     expect(best).toBe(bin);
     expect(Math.hypot(re[bin]!, im[bin]!)).toBeCloseTo(N / 2, 6);
   });

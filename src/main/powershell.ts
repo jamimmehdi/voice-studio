@@ -12,7 +12,14 @@ export function runPowerShell(command: string, timeoutMs = 120_000): Promise<str
       ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', command],
       { windowsHide: true, timeout: timeoutMs },
       (err, stdout, stderr) => {
-        if (err) reject(new Error(String(stderr || err.message).trim().slice(0, 300)));
+        if (err)
+          reject(
+            new Error(
+              String(stderr || err.message)
+                .trim()
+                .slice(0, 300),
+            ),
+          );
         else resolve(String(stdout));
       },
     );

@@ -1,5 +1,11 @@
 import { DuckController } from '@engine/audio/ducking';
-import { findVirtualCable, isVirtualCableOutput, looksLikeCable, shortDeviceLabel, splitDevices } from '@engine/audio/devices';
+import {
+  findVirtualCable,
+  isVirtualCableOutput,
+  looksLikeCable,
+  shortDeviceLabel,
+  splitDevices,
+} from '@engine/audio/devices';
 import { Emitter } from '@engine/audio/emitter';
 import { Playlist } from '@engine/audio/playlist';
 import { encodeWav16Mono, recordingFileName } from '@engine/audio/wav';

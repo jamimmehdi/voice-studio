@@ -152,13 +152,25 @@ export function createStudioStore(seed: StoreSeed = {}): StudioStoreApi {
           if (band) Object.assign(band, patch);
         }, true),
 
-      setEqOn: (on) => editParams((d) => { d.eq.on = on; }, false),
+      setEqOn: (on) =>
+        editParams((d) => {
+          d.eq.on = on;
+        }, false),
 
-      toggleModule: (key) => editParams((d) => { d[key].on = !d[key].on; }, false),
+      toggleModule: (key) =>
+        editParams((d) => {
+          d[key].on = !d[key].on;
+        }, false),
 
-      setGain: (which, db) => editParams((d) => { d[which] = clamp(Math.round(db * 10) / 10, -24, 24); }, false),
+      setGain: (which, db) =>
+        editParams((d) => {
+          d[which] = clamp(Math.round(db * 10) / 10, -24, 24);
+        }, false),
 
-      setBypass: (on) => editParams((d) => { d.bypass = on; }, false),
+      setBypass: (on) =>
+        editParams((d) => {
+          d.bypass = on;
+        }, false),
 
       setWarm: (on) => {
         if (get().warm === on) return;

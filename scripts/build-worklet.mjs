@@ -1,9 +1,11 @@
-// Bundles the AudioWorklet processor into ONE self-contained file (no imports),
-// because worklet modules are loaded from a Blob / file URL inside the renderer.
-import { build } from 'esbuild';
+// Bundles the AudioWorklet processor into ONE self-contained script (no imports).
+// The renderer loads it through a Blob URL, so it cannot pull in other modules at run time.
 import { mkdirSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { build } from 'esbuild';
 
 mkdirSync('out/worklet', { recursive: true });
+
 await build({
   entryPoints: ['src/engine/worklet/processor.ts'],
   outfile: 'out/worklet/processor.js',
@@ -12,5 +14,6 @@ await build({
   target: 'es2022',
   minify: false,
   logLevel: 'info',
-  alias: { '@engine': 'src/engine', '@shared': 'src/shared' },
+  // resolves the @shared / @engine path aliases
+  tsconfig: resolve('tsconfig.web.json'),
 });

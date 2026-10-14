@@ -1,7 +1,35 @@
-const MODIFIERS = new Set(['Control', 'Ctrl', 'CommandOrControl', 'CmdOrCtrl', 'Alt', 'Option', 'AltGr', 'Shift', 'Super', 'Meta']);
+const MODIFIERS = new Set([
+  'Control',
+  'Ctrl',
+  'CommandOrControl',
+  'CmdOrCtrl',
+  'Alt',
+  'Option',
+  'AltGr',
+  'Shift',
+  'Super',
+  'Meta',
+]);
 const NAMED_KEYS = new Set([
-  'Space', 'Tab', 'Enter', 'Return', 'Backspace', 'Delete', 'Insert', 'Home', 'End', 'PageUp', 'PageDown',
-  'Up', 'Down', 'Left', 'Right', 'Escape', 'Esc', 'Plus', 'Minus',
+  'Space',
+  'Tab',
+  'Enter',
+  'Return',
+  'Backspace',
+  'Delete',
+  'Insert',
+  'Home',
+  'End',
+  'PageUp',
+  'PageDown',
+  'Up',
+  'Down',
+  'Left',
+  'Right',
+  'Escape',
+  'Esc',
+  'Plus',
+  'Minus',
 ]);
 
 /**
@@ -18,5 +46,10 @@ export function isValidAccelerator(accelerator: string): boolean {
   if (new Set(mods).size !== mods.length) return false;
   if (!mods.every((m) => MODIFIERS.has(m))) return false;
   if (MODIFIERS.has(key)) return false;
-  return /^[A-Z0-9]$/.test(key) || /^F([1-9]|1[0-9]|2[0-4])$/.test(key) || NAMED_KEYS.has(key) || /^[`\-=[\]\\;',./]$/.test(key);
+  return (
+    /^[A-Z0-9]$/.test(key) ||
+    /^F([1-9]|1[0-9]|2[0-4])$/.test(key) ||
+    NAMED_KEYS.has(key) ||
+    /^[`\-=[\]\\;',./]$/.test(key)
+  );
 }

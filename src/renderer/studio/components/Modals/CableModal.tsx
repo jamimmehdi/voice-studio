@@ -28,9 +28,10 @@ export function CableModal(): React.ReactElement {
     <Modal title="Install the virtual microphone" onClose={() => setModal(null)}>
       <h2 className={styles.heading}>Install the virtual microphone</h2>
       <p>
-        Games can only use real input devices, so Voice Studio needs a free <b>virtual audio cable</b>. This will
-        download <b>VB-CABLE</b> from <i>vb-audio.com</i> (official source, about 1.3&nbsp;MB), check its digital
-        signature and start VB-Audio&apos;s own installer. Windows will ask for administrator permission.
+        Games can only use real input devices, so Voice Studio needs a free <b>virtual audio cable</b>. This
+        will download <b>VB-CABLE</b> from <i>vb-audio.com</i> (official source, about 1.3&nbsp;MB), check its
+        digital signature and start VB-Audio&apos;s own installer. Windows will ask for administrator
+        permission.
       </p>
       <ol className={styles.small}>
         <li>
@@ -45,7 +46,13 @@ export function CableModal(): React.ReactElement {
       </ol>
       <p className={`${styles.muted} ${styles.small}`}>
         VB-CABLE is donationware by VB-Audio (
-        <a href="#" onClick={(e) => { e.preventDefault(); void api.openExternal('https://vb-audio.com/Cable/'); }}>
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            void api.openExternal('https://vb-audio.com/Cable/');
+          }}
+        >
           vb-audio.com/Cable
         </a>
         ) – please consider supporting them. It is a separate product with its own licence.

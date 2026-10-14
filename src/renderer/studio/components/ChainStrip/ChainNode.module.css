@@ -22,7 +22,9 @@
 .selected {
   background: #10241f;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(94, 234, 212, 0.14), 0 8px 24px rgba(0, 0, 0, 0.35);
+  box-shadow:
+    0 0 0 3px rgba(94, 234, 212, 0.14),
+    0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
 .off {

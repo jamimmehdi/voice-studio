@@ -33,7 +33,13 @@ export function VerticalMeter({ channel }: VerticalMeterProps): React.ReactEleme
       <div ref={text} className={`${styles.db} mono`}>
         −∞
       </div>
-      <div className={styles.meter} role="meter" aria-label={channel === 'in' ? 'Input level' : 'Output level'} aria-valuemin={-60} aria-valuemax={0}>
+      <div
+        className={styles.meter}
+        role="meter"
+        aria-label={channel === 'in' ? 'Input level' : 'Output level'}
+        aria-valuemin={-60}
+        aria-valuemax={0}
+      >
         <i ref={fill} className={styles.fill} />
         <b ref={hold} className={styles.hold} />
       </div>

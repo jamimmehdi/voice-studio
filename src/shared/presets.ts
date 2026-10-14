@@ -17,7 +17,14 @@ type BandSpec = readonly [freq: number, gain: number, q: number];
 const band = (type: BandType, [freq, gain, q]: BandSpec): EqBand => ({ type, freq, gain, q, on: true });
 
 /** Six-band EQ in the studio's fixed topology: low shelf, four bells, high shelf. */
-export function eqBands(low: BandSpec, p1: BandSpec, p2: BandSpec, p3: BandSpec, p4: BandSpec, high: BandSpec): EqBands {
+export function eqBands(
+  low: BandSpec,
+  p1: BandSpec,
+  p2: BandSpec,
+  p3: BandSpec,
+  p4: BandSpec,
+  high: BandSpec,
+): EqBands {
   return [
     band('lowshelf', low),
     band('peaking', p1),
@@ -40,49 +47,127 @@ export interface VoiceTile {
 export const BUILTIN_PRESETS: Readonly<Record<PresetName, PresetPatch>> = {
   'Clean mic (no voice change)': {
     voice: { on: false, pitch: 0, formant: 0 },
-    eq: { bands: eqBands([120, 0, 0.7], [300, -1.5, 1], [1000, 0, 1], [3000, 1.5, 1], [6000, 0, 1], [10000, 1.5, 0.7]) },
+    eq: {
+      bands: eqBands(
+        [120, 0, 0.7],
+        [300, -1.5, 1],
+        [1000, 0, 1],
+        [3000, 1.5, 1],
+        [6000, 0, 1],
+        [10000, 1.5, 0.7],
+      ),
+    },
   },
   'Female – Natural': {
     voice: { on: true, pitch: 4.5, formant: 2.8, mix: 100, robot: false },
-    eq: { bands: eqBands([150, -3, 0.7], [320, -2, 1.1], [1100, 0, 1], [3200, 2, 1], [6000, 0, 1], [9500, 2.5, 0.7]) },
+    eq: {
+      bands: eqBands(
+        [150, -3, 0.7],
+        [320, -2, 1.1],
+        [1100, 0, 1],
+        [3200, 2, 1],
+        [6000, 0, 1],
+        [9500, 2.5, 0.7],
+      ),
+    },
   },
   'Female – Soft / Warm': {
     voice: { on: true, pitch: 4, formant: 2.2, mix: 100, robot: false },
-    eq: { bands: eqBands([160, -1.5, 0.7], [250, 1, 1], [1000, 0, 1], [3500, 0.5, 1], [6500, -1.5, 1], [9000, 1, 0.7]) },
+    eq: {
+      bands: eqBands(
+        [160, -1.5, 0.7],
+        [250, 1, 1],
+        [1000, 0, 1],
+        [3500, 0.5, 1],
+        [6500, -1.5, 1],
+        [9000, 1, 0.7],
+      ),
+    },
   },
   'Female – Bright / Young': {
     voice: { on: true, pitch: 6.5, formant: 4, mix: 100, robot: false },
-    eq: { bands: eqBands([180, -4, 0.7], [350, -2, 1.1], [1200, 1, 1], [3500, 2.5, 1], [6500, 1, 1], [10000, 3, 0.7]) },
+    eq: {
+      bands: eqBands(
+        [180, -4, 0.7],
+        [350, -2, 1.1],
+        [1200, 1, 1],
+        [3500, 2.5, 1],
+        [6500, 1, 1],
+        [10000, 3, 0.7],
+      ),
+    },
   },
   'Girl / Child': {
     voice: { on: true, pitch: 9, formant: 6, mix: 100, robot: false },
-    eq: { bands: eqBands([200, -5, 0.7], [400, -2, 1.1], [1400, 1.5, 1], [3800, 3, 1], [7000, 1, 1], [10000, 3, 0.7]) },
+    eq: {
+      bands: eqBands(
+        [200, -5, 0.7],
+        [400, -2, 1.1],
+        [1400, 1.5, 1],
+        [3800, 3, 1],
+        [7000, 1, 1],
+        [10000, 3, 0.7],
+      ),
+    },
   },
   'Male – Deep': {
     voice: { on: true, pitch: -4, formant: -2.5, mix: 100, robot: false },
-    eq: { bands: eqBands([110, 3, 0.7], [250, 1.5, 1], [1000, 0, 1], [3000, -1, 1], [6000, -1.5, 1], [10000, -2, 0.7]) },
+    eq: {
+      bands: eqBands(
+        [110, 3, 0.7],
+        [250, 1.5, 1],
+        [1000, 0, 1],
+        [3000, -1, 1],
+        [6000, -1.5, 1],
+        [10000, -2, 0.7],
+      ),
+    },
   },
   'Male – Strong / Very Manly': {
     voice: { on: true, pitch: -5.5, formant: -3.5, mix: 100, robot: false },
-    eq: { bands: eqBands([95, 4.5, 0.7], [220, 2.5, 1], [900, -1, 1], [2800, 1, 1], [6000, -2, 1], [10000, -3, 0.7]) },
+    eq: {
+      bands: eqBands(
+        [95, 4.5, 0.7],
+        [220, 2.5, 1],
+        [900, -1, 1],
+        [2800, 1, 1],
+        [6000, -2, 1],
+        [10000, -3, 0.7],
+      ),
+    },
     comp: { thresh: -26, ratio: 4, attack: 6, release: 140, knee: 6, makeup: 6, mix: 100 },
     deess: { thresh: -34, ratio: 5 },
   },
   'Cartoon / Chipmunk': {
     voice: { on: true, pitch: 11, formant: 8, mix: 100, robot: false },
-    eq: { bands: eqBands([200, -6, 0.7], [500, 0, 1], [1500, 2, 1], [4000, 3, 1], [7000, 1, 1], [10000, 2, 0.7]) },
+    eq: {
+      bands: eqBands([200, -6, 0.7], [500, 0, 1], [1500, 2, 1], [4000, 3, 1], [7000, 1, 1], [10000, 2, 0.7]),
+    },
   },
   'Giant / Monster': {
     voice: { on: true, pitch: -9, formant: -6, mix: 100, robot: false },
-    eq: { bands: eqBands([90, 5, 0.7], [200, 3, 1], [900, 0, 1], [3000, -3, 1], [6000, -4, 1], [10000, -6, 0.7]) },
+    eq: {
+      bands: eqBands([90, 5, 0.7], [200, 3, 1], [900, 0, 1], [3000, -3, 1], [6000, -4, 1], [10000, -6, 0.7]),
+    },
   },
   Robot: {
     voice: { on: true, pitch: -2, formant: 0, mix: 100, robot: true, robotFreq: 55, robotMix: 100 },
-    eq: { bands: eqBands([120, 0, 0.7], [300, 0, 1], [1000, 2, 1], [3000, 3, 1], [6000, 0, 1], [10000, 0, 0.7]) },
+    eq: {
+      bands: eqBands([120, 0, 0.7], [300, 0, 1], [1000, 2, 1], [3000, 3, 1], [6000, 0, 1], [10000, 0, 0.7]),
+    },
   },
   'Broadcast voice (male)': {
     voice: { on: false },
-    eq: { bands: eqBands([100, 2.5, 0.7], [250, -1.5, 1], [1000, 0, 1], [3500, 2.5, 1], [6500, -1, 1], [11000, 2, 0.7]) },
+    eq: {
+      bands: eqBands(
+        [100, 2.5, 0.7],
+        [250, -1.5, 1],
+        [1000, 0, 1],
+        [3500, 2.5, 1],
+        [6500, -1, 1],
+        [11000, 2, 0.7],
+      ),
+    },
     comp: { thresh: -24, ratio: 4, attack: 6, release: 140, knee: 6, makeup: 6, mix: 100 },
   },
 };

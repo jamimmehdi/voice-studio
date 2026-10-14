@@ -9,8 +9,9 @@ export function GuideModal(): React.ReactElement {
       <h2 className={styles.heading}>Using Voice Studio in a game</h2>
       <ol>
         <li>
-          Install a <b>virtual audio cable</b>. Windows cannot create a virtual microphone without a driver. If none is
-          found, use the <b>Install virtual microphone (VB-CABLE)</b> button in the Devices panel, then reboot.
+          Install a <b>virtual audio cable</b>. Windows cannot create a virtual microphone without a driver.
+          If none is found, use the <b>Install virtual microphone (VB-CABLE)</b> button in the Devices panel,
+          then reboot.
         </li>
         <li>
           Choose your real <b>Microphone</b> and set <b>Send to game / chat</b> to{' '}
@@ -28,8 +29,8 @@ export function GuideModal(): React.ReactElement {
         </li>
       </ol>
       <p className={styles.muted}>
-        Tip: the Voice stage has a quality setting – lower is faster, higher sounds smoother. Disable “Windows noise
-        suppression / auto-gain” (Mic stage) unless you want them.
+        Tip: the Voice stage has a quality setting – lower is faster, higher sounds smoother. Disable “Windows
+        noise suppression / auto-gain” (Mic stage) unless you want them.
       </p>
     </Modal>
   );

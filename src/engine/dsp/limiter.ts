@@ -28,7 +28,10 @@ export class Limiter {
   private ceiling = dbToLin(-1);
   private releaseCoef = 0;
 
-  constructor(private readonly sampleRate: number, params?: LimiterParams) {
+  constructor(
+    private readonly sampleRate: number,
+    params?: LimiterParams,
+  ) {
     this.lookahead = Math.max(8, Math.round(0.002 * sampleRate));
     this.window = this.lookahead + 1;
     this.delay = new Float32Array(this.window);

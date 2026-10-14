@@ -16,6 +16,8 @@ export interface SummaryContext {
   outputLabel: string;
 }
 
+const whole = (v: number): string => v.toFixed(0).replace('-', '−');
+
 /** The small monospace line shown under a stage's name in the signal chain. */
 export function stageSummary(stage: StageId, ctx: SummaryContext): string {
   const { params: p } = ctx;
@@ -25,7 +27,7 @@ export function stageSummary(stage: StageId, ctx: SummaryContext): string {
     case 'hpf':
       return `${Math.round(p.hpf.freq)} Hz · ${p.hpf.slope} dB`;
     case 'exp':
-      return `${p.exp.thresh.toFixed(0)} dB · ${p.exp.ratio.toFixed(1)}:1`;
+      return `${whole(p.exp.thresh)} dB · ${p.exp.ratio.toFixed(1)}:1`;
     case 'voice':
       return p.voice.on ? `${signed(p.voice.pitch)} · ${signed(p.voice.formant)} st` : 'off';
     case 'deess':
@@ -33,9 +35,9 @@ export function stageSummary(stage: StageId, ctx: SummaryContext): string {
     case 'eq':
       return `${p.eq.bands.filter((b) => b.on).length} bands`;
     case 'comp':
-      return `${p.comp.thresh.toFixed(0)} dB · ${p.comp.ratio.toFixed(1)}:1`;
+      return `${whole(p.comp.thresh)} dB · ${p.comp.ratio.toFixed(1)}:1`;
     case 'lim':
-      return `ceiling ${p.lim.ceiling.toFixed(1)} dB`;
+      return `ceiling ${signed(p.lim.ceiling)} dB`;
     case 'out':
       return shortDeviceLabel(ctx.outputLabel);
   }

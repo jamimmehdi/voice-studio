@@ -21,7 +21,10 @@ export class Expander {
   private releaseCoef = 0;
   private holdSamples = 0;
 
-  constructor(private readonly sampleRate: number, params?: ExpanderParams) {
+  constructor(
+    private readonly sampleRate: number,
+    params?: ExpanderParams,
+  ) {
     this.detAttack = smoothingCoef(0.5, sampleRate);
     this.detRelease = smoothingCoef(12, sampleRate);
     if (params) this.set(params);

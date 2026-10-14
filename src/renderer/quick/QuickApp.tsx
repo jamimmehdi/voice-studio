@@ -9,8 +9,17 @@ import { useQuickState } from './use-quick-state';
 import styles from './QuickApp.module.css';
 
 export const EMPTY_QUICK_STATE: QuickState = {
-  running: false, preset: null, chips: [], pitch: 0, formant: 0, monitor: false, bypass: false, gate: true,
-  level: 0, stats: '', music: { has: false, title: '', playing: false, progress: 0 },
+  running: false,
+  preset: null,
+  chips: [],
+  pitch: 0,
+  formant: 0,
+  monitor: false,
+  bypass: false,
+  gate: true,
+  level: 0,
+  stats: '',
+  music: { has: false, title: '', playing: false, progress: 0 },
 };
 
 interface QuickAppProps {
@@ -27,23 +36,50 @@ export function QuickApp({ api = window.quick }: QuickAppProps): React.ReactElem
       <header className={styles.header}>
         <div className={styles.logo} aria-hidden="true">
           <svg width="18" height="18" viewBox="0 0 24 24">
-            <path d="M4 11v2M8 8v8M12 4v16M16 8v8M20 11v2" stroke="#5eead4" strokeWidth="2.4" strokeLinecap="round" fill="none" />
+            <path
+              d="M4 11v2M8 8v8M12 4v16M16 8v8M20 11v2"
+              stroke="#5eead4"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              fill="none"
+            />
           </svg>
         </div>
         <div className={styles.title}>Voice Studio</div>
-        <button type="button" className={styles.headBtn} title="Open the full studio" onClick={() => send({ type: 'openStudio' })}>
+        <button
+          type="button"
+          className={styles.headBtn}
+          title="Open the full studio"
+          onClick={() => send({ type: 'openStudio' })}
+        >
           Full studio ⤢
         </button>
-        <button type="button" className={`${styles.headBtn} ${styles.square}`} aria-label="Shrink to a floating icon" title="Shrink to a floating icon" onClick={() => send({ type: 'minimizeToIcon' })}>
+        <button
+          type="button"
+          className={`${styles.headBtn} ${styles.square}`}
+          aria-label="Shrink to a floating icon"
+          title="Shrink to a floating icon"
+          onClick={() => send({ type: 'minimizeToIcon' })}
+        >
           —
         </button>
-        <button type="button" className={`${styles.headBtn} ${styles.square}`} aria-label="Hide" title="Hide (keeps running in the tray)" onClick={() => send({ type: 'hideCompact' })}>
+        <button
+          type="button"
+          className={`${styles.headBtn} ${styles.square}`}
+          aria-label="Hide"
+          title="Hide (keeps running in the tray)"
+          onClick={() => send({ type: 'hideCompact' })}
+        >
           ×
         </button>
       </header>
 
       <LiveCard state={state} onToggle={() => send({ type: 'toggleEngine' })} />
-      <VoiceChips chips={state.chips} active={state.preset} onPick={(name) => send({ type: 'preset', name })} />
+      <VoiceChips
+        chips={state.chips}
+        active={state.preset}
+        onPick={(name) => send({ type: 'preset', name })}
+      />
       <TuneCard
         pitch={state.pitch}
         formant={state.formant}

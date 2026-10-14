@@ -27,7 +27,13 @@ export function MiniPlayer({ music, enabled, onToggle }: MiniPlayerProps): React
           {music.playing ? '❚❚' : '▶'}
         </button>
       </div>
-      <div className={styles.bar} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(music.progress * 100)}>
+      <div
+        className={styles.bar}
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(music.progress * 100)}
+      >
         <i style={{ width: `${Math.round(music.progress * 100)}%` }} />
       </div>
     </section>

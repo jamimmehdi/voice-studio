@@ -8,8 +8,18 @@ import { psQuote } from '@main/powershell';
 import { CommandRelay } from '@main/relay';
 import { DEFAULT_SETTINGS, SettingsStore } from '@main/settings-store';
 import { ShortcutService, type GlobalShortcutApi } from '@main/shortcut-service';
-import { plainReleaseNotes, UpdateService, type AutoUpdaterLike, type UpdateSink } from '@main/update-service';
-import { findLatestPackUrl, isTrustedSignature, VbCableInstaller, VBCABLE_FALLBACK } from '@main/vbcable/vbcable-installer';
+import {
+  plainReleaseNotes,
+  UpdateService,
+  type AutoUpdaterLike,
+  type UpdateSink,
+} from '@main/update-service';
+import {
+  findLatestPackUrl,
+  isTrustedSignature,
+  VbCableInstaller,
+  VBCABLE_FALLBACK,
+} from '@main/vbcable/vbcable-installer';
 import { friendlyYtdlpError, isAcceptableUrl, parsePrintedResult } from '@main/ytdlp/errors';
 import { YtDlpService } from '@main/ytdlp/ytdlp-service';
 import type { QuickCommand, QuickState } from '@shared/protocols';
@@ -28,21 +38,35 @@ describe('geometry', () => {
 });
 
 describe('isValidAccelerator', () => {
-  it.each(['Control+Alt+V', 'Ctrl+Shift+F5', 'Alt+Space', 'Control+Alt+Shift+9', 'CommandOrControl+`'])('accepts %s', (a) => {
-    expect(isValidAccelerator(a)).toBe(true);
-  });
-  it.each(['V', 'F5', '', 'Control+', 'Control+Control', 'Foo+V', 'Control+Alt', 'Control+Control+V', 'Ctrl+Alt+VV'])(
-    'rejects %j',
+  it.each(['Control+Alt+V', 'Ctrl+Shift+F5', 'Alt+Space', 'Control+Alt+Shift+9', 'CommandOrControl+`'])(
+    'accepts %s',
     (a) => {
-      expect(isValidAccelerator(a)).toBe(false);
+      expect(isValidAccelerator(a)).toBe(true);
     },
   );
+  it.each([
+    'V',
+    'F5',
+    '',
+    'Control+',
+    'Control+Control',
+    'Foo+V',
+    'Control+Alt',
+    'Control+Control+V',
+    'Ctrl+Alt+VV',
+  ])('rejects %j', (a) => {
+    expect(isValidAccelerator(a)).toBe(false);
+  });
 });
 
 describe('SettingsStore', () => {
   let dir: string;
-  beforeEach(() => { dir = mkdtempSync(join(tmpdir(), 'vs-settings-')); });
-  afterEach(() => { rmSync(dir, { recursive: true, force: true }); });
+  beforeEach(() => {
+    dir = mkdtempSync(join(tmpdir(), 'vs-settings-'));
+  });
+  afterEach(() => {
+    rmSync(dir, { recursive: true, force: true });
+  });
 
   it('falls back to defaults when the file is missing or corrupt', () => {
     expect(new SettingsStore(join(dir, 'nope.json')).value).toEqual(DEFAULT_SETTINGS);
@@ -63,21 +87,36 @@ describe('SettingsStore', () => {
 
   it('sanitises invalid fields', () => {
     const file = join(dir, 's.json');
-    writeFileSync(file, JSON.stringify({ shortcut: 42, panelPosition: { x: 'a', y: 1 }, trayHintShown: 'yes' }));
+    writeFileSync(
+      file,
+      JSON.stringify({ shortcut: 42, panelPosition: { x: 'a', y: 1 }, trayHintShown: 'yes' }),
+    );
     expect(new SettingsStore(file).value).toEqual(DEFAULT_SETTINGS);
   });
 
   it('survives a write failure', () => {
     const store = new SettingsStore('x', {
-      read: () => { throw new Error('no file'); },
-      write: () => { throw new Error('read-only'); },
+      read: () => {
+        throw new Error('no file');
+      },
+      write: () => {
+        throw new Error('read-only');
+      },
     });
     expect(() => store.update({ trayHintShown: true })).not.toThrow();
     expect(store.value.trayHintShown).toBe(true);
   });
 });
 
-function fakeWindow(width: number, height: number): OverlayWindow & { shownAt: unknown[]; states: QuickState[]; visible: boolean; pos: { x: number; y: number } } {
+function fakeWindow(
+  width: number,
+  height: number,
+): OverlayWindow & {
+  shownAt: unknown[];
+  states: QuickState[];
+  visible: boolean;
+  pos: { x: number; y: number };
+} {
   const w = {
     size: { width, height },
     visible: false,
@@ -85,18 +124,38 @@ function fakeWindow(width: number, height: number): OverlayWindow & { shownAt: u
     shownAt: [] as unknown[],
     states: [] as QuickState[],
     isVisible: () => w.visible,
-    showAt: (p: { x: number; y: number }) => { w.visible = true; w.pos = p; w.shownAt.push(p); },
-    hide: () => { w.visible = false; },
-    sendState: (s: QuickState) => { w.states.push(s); },
+    showAt: (p: { x: number; y: number }) => {
+      w.visible = true;
+      w.pos = p;
+      w.shownAt.push(p);
+    },
+    hide: () => {
+      w.visible = false;
+    },
+    sendState: (s: QuickState) => {
+      w.states.push(s);
+    },
     position: () => (w.visible ? w.pos : null),
-    moveBy: (dx: number, dy: number) => { w.pos = { x: w.pos.x + dx, y: w.pos.y + dy }; },
+    moveBy: (dx: number, dy: number) => {
+      w.pos = { x: w.pos.x + dx, y: w.pos.y + dy };
+    },
   };
   return w;
 }
 
 const state = (over: Partial<QuickState> = {}): QuickState => ({
-  running: false, preset: null, chips: [], pitch: 0, formant: 0, monitor: false, bypass: false, gate: true,
-  level: 0, stats: '', music: { has: false, title: '', playing: false, progress: 0 }, ...over,
+  running: false,
+  preset: null,
+  chips: [],
+  pitch: 0,
+  formant: 0,
+  monitor: false,
+  bypass: false,
+  gate: true,
+  level: 0,
+  stats: '',
+  music: { has: false, title: '', playing: false, progress: 0 },
+  ...over,
 });
 
 describe('OverlayController', () => {
@@ -106,7 +165,13 @@ describe('OverlayController', () => {
     const dir = mkdtempSync(join(tmpdir(), 'vs-ov-'));
     const settings = new SettingsStore(join(dir, 's.json'));
     const controller = new OverlayController({ panel, icon, settings, workArea: () => AREA });
-    return { panel, icon, settings, controller, cleanup: () => rmSync(dir, { recursive: true, force: true }) };
+    return {
+      panel,
+      icon,
+      settings,
+      controller,
+      cleanup: () => rmSync(dir, { recursive: true, force: true }),
+    };
   };
 
   it('shows the panel at the default spot and hides the icon', () => {
@@ -198,7 +263,10 @@ describe('CommandRelay', () => {
     const { relay, calls, forwarded } = setup();
     relay.handle({ type: 'preset', name: 'Robot' });
     relay.handle({ type: 'voice', pitch: 3 });
-    expect(forwarded).toEqual([{ type: 'preset', name: 'Robot' }, { type: 'voice', pitch: 3 }]);
+    expect(forwarded).toEqual([
+      { type: 'preset', name: 'Robot' },
+      { type: 'voice', pitch: 3 },
+    ]);
     expect(calls).toHaveLength(0);
   });
 
@@ -217,8 +285,14 @@ describe('ShortcutService', () => {
     const registered = new Set<string>();
     return {
       registered,
-      register: (a) => { if (taken.includes(a)) return false; registered.add(a); return true; },
-      unregister: (a) => { registered.delete(a); },
+      register: (a) => {
+        if (taken.includes(a)) return false;
+        registered.add(a);
+        return true;
+      },
+      unregister: (a) => {
+        registered.delete(a);
+      },
       unregisterAll: () => registered.clear(),
     };
   };
@@ -281,15 +355,22 @@ describe('yt-dlp helpers', () => {
   });
 
   it('parses the printed result line', () => {
-    expect(parsePrintedResult('noise\nMe at the zoo|||C:\\x\\a.m4a\n')).toEqual({ title: 'Me at the zoo', file: 'C:\\x\\a.m4a' });
+    expect(parsePrintedResult('noise\nMe at the zoo|||C:\\x\\a.m4a\n')).toEqual({
+      title: 'Me at the zoo',
+      file: 'C:\\x\\a.m4a',
+    });
     expect(parsePrintedResult('no marker')).toBeNull();
   });
 });
 
 describe('YtDlpService', () => {
   let dir: string;
-  beforeEach(() => { dir = mkdtempSync(join(tmpdir(), 'vs-yt-')); });
-  afterEach(() => { rmSync(dir, { recursive: true, force: true }); });
+  beforeEach(() => {
+    dir = mkdtempSync(join(tmpdir(), 'vs-yt-'));
+  });
+  afterEach(() => {
+    rmSync(dir, { recursive: true, force: true });
+  });
 
   it('downloads the binary once, runs it with a JS runtime and returns the audio', async () => {
     const audio = join(dir, 'track.m4a');
@@ -299,8 +380,15 @@ describe('YtDlpService', () => {
     const svc = new YtDlpService({
       dataDir: dir,
       jsRuntimePath: 'C:\\app\\Voice Studio.exe',
-      download: async (_url, dest) => { downloads++; writeFileSync(dest, 'exe'); return dest; },
-      run: async (_exe, args, env) => { seen.push({ args, env }); return { stdout: `Song|||${audio}\n` }; },
+      download: async (_url, dest) => {
+        downloads++;
+        writeFileSync(dest, 'exe');
+        return dest;
+      },
+      run: async (_exe, args, env) => {
+        seen.push({ args, env });
+        return { stdout: `Song|||${audio}\n` };
+      },
     });
     const r1 = await svc.fetchAudio('https://youtu.be/abc');
     const r2 = await svc.fetchAudio('https://youtu.be/def');
@@ -317,9 +405,16 @@ describe('YtDlpService', () => {
   it('refuses non-https input before doing anything', async () => {
     let touched = false;
     const svc = new YtDlpService({
-      dataDir: dir, jsRuntimePath: 'x',
-      download: async () => { touched = true; return ''; },
-      run: async () => { touched = true; return { stdout: '' }; },
+      dataDir: dir,
+      jsRuntimePath: 'x',
+      download: async () => {
+        touched = true;
+        return '';
+      },
+      run: async () => {
+        touched = true;
+        return { stdout: '' };
+      },
     });
     const r = await svc.fetchAudio('file:///etc/passwd');
     expect(r.ok).toBe(false);
@@ -329,9 +424,15 @@ describe('YtDlpService', () => {
   it('reports downloader failures as an error result', async () => {
     writeFileSync(join(dir, 'unused'), '');
     const svc = new YtDlpService({
-      dataDir: dir, jsRuntimePath: 'x',
-      download: async (_u, dest) => { writeFileSync(dest, 'exe'); return dest; },
-      run: async () => { throw new Error('boom'); },
+      dataDir: dir,
+      jsRuntimePath: 'x',
+      download: async (_u, dest) => {
+        writeFileSync(dest, 'exe');
+        return dest;
+      },
+      run: async () => {
+        throw new Error('boom');
+      },
     });
     const r = await svc.fetchAudio('https://youtu.be/x');
     expect(r).toEqual({ ok: false, error: 'boom' });
@@ -359,8 +460,12 @@ describe('VB-CABLE installer', () => {
       commands,
       downloads,
       options: {
-        getText: async () => '<a href="https://download.vb-audio.com/Download_CABLE/VBCABLE_Driver_Pack46.zip">x</a>',
-        download: async (url: string, dest: string) => { downloads.push(url); return dest; },
+        getText: async () =>
+          '<a href="https://download.vb-audio.com/Download_CABLE/VBCABLE_Driver_Pack46.zip">x</a>',
+        download: async (url: string, dest: string) => {
+          downloads.push(url);
+          return dest;
+        },
         powershell: async (c: string) => {
           commands.push(c);
           return c.includes('Get-AuthenticodeSignature') ? 'Valid|CN=BUREL VINCENT' : '';
@@ -382,13 +487,19 @@ describe('VB-CABLE installer', () => {
   });
 
   it('uses the pinned link when the vendor page cannot be read', async () => {
-    const d = deps({ getText: async () => { throw new Error('offline'); } });
+    const d = deps({
+      getText: async () => {
+        throw new Error('offline');
+      },
+    });
     await new VbCableInstaller(d.options).install();
     expect(d.downloads[0]).toBe(VBCABLE_FALLBACK);
   });
 
   it('refuses to run an installer with an untrusted signature', async () => {
-    const d = deps({ powershell: async (c: string) => (c.includes('Get-AuthenticodeSignature') ? 'HashMismatch|' : '') });
+    const d = deps({
+      powershell: async (c: string) => (c.includes('Get-AuthenticodeSignature') ? 'HashMismatch|' : ''),
+    });
     const result = await new VbCableInstaller(d.options).install();
     expect(result.ok).toBe(false);
   });
@@ -407,18 +518,32 @@ describe('psQuote', () => {
 });
 
 describe('UpdateService', () => {
-  const fakeUpdater = (): AutoUpdaterLike & { fire(event: string, payload?: unknown): void; calls: string[] } => {
+  const fakeUpdater = (): AutoUpdaterLike & {
+    fire(event: string, payload?: unknown): void;
+    calls: string[];
+  } => {
     const handlers = new Map<string, (p?: never) => void>();
     const calls: string[] = [];
     return {
       autoDownload: true,
       autoInstallOnAppQuit: true,
       calls,
-      on(event, listener) { handlers.set(event, listener as (p?: never) => void); return this; },
-      fire(event, payload) { handlers.get(event)?.(payload as never); },
-      checkForUpdates: async () => { calls.push('check'); },
-      downloadUpdate: async () => { calls.push('download'); },
-      quitAndInstall: () => { calls.push('install'); },
+      on(event, listener) {
+        handlers.set(event, listener as (p?: never) => void);
+        return this;
+      },
+      fire(event, payload) {
+        handlers.get(event)?.(payload as never);
+      },
+      checkForUpdates: async () => {
+        calls.push('check');
+      },
+      downloadUpdate: async () => {
+        calls.push('download');
+      },
+      quitAndInstall: () => {
+        calls.push('install');
+      },
     };
   };
   const sink = () => {

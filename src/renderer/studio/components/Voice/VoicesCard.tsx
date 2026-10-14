@@ -7,7 +7,8 @@ import styles from './VoicesCard.module.css';
 /** Short "+4.5 / +2.8" caption of a preset's pitch and formant. */
 export function presetCaption(presetKey: string): string {
   const voice = BUILTIN_PRESETS[presetKey]?.voice;
-  if (!voice || voice.on === false || voice.pitch === undefined || voice.formant === undefined) return 'no change';
+  if (!voice || voice.on === false || voice.pitch === undefined || voice.formant === undefined)
+    return 'no change';
   const base = `${shortSigned(voice.pitch)} / ${shortSigned(voice.formant)}`;
   return voice.robot ? `${base} · ring` : base;
 }

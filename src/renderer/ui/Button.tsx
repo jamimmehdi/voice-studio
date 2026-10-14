@@ -11,8 +11,21 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: boolean;
 }
 
-export function Button({ variant = 'default', block, icon, className, type = 'button', ...rest }: ButtonProps): React.ReactElement {
-  const classes = [styles.button, styles[variant], block ? styles.block : '', icon ? styles.icon : '', className ?? '']
+export function Button({
+  variant = 'default',
+  block,
+  icon,
+  className,
+  type = 'button',
+  ...rest
+}: ButtonProps): React.ReactElement {
+  const classes = [
+    styles.button,
+    styles[variant],
+    block ? styles.block : '',
+    icon ? styles.icon : '',
+    className ?? '',
+  ]
     .filter(Boolean)
     .join(' ');
   return <button type={type} className={classes} {...rest} />;

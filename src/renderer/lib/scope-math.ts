@@ -6,9 +6,11 @@ export const SCOPE_BARS = 48;
 
 const LOG_RANGE = Math.log(SCOPE_F_MAX / SCOPE_F_MIN);
 
-export const freqToX = (freq: number, width: number): number => (Math.log(freq / SCOPE_F_MIN) / LOG_RANGE) * width;
+export const freqToX = (freq: number, width: number): number =>
+  (Math.log(freq / SCOPE_F_MIN) / LOG_RANGE) * width;
 
-export const xToFreq = (x: number, width: number): number => SCOPE_F_MIN * Math.pow(SCOPE_F_MAX / SCOPE_F_MIN, x / width);
+export const xToFreq = (x: number, width: number): number =>
+  SCOPE_F_MIN * Math.pow(SCOPE_F_MAX / SCOPE_F_MIN, x / width);
 
 /** dB gain -> y pixel (0 dB is the vertical centre). */
 export const dbToY = (db: number, height: number): number => height / 2 - (db / SCOPE_DB_SPAN) * (height / 2);

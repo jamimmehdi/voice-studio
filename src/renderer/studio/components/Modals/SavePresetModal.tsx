@@ -7,7 +7,10 @@ import styles from './modal.module.css';
 /** Asks for a name and stores the current settings as a user preset (window.prompt does not exist in Electron). */
 export function SavePresetModal(): React.ReactElement {
   const { preset, saveUserPreset, setModal, userPresets } = useStudio((s) => ({
-    preset: s.preset, saveUserPreset: s.saveUserPreset, setModal: s.setModal, userPresets: s.userPresets,
+    preset: s.preset,
+    saveUserPreset: s.saveUserPreset,
+    setModal: s.setModal,
+    userPresets: s.userPresets,
   }));
   const [name, setName] = useState(preset && userPresets[preset] ? preset : 'My voice');
   const trimmed = name.trim();
@@ -22,7 +25,9 @@ export function SavePresetModal(): React.ReactElement {
   return (
     <Modal title="Save preset" onClose={() => setModal(null)}>
       <h2 className={styles.heading}>Save preset</h2>
-      <p className={styles.muted}>Stores every setting of the studio so you can come back to this voice later.</p>
+      <p className={styles.muted}>
+        Stores every setting of the studio so you can come back to this voice later.
+      </p>
       <input
         className={styles.input}
         autoFocus
@@ -34,7 +39,11 @@ export function SavePresetModal(): React.ReactElement {
           if (e.key === 'Enter') save();
         }}
       />
-      {exists && <p className={`${styles.small} ${styles.warn}`}>A preset with this name exists and will be replaced.</p>}
+      {exists && (
+        <p className={`${styles.small} ${styles.warn}`}>
+          A preset with this name exists and will be replaced.
+        </p>
+      )}
       <div className={styles.buttons}>
         <Button variant="primary" disabled={!trimmed} onClick={save}>
           Save

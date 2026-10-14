@@ -42,9 +42,13 @@ export function useMusic(): MusicSnapshot {
 /** The playlist items; re-read whenever the player reports a change. */
 export function usePlaylist(): { names: string[]; index: number } {
   const { player } = useRuntime();
-  const [state, setState] = useState(() => ({ names: player.playlist.items.map((t) => t.name), index: player.playlist.index }));
+  const [state, setState] = useState(() => ({
+    names: player.playlist.items.map((t) => t.name),
+    index: player.playlist.index,
+  }));
   useEffect(() => {
-    const read = (): void => setState({ names: player.playlist.items.map((t) => t.name), index: player.playlist.index });
+    const read = (): void =>
+      setState({ names: player.playlist.items.map((t) => t.name), index: player.playlist.index });
     read();
     return player.events.on('change', read);
   }, [player]);
@@ -75,7 +79,13 @@ export function useEngineStats(): { latencyMs: number; dropouts: number; sampleR
   useEffect(() => {
     const timer = setInterval(() => {
       const next = read();
-      setStats((prev) => (prev.latencyMs === next.latencyMs && prev.dropouts === next.dropouts && prev.sampleRate === next.sampleRate ? prev : next));
+      setStats((prev) =>
+        prev.latencyMs === next.latencyMs &&
+        prev.dropouts === next.dropouts &&
+        prev.sampleRate === next.sampleRate
+          ? prev
+          : next,
+      );
     }, 500);
     return () => clearInterval(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -30,7 +30,11 @@ const MESSAGES: Record<CableStatus, string> = {
 };
 
 export function DevicesCard(): React.ReactElement {
-  const { devices, dev, setModal } = useStudio((s) => ({ devices: s.devices, dev: s.dev, setModal: s.setModal }));
+  const { devices, dev, setModal } = useStudio((s) => ({
+    devices: s.devices,
+    dev: s.dev,
+    setModal: s.setModal,
+  }));
   const controller = useController();
 
   useEffect(() => {

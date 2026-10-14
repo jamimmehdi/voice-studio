@@ -11,14 +11,26 @@ interface ToggleRowProps {
 
 function Toggle({ label, on, onClick }: { label: string; on: boolean; onClick(): void }): React.ReactElement {
   return (
-    <button type="button" aria-pressed={on} className={`${styles.toggle} ${on ? styles.on : ''}`} onClick={onClick}>
+    <button
+      type="button"
+      aria-pressed={on}
+      className={`${styles.toggle} ${on ? styles.on : ''}`}
+      onClick={onClick}
+    >
       <b>{label}</b>
       <span>{on ? 'On' : 'Off'}</span>
     </button>
   );
 }
 
-export function ToggleRow({ monitor, bypass, gate, onMonitor, onBypass, onGate }: ToggleRowProps): React.ReactElement {
+export function ToggleRow({
+  monitor,
+  bypass,
+  gate,
+  onMonitor,
+  onBypass,
+  onGate,
+}: ToggleRowProps): React.ReactElement {
   return (
     <section className={styles.row}>
       <Toggle label="Hear myself" on={monitor} onClick={onMonitor} />

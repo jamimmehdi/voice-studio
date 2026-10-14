@@ -22,7 +22,10 @@ const FIXES: readonly Fix[] = [
 /** One-tap switches for the most common clean-up jobs, in plain language. */
 export function QuickFixes(): React.ReactElement {
   const { params, warm, toggleModule, setWarm } = useStudio((s) => ({
-    params: s.params, warm: s.warm, toggleModule: s.toggleModule, setWarm: s.setWarm,
+    params: s.params,
+    warm: s.warm,
+    toggleModule: s.toggleModule,
+    setWarm: s.setWarm,
   }));
 
   return (

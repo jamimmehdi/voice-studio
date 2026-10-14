@@ -27,7 +27,10 @@ export function plainReleaseNotes(notes: unknown): string {
   let text = '';
   if (typeof notes === 'string') text = notes;
   else if (Array.isArray(notes)) text = (notes as RawReleaseNote[]).map((n) => n.note ?? '').join('\n');
-  return text.replace(/<[^>]+>/g, '').trim().slice(0, 600);
+  return text
+    .replace(/<[^>]+>/g, '')
+    .trim()
+    .slice(0, 600);
 }
 
 const errorText = (e: unknown): string => String(e instanceof Error ? e.message : e).slice(0, 200);
@@ -47,7 +50,8 @@ export class UpdateService {
       sink.available({ version: info.version, notes: plainReleaseNotes(info.releaseNotes) });
     }) as never);
     updater.on('update-not-available', (() => sink.none()) as never);
-    updater.on('download-progress', ((p: { percent: number }) => sink.progress(Math.round(p.percent))) as never);
+    updater.on('download-progress', ((p: { percent: number }) =>
+      sink.progress(Math.round(p.percent))) as never);
     updater.on('update-downloaded', (() => {
       sink.downloaded();
       setTimeout(() => updater.quitAndInstall(true, true), restartDelayMs);
