@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' blob:; script-src 'self' blob:; worker-src 'self' blob:; connect-src 'self' blob:;">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Voice Studio</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+        <path d="M3 12h2v0M7 8v8M11 4v16M15 8v8M19 10v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+      </svg>
+      <span>Voice Studio</span>
+    </div>
+
+    <button id="btnPower" class="power" title="Start / stop the audio engine">
+      <span class="dot"></span><span id="powerLabel">Start engine</span>
+    </button>
+    <button id="btnBypass" class="chip" title="Pass the raw microphone straight through">Bypass</button>
+
+    <div class="spacer"></div>
+
+    <label class="presetbox">
+      <span>Preset</span>
+      <select id="presetSelect"></select>
+    </label>
+    <button id="btnPresetSave" class="chip">Save as…</button>
+    <button id="btnPresetDelete" class="chip" disabled>Delete</button>
+    <button id="btnHelp" class="chip">Setup guide</button>
+    <button id="btnAbout" class="chip" title="About Voice Studio">About</button>
+  </header>
+
+  <div id="updateBar" class="updatebar hidden" role="status">
+    <span id="updateText"></span>
+    <div class="spacer"></div>
+    <button id="btnUpdate" class="chip primary">Update now</button>
+    <button id="btnUpdateDismiss" class="chip" title="Remind me next launch">Later</button>
+  </div>
+
+  <main>
+    <section class="panel io" id="ioPanel">
+      <h2>Input / Output</h2>
+      <div class="field">
+        <label for="selIn">Microphone</label>
+        <select id="selIn"></select>
+      </div>
+      <div class="field">
+        <label for="selOut">Output (to game / chat)</label>
+        <select id="selOut"></select>
+        <div id="cableStatus" class="hint"></div>
+        <button id="btnInstallCable" class="chip primary full" hidden>Install virtual microphone (VB-CABLE)</button>
+      </div>
+      <div class="field monitor">
+        <label class="inline"><input type="checkbox" id="chkMonitor"> Monitor in my headphones</label>
+        <select id="selMon"></select>
+        <input type="range" id="rngMon" min="0" max="1" step="0.01" value="0.8" title="Monitor volume">
+      </div>
+      <div class="knobrow" id="ioKnobs"></div>
+      <div class="meters">
+        <div class="meter"><span>IN</span><div class="bar"><i id="mIn"></i><b id="mInHold"></b></div><em id="mInTxt">-∞</em></div>
+        <div class="meter"><span>OUT</span><div class="bar"><i id="mOut"></i><b id="mOutHold"></b></div><em id="mOutTxt">-∞</em></div>
+      </div>
+      <div class="toggles">
+        <label class="inline"><input type="checkbox" id="chkNs"> Windows noise suppression</label>
+        <label class="inline"><input type="checkbox" id="chkAgc"> Windows auto-gain</label>
+      </div>
+    </section>
+
+    <section class="panel scope">
+      <div class="scopehead">
+        <h2>Spectrum &amp; EQ</h2>
+        <div class="legend"><i class="l1"></i> live output <i class="l2"></i> EQ + high-pass curve <span class="muted">drag a dot · wheel = Q</span></div>
+      </div>
+      <canvas id="scope" width="1000" height="260"></canvas>
+    </section>
+
+    <section class="chain" id="chain"></section>
+  </main>
+
+  <footer class="statusbar">
+    <button id="btnRec" class="chip rec" disabled>● Record</button>
+    <span id="recTime" class="muted"></span>
+    <div class="spacer"></div>
+    <span class="credit muted">Made by <b>Jamim Mehdi</b> · <span id="verLabel">v–</span></span>
+    <span class="sep">|</span>
+    <span id="status" class="muted">Engine stopped</span>
+    <span class="sep">|</span>
+    <span id="latency" class="muted">latency –</span>
+  </footer>
+
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="sheet">
+      <button class="close" id="btnModalClose" aria-label="Close">×</button>
+      <h2>Using Voice Studio in a game</h2>
+      <ol>
+        <li>Install a <b>virtual audio cable</b> (for example the free <i>VB-CABLE</i> from vb-audio.com). Windows cannot create a virtual microphone without a driver. Reboot afterwards.</li>
+        <li>In Voice Studio choose your real <b>Microphone</b> and set <b>Output</b> to <code>CABLE Input (VB-Audio Virtual Cable)</code>.</li>
+        <li>Click <b>Start engine</b>, pick a preset (e.g. <i>Female – Natural</i>) and talk.</li>
+        <li>In the game / Discord / OBS select <code>CABLE Output (VB-Audio Virtual Cable)</code> as the <b>input device</b>.</li>
+        <li>Turn on <b>Monitor</b> to hear yourself in headphones (use headphones to avoid feedback).</li>
+      </ol>
+      <p class="muted">Tip: the lower the quality setting in the Voice module, the lower the delay. 1024 is the best balance for live talk.
+        Disable “Windows noise suppression / auto-gain” unless you want them.</p>
+    </div>
+  </div>
+
+  <div id="aboutModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="sheet about">
+      <button class="close" id="btnAboutClose" aria-label="Close">×</button>
+      <img src="../../build/icon.png" alt="" class="abouticon">
+      <h2>Voice Studio <span id="aboutVer" class="muted"></span></h2>
+      <p>Real-time voice changer and vocal-processing studio for Windows.</p>
+      <p class="devline">Designed &amp; developed by <b>Jamim Mehdi</b></p>
+      <div class="aboutbtns">
+        <button class="chip" id="btnCheckUpdate">Check for updates</button>
+        <button class="chip" data-ext="https://github.com/jamimmehdi/voice-studio">GitHub</button>
+        <button class="chip" data-ext="https://github.com/jamimmehdi/voice-studio/releases">Releases</button>
+      </div>
+      <div id="aboutUpdateMsg" class="muted small"></div>
+      <h3>Credits</h3>
+      <ul class="small">
+        <li><b>VB-CABLE</b> virtual audio driver by Vincent Burel / VB-Audio (donationware) –
+          <a href="#" data-ext="https://vb-audio.com/Cable/">vb-audio.com/Cable</a>. Not bundled; installed from the official source on request.</li>
+        <li><b>yt-dlp</b> – link audio extraction (downloaded on first use).</li>
+        <li><b>Electron</b>, <b>electron-updater</b> – application framework.</li>
+      </ul>
+      <p class="muted small">© 2026 Jamim Mehdi. Released under the MIT licence.</p>
+    </div>
+  </div>
+
+  <div id="cableModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="sheet">
+      <button class="close" id="btnCableClose" aria-label="Close">×</button>
+      <h2>Install the virtual microphone</h2>
+      <p>Games can only use real input devices, so Voice Studio needs a free <b>virtual audio cable</b>.
+         This will download <b>VB-CABLE</b> from <i>vb-audio.com</i> (official source, about 1.3&nbsp;MB), check its digital signature
+         and start VB-Audio's own installer. Windows will ask for administrator permission.</p>
+      <ol class="small">
+        <li>Click <b>Download &amp; start installer</b>.</li>
+        <li>In the VB-CABLE window click <b>Install Driver</b>.</li>
+        <li><b>Restart your PC</b>, then open Voice Studio again.</li>
+      </ol>
+      <p class="muted small">VB-CABLE is donationware by VB-Audio (<a href="#" data-ext="https://vb-audio.com/Cable/">vb-audio.com/Cable</a>) –
+         please consider supporting them. It is a separate product with its own licence.</p>
+      <div class="aboutbtns">
+        <button class="chip primary" id="btnCableGo">Download &amp; start installer</button>
+        <button class="chip" id="btnCableCancel">Cancel</button>
+      </div>
+      <div id="cableMsg" class="small"></div>
+    </div>
+  </div>
+
+  <script src="../dsp/dsp-core.js"></script>
+  <script src="music.js"></script>
+  <script src="app.js"></script>
+  <script src="chrome.js"></script>
+</body>
+</html>
