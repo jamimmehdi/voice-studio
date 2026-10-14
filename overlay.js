@@ -83,7 +83,12 @@ function attachMain(win) {
     e.preventDefault();
     hideMainToTray();
   });
-  win.on('minimize', () => { if (!isQuitting) hideMainToTray(); });
+  const born = Date.now();
+  win.on('minimize', () => {
+    if (isQuitting) return;
+    if (Date.now() - born < 4000) { win.restore(); return; } // started minimised by the launcher
+    hideMainToTray();
+  });
 }
 
 function hideMainToTray() {

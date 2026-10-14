@@ -169,7 +169,9 @@ function createWindow() {
     backgroundColor: '#0e1014',
     title: 'Voice Studio',
     icon: fs.existsSync(iconPath) ? iconPath : undefined,
-    autoHideMenuBar: true,
+    // no OS title bar: the app's own top bar carries the (native, themed) minimise / maximise / close buttons
+    titleBarStyle: 'hidden',
+    titleBarOverlay: { color: '#0d1118', symbolColor: '#aeb8c9', height: 65 },
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
