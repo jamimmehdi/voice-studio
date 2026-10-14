@@ -19,7 +19,11 @@ async function step(name, fn) {
   }
 }
 
-const app = await electron.launch({ args: ['.', `--user-data-dir=${userData}`], cwd: process.cwd() });
+// VS_EXE=<path to Voice Studio.exe> tests an installed build instead of the local one
+const exe = process.env.VS_EXE;
+const app = exe
+  ? await electron.launch({ executablePath: exe, args: [`--user-data-dir=${userData}`] })
+  : await electron.launch({ args: ['.', `--user-data-dir=${userData}`], cwd: process.cwd() });
 
 try {
   const studio = await app.firstWindow();
