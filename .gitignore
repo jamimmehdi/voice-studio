@@ -4,3 +4,4 @@ dist/
 *.log
 *.part
 Thumbs.db
+.idea/

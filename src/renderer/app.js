@@ -49,6 +49,8 @@ function loadState() {
       state.ns = !!s.ns; state.agc = !!s.agc;
       Object.assign(state.music, s.music || {});
       if (s.buffer) state.buffer = s.buffer;
+      if (s.stage) state.stage = s.stage;
+      state.warm = !!s.warm;
       state.preset = s.preset || state.preset;
       return true;
     }
@@ -122,6 +124,7 @@ function applyPreset(name) {
   } else return;
   void patch;
   state.preset = name;
+  state.warm = false;
   refreshAll();
   pushParams();
 }
@@ -139,6 +142,11 @@ function fillPresetSelect() {
     sel.appendChild(g2);
   }
   if ([...sel.options].some((o) => o.value === state.preset)) sel.value = state.preset;
+  else {
+    // the settings no longer match a saved preset (a knob or the pad was touched)
+    sel.insertBefore(new Option('Custom (unsaved)', ''), sel.firstChild);
+    sel.value = '';
+  }
   $('btnPresetDelete').disabled = !userPresets()[sel.value];
 }
 
@@ -265,146 +273,12 @@ function makeSelect(label, options, get, set) {
 /* ------------------------------------------------------------------ */
 const grBars = {}; // key -> {fill, txt}
 
-function makeCard(key, title, sub, hasGR) {
-  const card = document.createElement('section');
-  card.className = 'card';
-  card.dataset.mod = key;
-  const head = document.createElement('header');
-  head.innerHTML = `<h3>${title}</h3><small>${sub}</small>`;
-  const sw = makeSwitch(() => state.params[key].on, (v) => { state.params[key].on = v; }, sync);
-  head.prepend(sw);
-  if (hasGR) {
-    const gm = document.createElement('div'); gm.className = 'grmeter'; gm.title = 'Gain reduction';
-    const fill = document.createElement('i'); gm.appendChild(fill);
-    const txt = document.createElement('span'); txt.className = 'grtxt'; txt.textContent = '0.0';
-    head.append(gm, txt);
-    grBars[hasGR] = { fill, txt };
-  }
-  const body = document.createElement('div'); body.className = 'body';
-  card.append(head, body);
-  function sync() { card.classList.toggle('off', !state.params[key].on); }
-  sync();
-  switches.push({ el: card, refresh: sync });
-  return { card, body };
-}
-
 function K(module, k, spec) {
   return makeKnob(spec, () => state.params[module][k], (v) => { state.params[module][k] = v; }, () => { state.preset = null; });
 }
 
 function buildChain() {
-  const chain = $('chain');
-  chain.innerHTML = '';
-
-  // Voice changer
-  {
-    const { card, body } = makeCard('voice', 'Voice changer', 'pitch · formant · character');
-    body.append(
-      K('voice', 'pitch', { label: 'PITCH', min: -12, max: 12, def: 0, step: 0.1, unit: ' st' }),
-      K('voice', 'formant', { label: 'FORMANT', min: -12, max: 12, def: 0, step: 0.1, unit: ' st' }),
-      K('voice', 'mix', { label: 'MIX', min: 0, max: 100, def: 100, step: 1, unit: ' %', dec: 0 }),
-    );
-    const side = document.createElement('div'); side.className = 'minisel';
-    side.appendChild(makeSelect('QUALITY / DELAY', [[512, 'Fast ~11 ms (rough)'], [1024, 'Balanced ~21 ms'], [2048, 'Clean ~43 ms (best)']],
-      () => state.params.voice.quality, (v) => { state.params.voice.quality = v; }));
-    side.appendChild(makeToggleButton('Robot voice', () => state.params.voice.robot, (v) => { state.params.voice.robot = v; }));
-    body.appendChild(side);
-    body.append(
-      K('voice', 'robotFreq', { label: 'ROBOT Hz', min: 20, max: 400, def: 60, log: true, unit: ' Hz', dec: 0 }),
-      K('voice', 'robotMix', { label: 'ROBOT', min: 0, max: 100, def: 100, step: 1, unit: ' %', dec: 0 }),
-    );
-    chain.appendChild(card);
-  }
-
-  // High-pass
-  {
-    const { card, body } = makeCard('hpf', 'High-pass', 'removes rumble & plosives');
-    body.append(K('hpf', 'freq', { label: 'FREQ', min: 20, max: 500, def: 80, log: true, unit: ' Hz', dec: 0 }));
-    body.appendChild(makeSelect('SLOPE', [[12, '12 dB/oct'], [24, '24 dB/oct']],
-      () => state.params.hpf.slope, (v) => { state.params.hpf.slope = v; }));
-    chain.appendChild(card);
-  }
-
-  // Expander
-  {
-    const { card, body } = makeCard('exp', 'Downward expander', 'quiets noise between words', 'exp');
-    body.append(
-      K('exp', 'thresh', { label: 'THRESH', min: -80, max: -10, def: -52, step: 0.5, unit: ' dB' }),
-      K('exp', 'ratio', { label: 'RATIO', min: 1, max: 10, def: 2.5, step: 0.1, unit: ' :1' }),
-      K('exp', 'range', { label: 'RANGE', min: 0, max: 80, def: 30, step: 1, unit: ' dB', dec: 0 }),
-      K('exp', 'attack', { label: 'ATTACK', min: 0.1, max: 50, def: 2, log: true, unit: ' ms' }),
-      K('exp', 'hold', { label: 'HOLD', min: 0, max: 300, def: 30, step: 1, unit: ' ms', dec: 0 }),
-      K('exp', 'release', { label: 'RELEASE', min: 10, max: 1000, def: 120, log: true, unit: ' ms', dec: 0 }),
-    );
-    chain.appendChild(card);
-  }
-
-  // De-esser
-  {
-    const { card, body } = makeCard('deess', 'De-esser', 'tames “S” and “T”', 'deess');
-    body.append(
-      K('deess', 'freq', { label: 'FREQ', min: 2000, max: 12000, def: 6500, log: true, unit: ' Hz' }),
-      K('deess', 'q', { label: 'WIDTH Q', min: 0.4, max: 4, def: 1.2, step: 0.05, unit: '', dec: 2 }),
-      K('deess', 'thresh', { label: 'THRESH', min: -60, max: -5, def: -32, step: 0.5, unit: ' dB' }),
-      K('deess', 'ratio', { label: 'RATIO', min: 1, max: 10, def: 4, step: 0.1, unit: ' :1' }),
-      K('deess', 'range', { label: 'MAX CUT', min: 0, max: 30, def: 12, step: 0.5, unit: ' dB' }),
-    );
-    const side = document.createElement('div'); side.className = 'minisel';
-    side.appendChild(makeSelect('MODE', [[0, 'Split-band'], [1, 'Wide-band']],
-      () => state.params.deess.mode, (v) => { state.params.deess.mode = v; }));
-    side.appendChild(makeToggleButton('Listen', () => state.params.deess.listen, (v) => { state.params.deess.listen = v; }));
-    body.appendChild(side);
-    chain.appendChild(card);
-  }
-
-  // EQ
-  {
-    const { card, body } = makeCard('eq', 'Parametric EQ', '6 bands · drag in the graph');
-    const grid = document.createElement('div'); grid.className = 'eqgrid';
-    const names = ['LOW SHELF', 'BAND 2', 'BAND 3', 'BAND 4', 'BAND 5', 'HIGH SHELF'];
-    for (let i = 0; i < 6; i++) {
-      const b = document.createElement('div'); b.className = 'eqband';
-      const bt = document.createElement('div'); bt.className = 'bt';
-      bt.append(names[i]);
-      bt.appendChild(makeSwitch(() => state.params.eq.bands[i].on, (v) => { state.params.eq.bands[i].on = v; }));
-      const bandKnob = (k, spec) => makeKnob(spec, () => state.params.eq.bands[i][k],
-        (v) => { state.params.eq.bands[i][k] = v; }, () => { state.preset = null; });
-      b.append(bt,
-        bandKnob('freq', { label: 'FREQ', min: 20, max: 20000, def: [120, 300, 1000, 3000, 6000, 10000][i], log: true, unit: ' Hz' }),
-        bandKnob('gain', { label: 'GAIN', min: -18, max: 18, def: 0, step: 0.1, unit: ' dB' }),
-        bandKnob('q', { label: 'Q', min: 0.3, max: 8, def: i === 0 || i === 5 ? 0.7 : 1, log: true, unit: '', dec: 2 }));
-      grid.appendChild(b);
-    }
-    body.appendChild(grid); body.firstChild.classList.add('wide');
-    chain.appendChild(card);
-  }
-
-  // Compressor
-  {
-    const { card, body } = makeCard('comp', 'Compressor', 'evens out loud & soft', 'comp');
-    body.append(
-      K('comp', 'thresh', { label: 'THRESH', min: -60, max: 0, def: -20, step: 0.5, unit: ' dB' }),
-      K('comp', 'ratio', { label: 'RATIO', min: 1, max: 20, def: 3, log: true, unit: ' :1' }),
-      K('comp', 'attack', { label: 'ATTACK', min: 0.1, max: 100, def: 8, log: true, unit: ' ms' }),
-      K('comp', 'release', { label: 'RELEASE', min: 10, max: 1000, def: 120, log: true, unit: ' ms', dec: 0 }),
-      K('comp', 'knee', { label: 'KNEE', min: 0, max: 24, def: 6, step: 0.5, unit: ' dB' }),
-      K('comp', 'makeup', { label: 'MAKEUP', min: 0, max: 24, def: 3, step: 0.1, unit: ' dB' }),
-      K('comp', 'mix', { label: 'MIX', min: 0, max: 100, def: 100, step: 1, unit: ' %', dec: 0 }),
-    );
-    chain.appendChild(card);
-  }
-
-  // Limiter
-  {
-    const { card, body } = makeCard('lim', 'Limiter', 'brick-wall · look-ahead', 'lim');
-    body.append(
-      K('lim', 'ceiling', { label: 'CEILING', min: -12, max: 0, def: -1, step: 0.1, unit: ' dB' }),
-      K('lim', 'release', { label: 'RELEASE', min: 5, max: 500, def: 80, log: true, unit: ' ms', dec: 0 }),
-    );
-    chain.appendChild(card);
-  }
-
-  buildMusic(chain);
+  buildStudio(); // ui.js
 }
 
 function buildIOKnobs() {
@@ -421,6 +295,7 @@ function refreshAll() {
   $('btnBypass').classList.toggle('on', state.params.bypass);
   fillPresetSelect();
   drawScope();
+  if (typeof uiRefresh === 'function') uiRefresh();
   saveState();
 }
 
@@ -440,6 +315,7 @@ function pushParams() {
       pushQueued = false;
       if (engine.node) engine.node.port.postMessage({ type: 'params', params: state.params });
       drawScope();
+      if (typeof uiRefresh === 'function') uiRefresh(true);
     });
   }
 }
@@ -530,7 +406,7 @@ async function startEngine() {
     node.port.postMessage({ type: 'params', params: state.params });
 
     $('btnPower').classList.add('on');
-    $('powerLabel').textContent = 'Engine running';
+    $('powerLabel').textContent = 'LIVE';
     $('btnRec').disabled = false;
     $('status').textContent = `Running · ${Math.round(ctx.sampleRate / 1000 * 10) / 10} kHz`;
     drawScope();
@@ -554,7 +430,7 @@ async function stopEngine() {
   $('powerLabel').textContent = 'Start engine';
   $('btnRec').disabled = true;
   if (!$('status').textContent.startsWith('Error')) $('status').textContent = 'Engine stopped';
-  $('latency').textContent = 'latency –';
+  $('latency').textContent = '';
 }
 
 async function restartEngine() {
@@ -612,25 +488,26 @@ function updateMeters() {
       disp[k] = Math.min(m[k], disp[k] * 0.9);
       if (g > disp[k]) { /* keep */ }
     }
-    $('latency').textContent = 'latency ≈ ' + Math.round(
+    $('latency').textContent = Math.round(
       (engine.latency / engine.ctx.sampleRate + engine.ctx.baseLatency + (engine.ctx.outputLatency || 0)) * 1000) + ' ms'
-      + (engine.dropouts ? ` · ${engine.dropouts} dropouts` : ' · no dropouts');
+      + (engine.dropouts ? ` · ${engine.dropouts} dropouts` : ' · 0 dropouts');
   } else { disp.in *= fall; disp.out *= fall; }
   const inDb = DSP.linToDb(disp.in), outDb = DSP.linToDb(disp.out);
-  $('mIn').style.width = dbPct(inDb) + '%';
-  $('mOut').style.width = dbPct(outDb) + '%';
+  $('mIn').style.height = dbPct(inDb) + '%';
+  $('mOut').style.height = dbPct(outDb) + '%';
   $('mInTxt').textContent = disp.in > 0.0005 ? inDb.toFixed(1) : '-∞';
   $('mOutTxt').textContent = disp.out > 0.0005 ? outDb.toFixed(1) : '-∞';
   const now = performance.now();
   if (inDb > hold.in || now - hold.inT > 1200) { hold.in = inDb; hold.inT = now; }
   if (outDb > hold.out || now - hold.outT > 1200) { hold.out = outDb; hold.outT = now; }
-  $('mInHold').style.left = `calc(${dbPct(hold.in)}% - 2px)`;
-  $('mOutHold').style.left = `calc(${dbPct(hold.out)}% - 2px)`;
+  $('mInHold').style.bottom = `calc(${dbPct(hold.in)}% - 1px)`;
+  $('mOutHold').style.bottom = `calc(${dbPct(hold.out)}% - 1px)`;
   for (const k of Object.keys(grBars)) {
     const db = disp[k] || 0;
     grBars[k].fill.style.width = Math.min(100, (-db / 24) * 100) + '%';
     grBars[k].txt.textContent = db.toFixed(1);
   }
+  if (typeof uiMeters === 'function') uiMeters();
 }
 
 const scope = { cv: null, cx: null, data: null, handles: [] };

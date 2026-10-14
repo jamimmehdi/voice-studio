@@ -140,35 +140,86 @@ function musicUpdateUi() {
   u.play.disabled = !el || music.index < 0;
 }
 
-function buildMusic(chain) {
-  const card = document.createElement('section');
-  card.className = 'card music';
-  card.dataset.mod = 'music';
-  const head = document.createElement('header');
-  head.innerHTML = '<h3>Music player</h3><small>plays through your mic – teammates hear it too</small>';
-  card.appendChild(head);
+function buildMusic(container) {
+  container.innerHTML = '';
 
-  const body = document.createElement('div');
-  body.className = 'musicbody';
+  /* cover + title */
+  const cover = document.createElement('div');
+  cover.className = 'mcover';
+  cover.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V6l10-2v12" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="18" r="2.4" stroke="#fff" stroke-width="2" fill="none"/><circle cx="17" cy="16" r="2.4" stroke="#fff" stroke-width="2" fill="none"/></svg>';
+  const info = document.createElement('div');
+  info.className = 'minfo';
+  const title = document.createElement('div'); title.className = 'mtitle';
+  const sub = document.createElement('div'); sub.className = 'msub';
+  sub.textContent = 'Plays through your mic · teammates hear it';
+  info.append(title, sub);
 
-  const left = document.createElement('div'); left.className = 'mleft';
+  /* transport */
+  const transport = document.createElement('div');
+  transport.className = 'mtransport';
+  const prev = document.createElement('button'); prev.className = 'tbtn'; prev.textContent = '⏮'; prev.setAttribute('aria-label', 'Previous track');
+  const play = document.createElement('button'); play.className = 'tbtn big'; play.textContent = '▶'; play.setAttribute('aria-label', 'Play or pause');
+  const next = document.createElement('button'); next.className = 'tbtn'; next.textContent = '⏭'; next.setAttribute('aria-label', 'Next track');
+  prev.addEventListener('click', musicPrev);
+  play.addEventListener('click', musicToggle);
+  next.addEventListener('click', () => musicNext(false));
+  const seek = document.createElement('input'); seek.type = 'range'; seek.min = 0; seek.max = 1000; seek.value = 0; seek.className = 'seek';
+  const time = document.createElement('span'); time.className = 'mtime mono';
+  seek.addEventListener('input', () => {
+    music.seeking = true;
+    if (music.el && isFinite(music.el.duration)) music.el.currentTime = (seek.value / 1000) * music.el.duration;
+  });
+  seek.addEventListener('change', () => { music.seeking = false; });
+  transport.append(prev, play, next, seek, time);
+
+  /* right: volume, duck, loop, playlist */
+  const right = document.createElement('div');
+  right.className = 'mright';
+  const volWrap = document.createElement('label');
+  volWrap.className = 'mvol';
+  volWrap.append('Vol ');
+  const vol = document.createElement('input'); vol.type = 'range'; vol.min = 0; vol.max = 100; vol.value = state.music.vol;
+  const volTxt = document.createElement('span'); volTxt.className = 'mono'; volTxt.textContent = state.music.vol + '%';
+  vol.addEventListener('input', () => {
+    state.music.vol = Number(vol.value); volTxt.textContent = vol.value + '%';
+    musicApplyVolume(); saveState();
+  });
+  volWrap.append(vol, volTxt);
+
+  const mkToggle = (label, key) => {
+    const b = document.createElement('button'); b.className = 'togglebtn'; b.textContent = label;
+    const draw = () => b.classList.toggle('on', !!state.music[key]);
+    b.addEventListener('click', () => { state.music[key] = !state.music[key]; draw(); saveState(); });
+    draw();
+    return b;
+  };
+  const duck = mkToggle('Duck when I talk', 'duck');
+  const loop = mkToggle('Loop', 'loop');
+  const listBtn = document.createElement('button'); listBtn.className = 'btn'; listBtn.textContent = '+ Add files / link';
+  right.append(volWrap, duck, loop, listBtn);
+
+  /* playlist popover */
+  const pop = document.createElement('div');
+  pop.className = 'mpop hidden';
   const bar = document.createElement('div'); bar.className = 'mbar';
-  const add = document.createElement('button'); add.className = 'togglebtn'; add.textContent = '+ Add files…';
+  const add = document.createElement('button'); add.className = 'btn'; add.textContent = '+ Add files…';
   const file = document.createElement('input'); file.type = 'file'; file.accept = 'audio/*'; file.multiple = true; file.hidden = true;
   add.addEventListener('click', () => file.click());
   file.addEventListener('change', () => { musicAddFiles(file.files); file.value = ''; });
-  const clr = document.createElement('button'); clr.className = 'togglebtn'; clr.textContent = 'Clear';
+  const clr = document.createElement('button'); clr.className = 'btn'; clr.textContent = 'Clear';
   clr.addEventListener('click', () => {
     music.list.forEach((t) => URL.revokeObjectURL(t.url));
     music.list = []; music.index = -1;
     if (music.el) { music.el.pause(); music.el.removeAttribute('src'); }
     musicRenderList(); musicUpdateUi();
   });
-  bar.append(add, clr, file);
+  const close = document.createElement('button'); close.className = 'btn'; close.textContent = 'Close';
+  close.addEventListener('click', () => pop.classList.add('hidden'));
+  bar.append(add, clr, file, close);
 
   const urlRow = document.createElement('div'); urlRow.className = 'mbar';
   const url = document.createElement('input'); url.type = 'text'; url.placeholder = 'Paste YouTube / audio link…'; url.className = 'urlbox';
-  const go = document.createElement('button'); go.className = 'togglebtn'; go.textContent = 'Add link';
+  const go = document.createElement('button'); go.className = 'btn'; go.textContent = 'Add link';
   const addUrl = async () => {
     const v = url.value.trim(); if (!v) return;
     go.disabled = true; const old = go.textContent; go.textContent = 'Loading…';
@@ -188,47 +239,10 @@ function buildMusic(chain) {
   urlRow.append(url, go);
 
   const list = document.createElement('div'); list.className = 'plist';
-  left.append(bar, urlRow, list);
+  pop.append(bar, urlRow, list);
+  listBtn.addEventListener('click', () => pop.classList.toggle('hidden'));
 
-  const right = document.createElement('div'); right.className = 'mright';
-  const title = document.createElement('div'); title.className = 'mtitle';
-  const transport = document.createElement('div'); transport.className = 'transport';
-  const prev = document.createElement('button'); prev.className = 'tbtn'; prev.textContent = '⏮';
-  const play = document.createElement('button'); play.className = 'tbtn big'; play.textContent = '▶';
-  const next = document.createElement('button'); next.className = 'tbtn'; next.textContent = '⏭';
-  prev.addEventListener('click', musicPrev);
-  play.addEventListener('click', musicToggle);
-  next.addEventListener('click', () => musicNext(false));
-  transport.append(prev, play, next);
-
-  const seekRow = document.createElement('div'); seekRow.className = 'seekrow';
-  const seek = document.createElement('input'); seek.type = 'range'; seek.min = 0; seek.max = 1000; seek.value = 0;
-  const time = document.createElement('span'); time.className = 'muted';
-  seek.addEventListener('input', () => {
-    music.seeking = true;
-    if (music.el && isFinite(music.el.duration)) music.el.currentTime = (seek.value / 1000) * music.el.duration;
-  });
-  seek.addEventListener('change', () => { music.seeking = false; });
-  seekRow.append(seek, time);
-
-  const opts = document.createElement('div'); opts.className = 'mopts';
-  const volKnob = makeKnob({ label: 'MUSIC VOL', min: 0, max: 100, def: 60, step: 1, unit: ' %', dec: 0 },
-    () => state.music.vol, (v) => { state.music.vol = v; musicApplyVolume(); });
-  const duck = document.createElement('button'); duck.className = 'togglebtn'; duck.textContent = 'Duck when I talk';
-  const drawDuck = () => duck.classList.toggle('on', !!state.music.duck);
-  duck.addEventListener('click', () => { state.music.duck = !state.music.duck; drawDuck(); saveState(); });
-  const loop = document.createElement('button'); loop.className = 'togglebtn'; loop.textContent = 'Loop playlist';
-  const drawLoop = () => loop.classList.toggle('on', !!state.music.loop);
-  loop.addEventListener('click', () => { state.music.loop = !state.music.loop; drawLoop(); saveState(); });
-  drawDuck(); drawLoop();
-  switches.push({ el: duck, refresh: drawDuck }, { el: loop, refresh: drawLoop });
-  const togs = document.createElement('div'); togs.className = 'minisel'; togs.append(duck, loop);
-  opts.append(volKnob, togs);
-
-  right.append(title, transport, seekRow, opts);
-  body.append(left, right);
-  card.appendChild(body);
-  chain.appendChild(card);
+  container.append(cover, info, transport, right, pop);
 
   Object.assign(music.ui, { list, play, title, time, seek });
   musicRenderList();
