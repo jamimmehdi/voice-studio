@@ -40,50 +40,37 @@
     }
   });
 
-  /* updater */
-  const bar = $('updateBar'), text = $('updateText'), btn = $('btnUpdate'), later = $('btnUpdateDismiss');
+  /* updater: a chip in the header (same look as the design board) */
+  const chip = $('btnUpdate');
   let state = 'idle';
+  let version = '';
   api.update.onAvailable((info) => {
-    state = 'available';
-    text.textContent = '';
-    const strong = document.createElement('b');
-    strong.textContent = 'Update available – version ' + info.version;
-    text.append(strong);
-    if (info.notes) {
-      const n = document.createElement('span');
-      n.className = 'muted';
-      n.textContent = '  ·  ' + info.notes.split('\n')[0].slice(0, 120);
-      text.append(n);
-    }
-    btn.textContent = 'Update now'; btn.disabled = false; later.hidden = false;
-    bar.classList.remove('hidden');
+    state = 'available'; version = info.version;
+    chip.textContent = '↑ Update ' + info.version;
+    chip.title = info.notes ? info.notes.split('\n')[0] : 'A new version is available';
+    chip.disabled = false;
+    chip.classList.remove('hidden');
     $('aboutUpdateMsg').textContent = 'Version ' + info.version + ' is available.';
   });
   api.update.onNone(() => { $('aboutUpdateMsg').textContent = 'You are on the latest version.'; });
-  api.update.onProgress((p) => {
-    text.textContent = 'Downloading update… ' + p.percent + '%';
-    const pr = document.createElement('span'); pr.className = 'prog';
-    const i = document.createElement('i'); i.style.width = p.percent + '%';
-    pr.append(i); text.append(pr);
-  });
-  api.update.onDownloaded(() => { text.textContent = 'Update downloaded – restarting Voice Studio…'; });
+  api.update.onProgress((p) => { chip.textContent = 'Downloading ' + p.percent + '%'; });
+  api.update.onDownloaded(() => { chip.textContent = 'Restarting…'; });
   api.update.onError((m) => {
     if (state === 'downloading') {
-      text.textContent = 'Update failed: ' + m;
-      btn.disabled = false; btn.textContent = 'Retry'; later.hidden = false; state = 'available';
+      chip.textContent = '↑ Retry update'; chip.disabled = false; state = 'available';
+      $('status').textContent = 'Update failed: ' + m;
     }
     $('aboutUpdateMsg').textContent = 'Update check failed: ' + m;
   });
-  btn.addEventListener('click', async () => {
-    state = 'downloading'; btn.disabled = true; later.hidden = true;
-    text.textContent = 'Starting download…';
+  chip.addEventListener('click', async () => {
+    if (state !== 'available') return;
+    state = 'downloading'; chip.disabled = true; chip.textContent = 'Starting…';
     const r = await api.update.download();
     if (r && r.ok === false) {
-      text.textContent = 'Update failed: ' + (r.error || 'unknown error');
-      btn.disabled = false; btn.textContent = 'Retry'; later.hidden = false; state = 'available';
+      chip.textContent = '↑ Retry update'; chip.disabled = false; state = 'available';
+      $('status').textContent = 'Update failed: ' + (r.error || 'unknown error');
     }
   });
-  later.addEventListener('click', () => bar.classList.add('hidden'));
   $('btnCheckUpdate').addEventListener('click', async () => {
     $('aboutUpdateMsg').textContent = 'Checking…';
     const r = await api.update.check();

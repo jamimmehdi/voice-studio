@@ -85,7 +85,7 @@ function buildChainStrip() {
     node.addEventListener('click', select);
     node.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(); } });
     wrap.appendChild(node);
-    if (i < STAGES.length - 1) wrap.appendChild(mk('span', 'narrow', '›'));
+    if (i < STAGES.length - 1) wrap.appendChild(mk('span', 'narrow', '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 2l5 4-5 4" stroke="#3b475c" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'));
     strip.appendChild(wrap);
     chainRefs[st.id] = { node, sw: st.mod ? sw : null, val: node.querySelector('.nval') };
     if (st.gr) grBars[st.gr] = { fill: node.querySelector('.ngr i'), txt: { textContent: '' } };
@@ -134,19 +134,21 @@ function kgrid(...els) {
 function renderStage() {
   pruneWidgets();
   const ed = $('editor');
+  // keep the Windows mic options alive while the editor is rebuilt
+  const stash = $('stash'), opts = $('micOptions');
+  if (opts && stash && opts.parentElement !== stash) stash.appendChild(opts);
   ed.innerHTML = '';
   voiceUI = null;
   const id = state.stage || 'voice';
   const st = STAGES.find((s) => s.id === id) || STAGES[3];
   const [title, sub] = STAGE_INFO[st.id];
 
-  const card = mk('section', 'card stage');
+  const card = mk('section', 'stagecard');
   const head = mk('div', 'sthead');
-  const titles = mk('div', 'sttitles');
-  titles.append(mk('h3', null, title), mk('p', 'muted', sub));
-  head.appendChild(titles);
+  head.append(mk('h3', null, st.id === 'voice' ? 'Voice' : title), mk('span', 'sub', sub));
+  head.appendChild(mk('div', 'spacer'));
   const body = mk('div', 'stbody');
-  if (st.mod) {
+  if (st.mod && st.id !== 'voice') {
     const sw = makeSwitch(() => state.params[st.mod].on, (v) => { state.params[st.mod].on = v; },
       () => { body.classList.toggle('off', !state.params[st.mod].on); updateChain(); });
     head.appendChild(sw);
@@ -162,6 +164,7 @@ function renderStage() {
         makeKnob({ label: 'INPUT GAIN', min: -24, max: 24, def: 0, step: 0.1, unit: ' dB' }, () => p().inGain, (v) => { p().inGain = v; }),
       ));
       body.appendChild(mk('div', 'note', `Current microphone: <b>${deviceLabel('selIn')}</b>. Change it in the Devices panel.`));
+      if (opts) body.appendChild(opts);
       break;
 
     case 'hpf':
@@ -183,7 +186,7 @@ function renderStage() {
       break;
 
     case 'voice':
-      buildVoiceStage(body);
+      buildVoiceStage(card, head, body);
       break;
 
     case 'deess':
@@ -249,10 +252,41 @@ function renderStage() {
   }
 }
 
-/* ---- Voice stage: XY pad + readouts + voice tiles ---- */
-function buildVoiceStage(body) {
+/* ---- Voice stage: XY pad + readouts + voice tiles (matches the design board) ---- */
+const VOICE_TILES = [
+  ['Female – Natural', 'Female – Natural', '#ff7ac8'],
+  ['Female – Soft / Warm', 'Female – Soft', '#ff7ac8'],
+  ['Female – Bright / Young', 'Female – Bright', '#ff7ac8'],
+  ['Girl / Child', 'Girl / Child', '#ffb86b'],
+  ['Male – Deep', 'Male – Deep', '#6aa8ff'],
+  ['Male – Strong / Very Manly', 'Male – Strong', '#6aa8ff'],
+  ['Cartoon / Chipmunk', 'Cartoon', '#ffd86b'],
+  ['Giant / Monster', 'Giant', '#8f7bff'],
+  ['Robot', 'Robot', '#9aa6b8'],
+  ['Clean mic (no voice change)', 'Clean mic', '#5eead4'],
+];
+const PAD_MARKS = [
+  ['Giant', -9, -6], ['Male strong', -5.5, -3.5], ['Male deep', -4, -2.5], ['Robot', -2, 0],
+  ['Female soft', 4, 2.2], ['Girl', 9, 6], ['Cartoon', 11, 8],
+];
+const shortNum = (v) => (v === 0 ? '0' : (v < 0 ? '−' : '+') + Math.abs(v));
+
+function buildVoiceStage(card, head, body) {
   const v = () => state.params.voice;
-  const wrap = mk('div', 'voicewrap');
+
+  /* quality select sits in the card header, like the board */
+  const qual = mk('label', 'qual');
+  qual.append('Quality');
+  const qsel = mk('select');
+  [[2048, 'Clean · 43 ms'], [1024, 'Balanced · 21 ms'], [512, 'Fast · 11 ms']].forEach(([q, t]) => qsel.appendChild(new Option(t, String(q))));
+  const drawQ = () => { qsel.value = String(v().quality); };
+  qsel.addEventListener('change', () => { v().quality = Number(qsel.value); pushParams(); });
+  drawQ();
+  switches.push({ el: qsel, refresh: drawQ });
+  qual.appendChild(qsel);
+  head.appendChild(qual);
+
+  const row = mk('div', 'voicerow');
 
   const pad = mk('div', 'pad');
   pad.innerHTML =
@@ -264,59 +298,84 @@ function buildVoiceStage(body) {
     '<span class="pl bl">← Deeper pitch</span><span class="pl br">Higher pitch →</span>' +
     '<span class="pl tl">↑ Smaller throat</span><span class="pl bc">natural-sounding zone follows the diagonal</span>';
   const pos = (pitch, formant) => ({ x: (pitch + 12) / 24 * 100, y: (12 - formant) / 24 * 100 });
-  Object.keys(BUILTIN_PRESETS).forEach((name) => {
-    const vp = BUILTIN_PRESETS[name].voice;
-    if (!vp || !vp.on || vp.pitch == null) return;
-    const q = pos(vp.pitch, vp.formant);
+  PAD_MARKS.forEach(([label, p, f]) => {
+    const q = pos(p, f);
     const m = mk('div', 'mark', '<i></i><span></span>');
-    m.querySelector('span').textContent = SHORT_NAMES[name] || name;
+    m.querySelector('span').textContent = label;
     m.style.left = q.x + '%'; m.style.top = q.y + '%';
     pad.appendChild(m);
   });
   const puck = mk('div', 'puck', '<i></i>');
   pad.appendChild(puck);
 
+  /* side column: readouts, effect mix bar, robot switch */
   const side = mk('div', 'vside');
-  const rd = (label) => {
-    const box = mk('div', 'readout', `<span>${label}</span><b class="mono"></b>`);
+  const readout = (label) => {
+    const box = mk('div', 'readout', '<div class="rk"></div><div class="rv mono"></div>');
+    box.querySelector('.rk').textContent = label;
     side.appendChild(box);
-    return box.querySelector('b');
+    return box.querySelector('.rv');
   };
-  const rPitch = rd('Pitch'), rForm = rd('Formant');
+  const rPitch = readout('Pitch'), rForm = readout('Formant');
 
-  side.append(
-    kgrid(
-      K('voice', 'mix', { label: 'EFFECT MIX', min: 0, max: 100, def: 100, step: 1, unit: ' %', dec: 0 }),
-    ),
-    makeSelect('QUALITY / DELAY', [[512, 'Fast · 11 ms (rough)'], [1024, 'Balanced · 21 ms'], [2048, 'Clean · 43 ms (best)']],
-      () => v().quality, (q) => { v().quality = q; }),
-    makeToggleButton('Robot voice', () => v().robot, (r) => { v().robot = r; }),
-  );
+  const mix = mk('div');
+  const mixHead = mk('div', 'mixhead', '<span>Effect mix</span><span class="mono"></span>');
+  const mixVal = mixHead.querySelector('.mono');
+  const mixRange = mk('input');
+  mixRange.type = 'range'; mixRange.min = 0; mixRange.max = 100; mixRange.step = 1;
+  mixRange.setAttribute('aria-label', 'Effect mix');
+  const drawMix = () => {
+    mixRange.value = v().mix;
+    mixRange.style.setProperty('--p', v().mix + '%');
+    mixVal.textContent = Math.round(v().mix) + '%';
+  };
+  mixRange.addEventListener('input', () => { v().mix = Number(mixRange.value); state.preset = null; drawMix(); pushParams(); });
+  mixRange.addEventListener('dblclick', () => { v().mix = 100; drawMix(); pushParams(); });
+  drawMix();
+  switches.push({ el: mixRange, refresh: drawMix });
+  mix.append(mixHead, mixRange);
 
+  const robot = mk('div', 'switchline');
+  robot.append(mk('span', null, 'Robot voice'),
+    makeSwitch(() => v().robot, (r) => { v().robot = r; }));
+  side.append(mix, robot);
+
+  row.append(pad, side);
+  body.appendChild(row);
+  card.append(head, body);
+
+  /* voices card */
+  const vc = mk('section', 'voicescard');
+  vc.appendChild(mk('h2', 'mb12', 'Voices'));
   const tiles = mk('div', 'voices');
   const tileEls = {};
-  const names = ['Female – Natural', 'Female – Soft / Warm', 'Female – Bright / Young', 'Girl / Child',
-    'Male – Deep', 'Male – Strong / Very Manly', 'Cartoon / Chipmunk', 'Giant / Monster', 'Robot', 'Clean mic (no voice change)'];
-  names.forEach((name) => {
-    const vp = BUILTIN_PRESETS[name] && BUILTIN_PRESETS[name].voice;
+  VOICE_TILES.forEach(([key, label, color]) => {
+    const vp = BUILTIN_PRESETS[key] && BUILTIN_PRESETS[key].voice;
     const t = mk('button', 'vtile');
     t.type = 'button';
-    const vals = vp && vp.on ? `${signed(vp.pitch)} / ${signed(vp.formant)}` : 'no change';
-    t.innerHTML = '<span class="vn"></span><span class="vv mono"></span>';
-    t.querySelector('.vn').textContent = name.replace(' (no voice change)', '');
+    t.innerHTML = '<span class="vtop"><span class="vdot"></span><span class="vn"></span></span><span class="vv"></span>';
+    t.querySelector('.vdot').style.background = color;
+    t.querySelector('.vn').textContent = label;
+    let vals = 'no change';
+    if (vp && vp.on) {
+      vals = shortNum(vp.pitch) + ' / ' + shortNum(vp.formant);
+      if (vp.robot) vals += ' · ring';
+    }
     t.querySelector('.vv').textContent = vals;
-    t.addEventListener('click', () => applyPreset(name));
+    t.addEventListener('click', () => applyPreset(key));
     tiles.appendChild(t);
-    tileEls[name] = t;
+    tileEls[key] = t;
   });
+  vc.appendChild(tiles);
+  $('editor').appendChild(vc);
 
-  // pad interaction
+  /* pad interaction */
   let drag = false;
   const move = (e) => {
     const r = pad.getBoundingClientRect();
     const nx = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
     const ny = Math.min(1, Math.max(0, (e.clientY - r.top) / r.height));
-    let pitch = Math.round((nx * 24 - 12) * 10) / 10;
+    const pitch = Math.round((nx * 24 - 12) * 10) / 10;
     let formant = Math.round((12 - ny * 24) * 10) / 10;
     if (e.shiftKey) formant = Math.round(pitch * 0.62 * 10) / 10; // snap to the natural diagonal
     state.params.voice.pitch = pitch;
@@ -324,7 +383,7 @@ function buildVoiceStage(body) {
     state.params.voice.on = true;
     state.preset = null;
     knobs.forEach((k) => k.refresh());
-    switches.forEach((s) => s.refresh());
+    switches.forEach((sw) => sw.refresh());
     if (voiceUI) voiceUI.update();
     pushParams();
   };
@@ -339,20 +398,18 @@ function buildVoiceStage(body) {
   pad.addEventListener('pointercancel', end);
   pad.addEventListener('dblclick', () => {
     state.params.voice.pitch = 0; state.params.voice.formant = 0; state.preset = null;
-    knobs.forEach((k) => k.refresh()); pushParams();
+    if (voiceUI) voiceUI.update();
+    pushParams();
   });
 
   const update = () => {
     const q = pos(v().pitch, v().formant);
     puck.style.left = q.x + '%'; puck.style.top = q.y + '%';
-    rPitch.textContent = signed(v().pitch) + ' st';
-    rForm.textContent = signed(v().formant) + ' st';
+    rPitch.innerHTML = signed(v().pitch) + ' <span class="u">st</span>';
+    rForm.innerHTML = signed(v().formant) + ' <span class="u">st</span>';
     Object.keys(tileEls).forEach((n) => tileEls[n].classList.toggle('active', state.preset === n));
   };
   voiceUI = { update };
-
-  wrap.append(pad, side);
-  body.append(wrap, mk('h4', 'minihead', 'Voices'), tiles);
   update();
 }
 
@@ -412,10 +469,57 @@ function uiMeters() {
     setText('hDrop', String(engine.dropouts || 0));
     setText('hRate', (engine.ctx.sampleRate / 1000).toFixed(1) + ' kHz');
     const d = $('hDrop');
-    if (d) d.classList.toggle('bad', (engine.dropouts || 0) > 0);
+    if (d) { d.classList.toggle('bad', (engine.dropouts || 0) > 0); d.classList.toggle('ok', !(engine.dropouts || 0)); }
   } else {
     setText('hLat', '–'); setText('hDrop', '–'); setText('hRate', '–');
   }
+}
+
+/* ---- IN / OUT gain readouts (drag up/down, wheel, double-click resets) ---- */
+function makeGainReadout(key) {
+  const el = mk('div', 'gainread');
+  el.setAttribute('role', 'slider');
+  el.tabIndex = 0;
+  el.title = 'Drag up/down to change, double-click to reset';
+  const draw = () => { el.textContent = (state.params[key] >= 0 ? '' : '−') + Math.abs(state.params[key]).toFixed(1) + ' dB'; };
+  const set = (v) => {
+    state.params[key] = Math.round(Math.max(-24, Math.min(24, v)) * 10) / 10;
+    draw(); pushParams();
+  };
+  let startY = 0, startV = 0, dragging = false;
+  el.addEventListener('pointerdown', (e) => { dragging = true; startY = e.clientY; startV = state.params[key]; try { el.setPointerCapture(e.pointerId); } catch (_) { /* */ } });
+  el.addEventListener('pointermove', (e) => { if (dragging) set(startV + (startY - e.clientY) / (e.shiftKey ? 20 : 4)); });
+  const end = () => { dragging = false; };
+  el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+  el.addEventListener('dblclick', () => set(0));
+  el.addEventListener('wheel', (e) => { e.preventDefault(); set(state.params[key] + (e.deltaY < 0 ? 0.5 : -0.5)); }, { passive: false });
+  el.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowUp') { e.preventDefault(); set(state.params[key] + 0.5); }
+    if (e.key === 'ArrowDown') { e.preventDefault(); set(state.params[key] - 0.5); }
+  });
+  draw();
+  knobs.push({ el, refresh: draw });
+  return el;
+}
+
+function buildGainReadouts() {
+  const a = $('gainInSlot'), b = $('gainOutSlot');
+  if (a) { a.innerHTML = ''; a.appendChild(makeGainReadout('inGain')); }
+  if (b) { b.innerHTML = ''; b.appendChild(makeGainReadout('outGain')); }
+}
+
+/* flat bar sliders (monitor volume) painted like the board */
+function initRanges() {
+  const rng = $('rngMon');
+  if (!rng) return;
+  const paint = () => {
+    rng.style.setProperty('--p', (rng.value / rng.max * 100) + '%');
+    const t = $('monVolTxt');
+    if (t) t.textContent = ' · volume ' + Math.round(rng.value * 100) + '%';
+  };
+  rng.addEventListener('input', paint);
+  paint();
+  window.paintMonitorRange = paint;
 }
 
 function buildStudio() {
@@ -424,5 +528,6 @@ function buildStudio() {
   buildQuickFixes();
   renderStage();
   buildMusic($('musicDock'));
+  initRanges();
   updateChain();
 }

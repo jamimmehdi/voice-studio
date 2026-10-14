@@ -282,11 +282,7 @@ function buildChain() {
 }
 
 function buildIOKnobs() {
-  const row = $('ioKnobs');
-  row.innerHTML = '';
-  const mk = (k, label) => makeKnob({ label, min: -24, max: 24, def: 0, step: 0.1, unit: ' dB' },
-    () => state.params[k], (v) => { state.params[k] = v; });
-  row.append(mk('inGain', 'INPUT GAIN'), mk('outGain', 'OUTPUT GAIN'));
+  buildGainReadouts(); // ui.js
 }
 
 function refreshAll() {
@@ -352,7 +348,7 @@ function updateCableStatus(found, hasLabels = true) {
   const label = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : '';
   btn.hidden = true;
   if (!hasLabels) { el.textContent = 'Detecting audio devices…'; el.className = 'hint'; }
-  else if (/cable|virtual|voicemeeter/i.test(label)) { el.textContent = '✓ Virtual cable selected – pick its “Output” side in your game.'; el.className = 'hint ok'; }
+  else if (/cable|virtual|voicemeeter/i.test(label)) { el.textContent = 'Virtual mic ready. In your game pick CABLE Output.'; el.className = 'hint ok'; }
   else if (found) { el.textContent = 'Virtual cable found – select “CABLE Input” above to feed your game.'; el.className = 'hint bad'; }
   else { el.textContent = 'No virtual microphone found – it is required to use this in games.'; el.className = 'hint bad'; btn.hidden = false; }
 }
@@ -495,8 +491,8 @@ function updateMeters() {
   const inDb = DSP.linToDb(disp.in), outDb = DSP.linToDb(disp.out);
   $('mIn').style.height = dbPct(inDb) + '%';
   $('mOut').style.height = dbPct(outDb) + '%';
-  $('mInTxt').textContent = disp.in > 0.0005 ? inDb.toFixed(1) : '-∞';
-  $('mOutTxt').textContent = disp.out > 0.0005 ? outDb.toFixed(1) : '-∞';
+  $('mInTxt').textContent = disp.in > 0.0005 ? inDb.toFixed(1).replace('-', '−') : '−∞';
+  $('mOutTxt').textContent = disp.out > 0.0005 ? outDb.toFixed(1).replace('-', '−') : '−∞';
   const now = performance.now();
   if (inDb > hold.in || now - hold.inT > 1200) { hold.in = inDb; hold.inT = now; }
   if (outDb > hold.out || now - hold.outT > 1200) { hold.out = outDb; hold.outT = now; }
@@ -510,7 +506,7 @@ function updateMeters() {
   if (typeof uiMeters === 'function') uiMeters();
 }
 
-const scope = { cv: null, cx: null, data: null, handles: [] };
+const scope = { cv: null, cx: null, data: null, handles: [], hover: false };
 const F_MIN = 20, F_MAX = 20000, DB_RANGE = 24;
 
 function eqCurveDb(f, fs) {
@@ -536,68 +532,71 @@ function drawScope() {
   const cx = scope.cx;
   const dpr = window.devicePixelRatio || 1;
   const w = cv.clientWidth, h = cv.clientHeight;
+  if (!w || !h) return;
   if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) {
     cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
   }
   cx.setTransform(dpr, 0, 0, dpr, 0, 0);
   cx.clearRect(0, 0, w, h);
   const fs = engine.ctx ? engine.ctx.sampleRate : 48000;
+  const yEq = (db) => h / 2 - (db / 22) * (h / 2);
   const xOf = (f) => (Math.log(f / F_MIN) / Math.log(F_MAX / F_MIN)) * w;
-  const yEq = (db) => h / 2 - (db / DB_RANGE) * (h / 2) * 0.92;
 
-  // grid
-  cx.lineWidth = 1; cx.font = '10px Segoe UI'; cx.fillStyle = '#6c7585'; cx.strokeStyle = '#1d222b';
-  for (const f of [30, 50, 100, 200, 500, 1000, 2000, 5000, 10000]) {
-    const x = xOf(f); cx.beginPath(); cx.moveTo(x, 0); cx.lineTo(x, h); cx.stroke();
-    cx.fillText(f >= 1000 ? f / 1000 + 'k' : String(f), x + 3, h - 4);
-  }
-  for (const db of [-18, -12, -6, 0, 6, 12, 18]) {
-    const y = yEq(db);
-    cx.strokeStyle = db === 0 ? '#2e3643' : '#1d222b';
-    cx.beginPath(); cx.moveTo(0, y); cx.lineTo(w, y); cx.stroke();
-    cx.fillStyle = '#6c7585'; cx.fillText((db > 0 ? '+' : '') + db, w - 24, y - 3);
-  }
+  // centre line (0 dB)
+  cx.strokeStyle = 'rgba(255,255,255,.12)'; cx.lineWidth = 1;
+  cx.beginPath(); cx.moveTo(0, h / 2); cx.lineTo(w, h / 2); cx.stroke();
 
-  // live spectrum
+  // live spectrum as 48 gradient bars (or a gentle idle shape when the engine is off)
+  const BARS = 48, padX = 6, gap = 2;
+  const bw = (w - padX * 2 - gap * (BARS - 1)) / BARS;
+  const grad = cx.createLinearGradient(0, h, 0, 0);
+  grad.addColorStop(0, '#3b4ea8'); grad.addColorStop(1, '#7c8cff');
+  cx.fillStyle = grad; cx.globalAlpha = 0.85;
+  let data = null, binHz = 0;
   if (engine.analyser) {
     const an = engine.analyser;
     if (!scope.data || scope.data.length !== an.frequencyBinCount) scope.data = new Float32Array(an.frequencyBinCount);
     an.getFloatFrequencyData(scope.data);
-    cx.beginPath();
-    const binHz = fs / an.fftSize;
-    let first = true;
-    for (let px = 0; px <= w; px += 2) {
-      const f = F_MIN * Math.pow(F_MAX / F_MIN, px / w);
-      const bin = Math.min(scope.data.length - 1, Math.round(f / binHz));
-      const db = Math.max(-100, scope.data[bin]);
-      const y = h - ((db + 100) / 100) * h * 0.95;
-      if (first) { cx.moveTo(px, y); first = false; } else cx.lineTo(px, y);
-    }
-    cx.lineTo(w, h); cx.lineTo(0, h); cx.closePath();
-    const g = cx.createLinearGradient(0, 0, 0, h);
-    g.addColorStop(0, 'rgba(124,140,255,.55)'); g.addColorStop(1, 'rgba(124,140,255,.02)');
-    cx.fillStyle = g; cx.fill();
-    cx.strokeStyle = '#7c8cff'; cx.lineWidth = 1.2; cx.stroke();
+    data = scope.data; binHz = fs / an.fftSize;
   }
+  for (let i = 0; i < BARS; i++) {
+    const t0 = i / BARS, t1 = (i + 1) / BARS;
+    const f0 = F_MIN * Math.pow(F_MAX / F_MIN, t0), f1 = F_MIN * Math.pow(F_MAX / F_MIN, t1);
+    let level;
+    if (data) {
+      let peak = -120;
+      const b0 = Math.max(1, Math.floor(f0 / binHz)), b1 = Math.min(data.length - 1, Math.max(b0, Math.ceil(f1 / binHz)));
+      for (let b = b0; b <= b1; b++) if (data[b] > peak) peak = data[b];
+      level = Math.max(0, Math.min(1, (peak + 100) / 100));
+    } else level = 0.05 + 0.04 * Math.sin(i * 1.7);
+    const bh = Math.max(3, level * h * 0.92);
+    const x = padX + i * (bw + gap);
+    cx.beginPath();
+    if (cx.roundRect) cx.roundRect(x, h - bh, bw, bh, [2, 2, 0, 0]); else cx.rect(x, h - bh, bw, bh);
+    cx.fill();
+  }
+  cx.globalAlpha = 1;
 
-  // EQ curve
+  // EQ + high-pass curve
   cx.beginPath();
   for (let px = 0; px <= w; px += 2) {
     const f = F_MIN * Math.pow(F_MAX / F_MIN, px / w);
-    const y = yEq(Math.max(-DB_RANGE, Math.min(DB_RANGE, eqCurveDb(f, fs))));
+    const y = yEq(Math.max(-22, Math.min(22, eqCurveDb(f, fs))));
     if (px === 0) cx.moveTo(px, y); else cx.lineTo(px, y);
   }
-  cx.strokeStyle = '#3dd6c6'; cx.lineWidth = 2.2; cx.stroke();
+  cx.strokeStyle = '#5eead4'; cx.lineWidth = 2; cx.stroke();
 
-  // band handles
+  // band handles: only while editing the EQ or hovering the graph
   scope.handles = [];
+  const showHandles = scope.hover || state.stage === 'eq';
   state.params.eq.bands.forEach((b, i) => {
-    const x = xOf(b.freq), y = yEq(b.gain);
+    const x = xOf(b.freq), y = yEq(Math.max(-22, Math.min(22, b.gain)));
     scope.handles.push({ i, x, y });
-    cx.beginPath(); cx.arc(x, y, 7, 0, Math.PI * 2);
-    cx.fillStyle = b.on && state.params.eq.on ? '#3dd6c6' : '#454d5b';
-    cx.fill(); cx.strokeStyle = '#0b0d11'; cx.lineWidth = 2; cx.stroke();
-    cx.fillStyle = '#0b0d11'; cx.font = 'bold 9px Segoe UI'; cx.textAlign = 'center';
+    if (!showHandles) return;
+    cx.beginPath(); cx.arc(x, y, 6, 0, Math.PI * 2);
+    cx.fillStyle = b.on && state.params.eq.on ? '#5eead4' : '#454d5b';
+    cx.fill(); cx.strokeStyle = '#05070a'; cx.lineWidth = 2; cx.stroke();
+    cx.fillStyle = '#04201c'; cx.font = '700 8px "Plus Jakarta Sans", sans-serif'; cx.textAlign = 'center';
     cx.fillText(String(i + 1), x, y + 3); cx.textAlign = 'start';
   });
 }
@@ -620,7 +619,7 @@ function setupScopeInteraction() {
     if (active < 0) { cv.style.cursor = hit(x, y) >= 0 ? 'grab' : 'default'; return; }
     const b = state.params.eq.bands[active];
     b.freq = Math.min(F_MAX, Math.max(F_MIN, F_MIN * Math.pow(F_MAX / F_MIN, x / w)));
-    b.gain = Math.min(18, Math.max(-18, ((h / 2 - y) / ((h / 2) * 0.92)) * DB_RANGE));
+    b.gain = Math.min(18, Math.max(-18, ((h / 2 - y) / (h / 2)) * 22));
     b.gain = Math.round(b.gain * 10) / 10;
     state.preset = null;
     knobs.forEach((k) => k.refresh());
@@ -628,6 +627,8 @@ function setupScopeInteraction() {
   });
   const end = (e) => { active = -1; try { cv.releasePointerCapture(e.pointerId); } catch (_) { /* */ } };
   cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+  cv.addEventListener('pointerenter', () => { scope.hover = true; drawScope(); });
+  cv.addEventListener('pointerleave', () => { scope.hover = false; drawScope(); });
   cv.addEventListener('wheel', (e) => {
     const [x, y] = pos(e); const i = hit(x, y);
     if (i < 0) return;
@@ -671,6 +672,7 @@ async function init() {
   $('selBuffer').addEventListener('change', (e) => { state.buffer = e.target.value; saveState(); restartEngine(); });
   $('chkMonitor').checked = state.monitor.on;
   $('rngMon').value = state.monitor.vol;
+  if (window.paintMonitorRange) window.paintMonitorRange();
   $('chkNs').checked = state.ns; $('chkAgc').checked = state.agc;
 
   await enumerate();
