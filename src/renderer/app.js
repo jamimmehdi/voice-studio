@@ -32,7 +32,7 @@ const state = {
   dev: { in: 'default', out: 'default', mon: 'default' },
   monitor: { on: false, vol: 0.8 },
   ns: false, agc: false,
-  music: { vol: 60, duck: true, loop: false },
+  music: { vol: 60, duck: true, loop: false, show: false },
   buffer: 'balanced',
   v: 2,
   preset: 'Female – Natural',

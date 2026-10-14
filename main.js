@@ -163,7 +163,7 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 1360,
     height: 900,
-    minWidth: 1100,
+    minWidth: 1200,
     minHeight: 720,
     backgroundColor: '#0e1014',
     title: 'Voice Studio',

@@ -462,7 +462,7 @@ let uiTick = 0;
 function uiMeters() {
   if (++uiTick % 20 === 0) updateChain(); // picks up device-name changes
   const q = state.params.voice.quality;
-  setText('hQual', { 512: 'Fast', 1024: 'Balanced', 2048: 'Clean' }[q] + ' · ' + q);
+  setText('hQual', { 512: 'Fast', 1024: 'Balanced', 2048: 'Clean' }[q] || String(q));
   if (engine.running && engine.ctx) {
     const ms = Math.round((engine.latency / engine.ctx.sampleRate + engine.ctx.baseLatency + (engine.ctx.outputLatency || 0)) * 1000);
     setText('hLat', ms + ' ms');
@@ -522,6 +522,29 @@ function initRanges() {
   window.paintMonitorRange = paint;
 }
 
+/* ---- floating music bar: header switch ---- */
+function initMusicSwitch() {
+  const sw = $('musicSwitch');
+  if (!sw) return;
+  const apply = (fromUser) => {
+    const on = !!state.music.show;
+    document.body.classList.toggle('show-music', on);
+    sw.classList.toggle('on', on);
+    sw.setAttribute('aria-checked', on);
+    if (!on && fromUser) {
+      // switching the player off also stops the music and closes the playlist
+      if (music.el && !music.el.paused) music.el.pause();
+      const pop = document.querySelector('.mpop');
+      if (pop) pop.classList.add('hidden');
+      musicUpdateUi();
+    }
+  };
+  const flip = () => { state.music.show = !state.music.show; apply(true); saveState(); };
+  sw.addEventListener('click', flip);
+  sw.addEventListener('keydown', (e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flip(); } });
+  apply(false);
+}
+
 function buildStudio() {
   if (!state.stage) state.stage = 'voice';
   buildChainStrip();
@@ -529,5 +552,6 @@ function buildStudio() {
   renderStage();
   buildMusic($('musicDock'));
   initRanges();
+  initMusicSwitch();
   updateChain();
 }

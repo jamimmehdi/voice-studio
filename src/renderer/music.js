@@ -151,7 +151,6 @@ function buildMusic(container) {
 
   /* cover + title */
   const left = mkEl('div', 'dockleft');
-  left.style.cssText = 'display:flex;align-items:center;gap:12px;flex:1 1 260px;min-width:0';
   const cover = mkEl('div', 'mcover', '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V6l10-2v12" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="18" r="2.4" stroke="#fff" stroke-width="2" fill="none"/><circle cx="17" cy="16" r="2.4" stroke="#fff" stroke-width="2" fill="none"/></svg>');
   const info = mkEl('div', 'minfo');
   const title = mkEl('div', 'mtitle');
