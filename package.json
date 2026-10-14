@@ -2,7 +2,7 @@
   "name": "voice-studio",
   "version": "1.2.0",
   "description": "Real-time voice changer and vocal-processing studio for Windows",
-  "main": "main.js",
+  "main": "out/main/index.js",
   "homepage": "https://github.com/jamimmehdi/voice-studio",
   "repository": {
     "type": "git",
@@ -12,11 +12,20 @@
     "url": "https://github.com/jamimmehdi/voice-studio/issues"
   },
   "scripts": {
-    "start": "electron .",
-    "test": "node test/dsp.test.js",
-    "preview": "node tools/serve.js",
+    "dev": "npm run build:worklet && electron-vite dev",
+    "start": "electron-vite preview",
+    "build:worklet": "node scripts/build-worklet.mjs",
+    "build": "npm run typecheck && npm run build:worklet && electron-vite build",
+    "typecheck": "tsc -p tsconfig.node.json --noEmit && tsc -p tsconfig.web.json --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"tests/**/*.{ts,tsx}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"tests/**/*.{ts,tsx}\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "node scripts/e2e.mjs",
     "icon": "node tools/make-icon.js",
-    "dist": "electron-builder --win --publish never"
+    "dist": "npm run build && electron-builder --win --publish never"
   },
   "keywords": [
     "voice-changer",
@@ -32,15 +41,39 @@
   "license": "MIT",
   "type": "commonjs",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@fontsource/jetbrains-mono": "^5.3.0",
     "@fontsource/plus-jakarta-sans": "^5.3.0",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.8",
+    "@types/node": "^26.6.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "@vitest/coverage-v8": "^5.0.4",
     "electron": "^44.7.2",
     "electron-builder": "^26.15.3",
+    "electron-vite": "^6.0.0",
+    "esbuild": "^0.28.2",
+    "eslint": "^10.12.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.13.0",
+    "jsdom": "^30.1.2",
+    "playwright-core": "^1.64.1",
     "png-to-ico": "^3.0.2",
-    "sharp": "^0.35.5"
+    "prettier": "^3.9.10",
+    "sharp": "^0.35.5",
+    "typescript": "~5.9",
+    "typescript-eslint": "^8.71.2",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.4"
   },
   "dependencies": {
-    "electron-updater": "^6.8.9"
+    "electron-updater": "^6.8.9",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "zustand": "^5.0.15"
   },
   "build": {
     "appId": "com.voicestudio.app",
@@ -51,11 +84,7 @@
       "buildResources": "build"
     },
     "files": [
-      "main.js",
-      "overlay.js",
-      "preload.js",
-      "preload-quick.js",
-      "src/**/*",
+      "out/**",
       "build/icon.png",
       "package.json"
     ],
