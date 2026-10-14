@@ -56,6 +56,7 @@ export default defineConfig({
     build: {
       rollupOptions: {
         input: {
+          splash: resolve('src/renderer/splash.html'),
           studio: resolve('src/renderer/studio.html'),
           quick: resolve('src/renderer/quick.html'),
           icon: resolve('src/renderer/icon.html'),

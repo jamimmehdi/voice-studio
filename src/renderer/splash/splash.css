@@ -1,0 +1,236 @@
+/* Launch screen. The window is transparent: the rounded card is the visible shape. */
+:root {
+  --accent: #5eead4;
+  --violet: #7c8cff;
+  --pink: #a8327f;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: transparent;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  user-select: none;
+  -webkit-app-region: drag;
+}
+
+body {
+  opacity: 0;
+  transform: scale(0.96);
+  animation: enter 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  transition:
+    opacity 0.38s ease,
+    transform 0.38s ease;
+}
+
+/* set by the main process just before the window closes */
+body.leaving {
+  opacity: 0 !important;
+  transform: scale(1.04) !important;
+  animation: none;
+}
+
+.stage {
+  position: relative;
+  display: grid;
+  height: 100%;
+  padding: 20px;
+  place-items: center;
+}
+
+/* soft colour bloom behind the card */
+.glow {
+  position: absolute;
+  inset: 10px;
+  background:
+    radial-gradient(60% 70% at 30% 20%, rgba(94, 234, 212, 0.35), transparent 70%),
+    radial-gradient(60% 70% at 75% 85%, rgba(168, 50, 127, 0.4), transparent 70%),
+    radial-gradient(50% 60% at 80% 15%, rgba(124, 140, 255, 0.3), transparent 70%);
+  border-radius: 40px;
+  filter: blur(26px);
+  animation: breathe 4s ease-in-out infinite;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 26px 30px 16px;
+  background: linear-gradient(160deg, #141b2a 0%, #0b0e14 70%);
+  border: 1px solid rgba(94, 234, 212, 0.28);
+  border-radius: 26px;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* a light sweep across the card */
+.card::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.07) 50%, transparent 60%);
+  transform: translateX(-120%);
+  animation: sweep 2.6s ease-in-out 0.5s infinite;
+}
+
+/* ---------- animated waveform logo ---------- */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 78px;
+  margin-bottom: 18px;
+}
+
+.logo i {
+  width: 9px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--violet), var(--accent));
+  border-radius: 6px;
+  box-shadow: 0 0 14px rgba(94, 234, 212, 0.35);
+  transform-origin: center;
+  /* the centre bar is the tallest, the outer bars the shortest */
+  --base: calc(0.32 + (1 - (var(--d) / 3)) * 0.6);
+  --d: max(var(--i) - 3, 3 - var(--i));
+  transform: scaleY(var(--base));
+  animation: bar 1.15s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -0.14s);
+}
+
+.title {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #e8ecf3;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: rise 0.6s ease 0.25s forwards;
+}
+
+.tagline {
+  margin: 6px 0 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: #8b96a8;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: rise 0.6s ease 0.4s forwards;
+}
+
+/* ---------- indeterminate progress ---------- */
+.progress {
+  position: relative;
+  width: 62%;
+  height: 4px;
+  margin-top: 26px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 3px;
+  opacity: 0;
+  animation: rise 0.5s ease 0.55s forwards;
+}
+
+.progress span {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 38%;
+  background: linear-gradient(90deg, transparent, var(--accent), var(--violet), transparent);
+  border-radius: 3px;
+  animation: slide 1.4s cubic-bezier(0.5, 0, 0.3, 1) infinite;
+}
+
+.foot {
+  position: absolute;
+  right: 22px;
+  bottom: 12px;
+  left: 22px;
+  display: flex;
+  justify-content: space-between;
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  font-size: 11px;
+  color: #667286;
+}
+
+/* ---------- keyframes ---------- */
+@keyframes enter {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes rise {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bar {
+  0%,
+  100% {
+    transform: scaleY(var(--base));
+  }
+  50% {
+    transform: scaleY(calc(var(--base) * 0.45 + 0.5));
+  }
+}
+
+@keyframes slide {
+  from {
+    left: -40%;
+  }
+  to {
+    left: 102%;
+  }
+}
+
+@keyframes sweep {
+  0%,
+  35% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.75;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo i,
+  .progress span,
+  .card::after,
+  .glow {
+    animation: none;
+  }
+  .progress span {
+    left: 31%;
+  }
+}

@@ -12,6 +12,8 @@ export class StudioWindow {
   readonly browserWindow: BrowserWindow;
   private quitting = false;
   private readonly bornAt = Date.now();
+  /** resolves when the page has painted for the first time */
+  readonly ready: Promise<void>;
 
   constructor(private readonly onHidden: () => void) {
     const icon = paths.icon();
@@ -20,6 +22,7 @@ export class StudioWindow {
       height: 900,
       minWidth: 1200,
       minHeight: 720,
+      show: false, // revealed by the launcher once the splash has played
       backgroundColor: '#0a0d12',
       title: 'Voice Studio',
       icon: existsSync(icon) ? icon : undefined,
@@ -56,6 +59,7 @@ export class StudioWindow {
       this.hideToTray();
     });
 
+    this.ready = new Promise((resolve) => this.browserWindow.once('ready-to-show', () => resolve()));
     void loadRenderer(this.browserWindow, 'studio');
   }
 

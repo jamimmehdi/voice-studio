@@ -11,9 +11,18 @@ export const paths = {
   icon: (): string => join(app.getAppPath(), 'build', 'icon.png'),
 };
 
+export type RendererPage = 'studio' | 'quick' | 'icon' | 'splash';
+
 /** Loads one of the renderer pages (dev server in development, packaged file otherwise). */
-export function loadRenderer(win: BrowserWindow, page: 'studio' | 'quick' | 'icon'): Promise<void> {
+export function loadRenderer(
+  win: BrowserWindow,
+  page: RendererPage,
+  query: Record<string, string> = {},
+): Promise<void> {
   const devUrl = process.env['ELECTRON_RENDERER_URL'];
-  if (!app.isPackaged && devUrl) return win.loadURL(`${devUrl}/${page}.html`);
-  return win.loadFile(join(__dirname, '../renderer', `${page}.html`));
+  if (!app.isPackaged && devUrl) {
+    const search = new URLSearchParams(query).toString();
+    return win.loadURL(`${devUrl}/${page}.html${search ? `?${search}` : ''}`);
+  }
+  return win.loadFile(join(__dirname, '../renderer', `${page}.html`), { query });
 }

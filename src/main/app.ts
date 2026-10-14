@@ -14,12 +14,15 @@ import { AppTray } from './tray';
 import { UpdateService, type AutoUpdaterLike } from './update-service';
 import { VbCableInstaller } from './vbcable/vbcable-installer';
 import { ElectronOverlayWindow } from './windows/overlay-window';
+import { SplashWindow } from './windows/splash-window';
 import { StudioWindow } from './windows/studio-window';
 import { YtDlpService } from './ytdlp/ytdlp-service';
 
 const APP_USER_MODEL_ID = 'com.voicestudio.app';
 const PANEL_SIZE = { width: 440, height: 720 };
 const ICON_SIZE = { width: 64, height: 64 };
+/** if the studio page never paints, show it anyway after this long */
+const STARTUP_TIMEOUT_MS = 15_000;
 
 /** Composition root of the main process: builds the services and wires them together. */
 export function startApp(): void {
@@ -51,6 +54,9 @@ export function startApp(): void {
     });
 
     let tray: AppTray | null = null;
+
+    // the launch screen is up before anything heavy is created
+    const splash = new SplashWindow(app.getVersion());
 
     studio = new StudioWindow(() => {
       if (settings.value.trayHintShown) return;
@@ -106,6 +112,10 @@ export function startApp(): void {
     });
     studioWindow.browserWindow.webContents.once('did-finish-load', () => updates.checkOnLaunch());
 
+    // reveal the studio underneath as the splash fades out (never wait longer than the safety timeout)
+    const safety = new Promise<void>((resolve) => setTimeout(resolve, STARTUP_TIMEOUT_MS));
+    void Promise.race([studioWindow.ready, safety]).then(() => splash.dismiss(() => studioWindow.show()));
+
     registerIpc({
       appInfo: { version: app.getVersion(), packaged: app.isPackaged, author: 'Jamim Mehdi' },
       readWorkletSource: () => readFileSync(paths.worklet(), 'utf8'),
@@ -121,7 +131,10 @@ export function startApp(): void {
     });
 
     app.on('activate', () => studioWindow.show());
-    app.on('before-quit', () => studioWindow.markQuitting());
+    app.on('before-quit', () => {
+      studioWindow.markQuitting();
+      splash.destroy();
+    });
     app.on('will-quit', () => {
       shortcut.dispose();
       tray?.destroy();

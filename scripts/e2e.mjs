@@ -26,10 +26,34 @@ const app = exe
   : await electron.launch({ args: ['.', `--user-data-dir=${userData}`], cwd: process.cwd() });
 
 try {
-  const studio = await app.firstWindow();
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const windowMatching = async (part, timeout = 20_000) => {
+    const started = Date.now();
+    while (Date.now() - started < timeout) {
+      const found = app.windows().find((w) => w.url().includes(part));
+      if (found) return found;
+      await sleep(50);
+    }
+    throw new Error('no window matching ' + part);
+  };
+
+  // the launch screen is the first thing on screen
+  const splash = await windowMatching('splash.html', 5_000).catch(() => null);
+  const studio = await windowMatching('studio.html');
   await studio.waitForSelector('[aria-label="Signal chain"]', { timeout: 20_000 });
   const errors = [];
   studio.on('pageerror', (e) => errors.push(e.message));
+
+  await step('an animated splash screen is shown first and closes by itself', async () => {
+    assert.ok(splash, 'splash window never appeared');
+    const started = Date.now();
+    while (!splash.isClosed() && Date.now() - started < 8_000) await sleep(100);
+    assert.equal(splash.isClosed(), true);
+    const visible = await app.evaluate(({ BrowserWindow }) =>
+      BrowserWindow.getAllWindows().find((w) => w.webContents.getURL().includes('studio.html'))?.isVisible(),
+    );
+    assert.equal(visible, true);
+  });
 
   await step('window title and brand', async () => {
     assert.equal(await studio.title(), 'Voice Studio');
