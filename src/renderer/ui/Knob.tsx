@@ -28,11 +28,16 @@ export interface KnobProps extends KnobSpec {
   lit?: boolean;
 }
 
-/** 3D geometry, in the 100 x 90 viewBox of the knob, seen from above and in front */
+/** 3D geometry, in the 100 x 96 viewBox of the knob, seen from above and in front */
 const CX = 50;
-/** how flat the circles look: 0 = edge-on, 1 = looking straight down at the knob */
-const FLAT = 0.8;
-const BASE_Y = 50;
+/**
+ * Camera elevation above the table, in degrees: 0 = edge-on, 90 = looking straight down.
+ * This is the one number that sets how much the knob faces the user.
+ */
+export const CAMERA_ELEVATION_DEG = 53;
+/** how round the circles look at that elevation (the sine of the angle) */
+const FLAT = Math.sin((CAMERA_ELEVATION_DEG * Math.PI) / 180);
+const BASE_Y = 48;
 const TOP_Y = 34;
 const BODY_RX = 17;
 const TICKS = 21;
@@ -125,7 +130,7 @@ export function Knob(props: KnobProps): React.ReactElement {
         }
       }}
     >
-      <svg viewBox="0 0 100 90" aria-hidden="true" className={lit ? styles.lit : ''}>
+      <svg viewBox="0 0 100 96" aria-hidden="true" className={lit ? styles.lit : ''}>
         <defs>
           <linearGradient id={`${ids}s`} x1="0" x2="1" y1="0" y2="0">
             <stop offset="0" stopColor="#0f141d" />
