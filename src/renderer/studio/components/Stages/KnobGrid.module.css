@@ -32,3 +32,13 @@
   font-size: 13px;
   color: var(--muted);
 }
+
+/* non-knob controls sit level with the knob dials (56 px tall) instead of hanging from the top */
+.aside {
+  display: flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 10px;
+  height: 56px;
+  margin-left: 6px;
+}

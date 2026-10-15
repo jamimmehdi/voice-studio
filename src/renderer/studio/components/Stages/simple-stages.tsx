@@ -79,15 +79,17 @@ export function HpfStage(): React.ReactElement {
           unit=" Hz"
           dec={0}
         />
-        <SelectField
-          label="SLOPE"
-          value={slope}
-          options={[
-            { value: 12, label: '12 dB / oct' },
-            { value: 24, label: '24 dB / oct' },
-          ]}
-          onChange={(v) => patchModule('hpf', { slope: v })}
-        />
+        <div className={styles.aside}>
+          <SelectField
+            label="SLOPE"
+            value={slope}
+            options={[
+              { value: 12, label: '12 dB / oct' },
+              { value: 24, label: '24 dB / oct' },
+            ]}
+            onChange={(v) => patchModule('hpf', { slope: v })}
+          />
+        </div>
       </div>
     </StageCard>
   );
@@ -209,18 +211,20 @@ export function DeEsserStage(): React.ReactElement {
           def={12}
           unit=" dB"
         />
-        <SelectField
-          label="MODE"
-          value={mode}
-          options={[
-            { value: 0, label: 'Split-band' },
-            { value: 1, label: 'Wide-band' },
-          ]}
-          onChange={(v) => patchModule('deess', { mode: v === 1 ? 1 : 0 })}
-        />
-        <ToggleButton pressed={listen} onChange={(v) => patchModule('deess', { listen: v })}>
-          Listen to the “S” band
-        </ToggleButton>
+        <div className={styles.aside}>
+          <SelectField
+            label="MODE"
+            value={mode}
+            options={[
+              { value: 0, label: 'Split-band' },
+              { value: 1, label: 'Wide-band' },
+            ]}
+            onChange={(v) => patchModule('deess', { mode: v === 1 ? 1 : 0 })}
+          />
+          <ToggleButton pressed={listen} onChange={(v) => patchModule('deess', { listen: v })}>
+            Listen to the “S” band
+          </ToggleButton>
+        </div>
       </div>
     </StageCard>
   );
