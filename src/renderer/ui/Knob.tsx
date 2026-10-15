@@ -34,7 +34,7 @@ const CX = 50;
  * Camera elevation above the table, in degrees: 0 = edge-on, 90 = looking straight down.
  * This is the one number that sets how much the knob faces the user.
  */
-export const CAMERA_ELEVATION_DEG = 53;
+export const CAMERA_ELEVATION_DEG = 70;
 /** how round the circles look at that elevation (the sine of the angle) */
 const FLAT = Math.sin((CAMERA_ELEVATION_DEG * Math.PI) / 180);
 const BASE_Y = 48;
