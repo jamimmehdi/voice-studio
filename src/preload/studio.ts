@@ -43,6 +43,10 @@ const api: StudioApi = {
     onDevices: (cb) => listen(IPC.remoteDevices, cb),
   },
   communityVoices: () => ipcRenderer.invoke(IPC.communityFetch),
+  stateBackup: {
+    write: (json) => ipcRenderer.send(IPC.stateBackupWrite, json),
+    read: () => ipcRenderer.invoke(IPC.stateBackupRead),
+  },
   quick: {
     onCommand: (cb) => listen(IPC.quickCmd, cb),
     pushState: (state) => ipcRenderer.send(IPC.quickState, state),

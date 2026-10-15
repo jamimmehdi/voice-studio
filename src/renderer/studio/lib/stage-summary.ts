@@ -48,6 +48,8 @@ export function stageSummary(stage: StageId, ctx: SummaryContext): string {
       return `${noiseLevelFor(p.noise.amount) ?? 'Custom'} · ${Math.round(p.noise.amount)}%`;
     case 'fx':
       return fxSummary(p);
+    case 'breath':
+      return `clicks ${Math.round(p.breath.clicks)}% · breath ${Math.round(p.breath.breath)}%`;
     case 'exp':
       return `${whole(p.exp.thresh)} dB · ${p.exp.ratio.toFixed(1)}:1`;
     case 'voice':

@@ -1,6 +1,7 @@
 import { createDefaultParams, type StudioParams } from '@shared/params';
 import type { MeterSnapshot } from '@shared/protocols';
 import { Biquad, biquadCoeffs, IDENTITY_COEFFS } from './biquad';
+import { BreathReducer } from './breath-reducer';
 import { Compressor } from './compressor';
 import { DeEsser } from './deesser';
 import { Effects } from './effects';
@@ -14,7 +15,8 @@ import { RingModulator } from './ring-modulator';
 /**
  * The whole studio signal chain for one mono channel:
  *
- *   input gain -> high-pass -> noise removal -> gate -> voice changer -> de-esser -> EQ -> effects
+ *   input gain -> high-pass -> noise removal -> gate -> voice changer -> de-esser -> breath & clicks
+ *     -> EQ -> effects
  *     -> compressor -> output gain -> limiter
  *
  * It is plain, allocation-free-per-sample DSP with no browser dependencies, so it runs inside the
@@ -25,6 +27,7 @@ export class VoiceChain {
 
   private readonly hpf: [Biquad, Biquad] = [new Biquad(), new Biquad()];
   private readonly noise = new NoiseSuppressor();
+  private readonly breath: BreathReducer;
   private readonly fx: Effects;
   private readonly expander: Expander;
   private shifter: PitchShifter | null = null;
@@ -51,6 +54,7 @@ export class VoiceChain {
     this.smooth = smoothingCoef(10, sampleRate);
     this.expander = new Expander(sampleRate);
     this.fx = new Effects(sampleRate);
+    this.breath = new BreathReducer(sampleRate);
     this.robot = new RingModulator(sampleRate);
     this.deesser = new DeEsser(sampleRate);
     this.compressor = new Compressor(sampleRate);
@@ -86,6 +90,7 @@ export class VoiceChain {
     this.noise.setAmount(p.noise.amount);
     this.expander.set(p.exp);
     this.fx.set(p.fx);
+    this.breath.set(p.breath);
     this.deesser.set(p.deess);
     p.eq.bands.forEach((b, i) => {
       this.eq[i]!.set(b.on ? biquadCoeffs(b.type, fs, b.freq, b.q, b.gain) : IDENTITY_COEFFS);
@@ -155,6 +160,8 @@ export class VoiceChain {
         x = this.deesser.process(x);
         if (this.deesser.gainReductionDb < grDe) grDe = this.deesser.gainReductionDb;
       }
+
+      if (p.breath.on) x = this.breath.process(x);
 
       if (p.eq.on) for (let b = 0; b < 6; b++) x = this.eq[b]!.process(x);
 

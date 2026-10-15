@@ -206,9 +206,9 @@ describe('format helpers', () => {
 });
 
 describe('stages', () => {
-  it('has eleven unique stages and validates ids', () => {
-    expect(STAGES).toHaveLength(11);
-    expect(new Set(STAGES.map((s) => s.id)).size).toBe(11);
+  it('has twelve unique stages and validates ids', () => {
+    expect(STAGES).toHaveLength(12);
+    expect(new Set(STAGES.map((s) => s.id)).size).toBe(12);
     expect(isStageId('voice')).toBe(true);
     expect(isStageId('bogus')).toBe(false);
     expect(isStageId(7)).toBe(false);

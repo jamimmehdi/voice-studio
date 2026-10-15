@@ -28,7 +28,7 @@ function mockDevices(list: Array<{ kind: MediaDeviceKind; deviceId: string; labe
 beforeEach(() => mockDevices([]));
 
 describe('ChainStrip', () => {
-  it('renders the eleven stages in order', () => {
+  it('renders the twelve stages in order', () => {
     renderWithRuntime(<ChainStrip />);
     const names = [
       'Mic',
@@ -37,6 +37,7 @@ describe('ChainStrip', () => {
       'Gate',
       'Voice',
       'De-esser',
+      'Breath & clicks',
       'EQ',
       'Effects',
       'Compressor',
@@ -51,6 +52,7 @@ describe('ChainStrip', () => {
       'exp',
       'voice',
       'deess',
+      'breath',
       'eq',
       'fx',
       'comp',

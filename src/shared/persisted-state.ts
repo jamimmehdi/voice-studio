@@ -16,6 +16,8 @@ import { DEFAULT_STAGE, isStageId, type StageId } from './stages';
 export const STORAGE_KEY = 'voicestudio.v1';
 export const USER_PRESETS_KEY = 'voicestudio.presets.v1';
 export const CABLE_CHOSEN_KEY = 'voicestudio.cableChosen';
+/** the previous good copy of each stored value, written on every save */
+export const BACKUP_SUFFIX = '.bak';
 export const PERSIST_VERSION = 2;
 
 export type BufferMode = 'low' | 'balanced' | 'safe';

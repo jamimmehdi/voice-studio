@@ -234,6 +234,42 @@ export function DeEsserStage(): React.ReactElement {
   );
 }
 
+export function BreathStage(): React.ReactElement {
+  const info = STAGE_INFO.breath;
+  return (
+    <StageCard title={info.title} description={info.description} module="breath">
+      <div className={styles.grid}>
+        <ModuleKnob
+          module="breath"
+          param="clicks"
+          label="CLICKS"
+          min={0}
+          max={100}
+          step={1}
+          def={60}
+          unit=" %"
+          dec={0}
+        />
+        <ModuleKnob
+          module="breath"
+          param="breath"
+          label="BREATHS"
+          min={0}
+          max={100}
+          step={1}
+          def={50}
+          unit=" %"
+          dec={0}
+        />
+      </div>
+      <div className={styles.note}>
+        Clicks are very short bright spikes; breaths are soft, hissy sounds between words. Turn it up until
+        they stop standing out, but not so far that words start to sound clipped.
+      </div>
+    </StageCard>
+  );
+}
+
 export function CompressorStage(): React.ReactElement {
   const info = STAGE_INFO.comp;
   return (

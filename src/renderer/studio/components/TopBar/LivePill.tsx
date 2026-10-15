@@ -9,7 +9,13 @@ export function LivePill(): React.ReactElement {
   const stats = useEngineStats();
   const running = engine === 'running';
 
-  const label = running ? 'LIVE' : engine === 'starting' ? 'Starting…' : 'Start engine';
+  const label = running
+    ? 'LIVE'
+    : engine === 'starting'
+      ? 'Starting…'
+      : engine === 'waiting'
+        ? 'Waiting for device…'
+        : 'Start engine';
   return (
     <button
       type="button"

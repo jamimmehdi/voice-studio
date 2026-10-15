@@ -105,7 +105,15 @@ class FakeAudio {
 }
 
 const stopTrack = vi.fn();
-const getUserMedia = vi.fn(async (_c: unknown) => ({ getTracks: () => [{ stop: stopTrack }] }));
+const trackListeners: Array<() => void> = [];
+const fakeTrack = {
+  stop: stopTrack,
+  addEventListener: (_name: string, cb: () => void) => void trackListeners.push(cb),
+};
+const getUserMedia = vi.fn(async (_c: unknown) => ({
+  getTracks: () => [fakeTrack],
+  getAudioTracks: () => [fakeTrack],
+}));
 
 beforeEach(() => {
   FakeContext.failModule = false;
@@ -192,6 +200,16 @@ describe('AudioEngine', () => {
     await engine.start(options({ outputDeviceId: 'cable', monitorDeviceId: 'headset' }));
     expect(FakeContext.last!.setSinkId).toHaveBeenCalledWith('cable');
     expect(FakeAudio.instances[0]!.setSinkId).toHaveBeenCalledWith('headset');
+  });
+
+  it('announces when the microphone stream ends on its own', async () => {
+    trackListeners.length = 0;
+    const engine = new AudioEngine();
+    const lost = vi.fn();
+    engine.events.on('inputLost', lost);
+    await engine.start(options());
+    trackListeners.forEach((cb) => cb());
+    expect(lost).toHaveBeenCalledTimes(1);
   });
 
   it('is a no-op when started twice', async () => {

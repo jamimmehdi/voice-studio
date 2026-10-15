@@ -6,6 +6,7 @@ import { NoiseStage } from './NoiseStage';
 import { VoiceStage } from '../Voice/VoiceStage';
 import { VoicesCard } from '../Voice/VoicesCard';
 import {
+  BreathStage,
   CompressorStage,
   DeEsserStage,
   GateStage,
@@ -23,6 +24,7 @@ const STAGE_COMPONENTS: Record<StageId, () => React.ReactElement> = {
   exp: GateStage,
   voice: VoiceStage,
   deess: DeEsserStage,
+  breath: BreathStage,
   eq: EqStage,
   fx: FxStage,
   comp: CompressorStage,

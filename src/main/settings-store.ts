@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, renameSync, writeFileSync } from 'node:fs';
 import type { Point } from './geometry';
 
 export interface AppSettings {
@@ -26,12 +26,33 @@ export const DEFAULT_SETTINGS: Readonly<AppSettings> = {
 export interface FileIo {
   read(path: string): string;
   write(path: string, data: string): void;
+  /** atomically replaces `to` with `from` (optional: without it the file is written in place) */
+  rename?(from: string, to: string): void;
 }
 
-const nodeFileIo: FileIo = {
+export const nodeFileIo: FileIo = {
   read: (p) => readFileSync(p, 'utf8'),
   write: (p, d) => writeFileSync(p, d),
+  rename: (a, b) => renameSync(a, b),
 };
+
+/** Writes `data` so that a crash half way never leaves a truncated file, and keeps the last good copy. */
+export function writeFileSafely(io: FileIo, path: string, data: string): void {
+  try {
+    const previous = io.read(path);
+    JSON.parse(previous);
+    io.write(`${path}.bak`, previous);
+  } catch {
+    /* nothing valid to keep yet */
+  }
+  if (io.rename) {
+    const tmp = `${path}.tmp`;
+    io.write(tmp, data);
+    io.rename(tmp, path);
+  } else {
+    io.write(path, data);
+  }
+}
 
 const isPoint = (v: unknown): v is Point =>
   typeof v === 'object' && v !== null && Number.isFinite((v as Point).x) && Number.isFinite((v as Point).y);
@@ -54,16 +75,25 @@ export class SettingsStore {
   update(patch: Partial<AppSettings>): void {
     this.data = { ...this.data, ...patch };
     try {
-      this.io.write(this.filePath, JSON.stringify(this.data, null, 2));
+      writeFileSafely(this.io, this.filePath, JSON.stringify(this.data, null, 2));
     } catch {
       /* a read-only profile must not crash the app */
     }
   }
 
+  /** The settings file, or its backup when the file is missing or damaged. */
   private load(): AppSettings {
+    for (const path of [this.filePath, `${this.filePath}.bak`]) {
+      const loaded = this.tryLoad(path);
+      if (loaded) return loaded;
+    }
+    return { ...DEFAULT_SETTINGS };
+  }
+
+  private tryLoad(path: string): AppSettings | null {
     try {
-      const raw: unknown = JSON.parse(this.io.read(this.filePath));
-      if (typeof raw !== 'object' || raw === null) return { ...DEFAULT_SETTINGS };
+      const raw: unknown = JSON.parse(this.io.read(path));
+      if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) return null;
       const r = raw as Record<string, unknown>;
       return {
         shortcut: typeof r.shortcut === 'string' && r.shortcut ? r.shortcut : DEFAULT_SETTINGS.shortcut,
@@ -74,7 +104,7 @@ export class SettingsStore {
         remoteToken: typeof r.remoteToken === 'string' ? r.remoteToken.slice(0, 64) : '',
       };
     } catch {
-      return { ...DEFAULT_SETTINGS };
+      return null;
     }
   }
 }

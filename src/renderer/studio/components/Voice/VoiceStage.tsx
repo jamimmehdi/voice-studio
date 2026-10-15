@@ -4,6 +4,7 @@ import { BarSlider } from '../../../ui/BarSlider';
 import { Switch } from '../../../ui/Switch';
 import { useStudio } from '../../runtime/react';
 import { StageCard } from '../Stages/StageCard';
+import { NaturalnessMeter } from './NaturalnessMeter';
 import { VoicePad } from './VoicePad';
 import styles from './VoiceStage.module.css';
 
@@ -82,6 +83,7 @@ export function VoiceStage(): React.ReactElement {
             <span>Robot voice</span>
             <Switch label="Robot voice" checked={voice.robot} onChange={(robot) => patchVoice({ robot })} />
           </div>
+          <NaturalnessMeter voice={voice} />
         </div>
       </div>
     </StageCard>

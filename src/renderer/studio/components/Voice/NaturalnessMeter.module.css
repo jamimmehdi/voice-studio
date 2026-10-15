@@ -1,0 +1,79 @@
+.box {
+  padding: 11px 14px 12px;
+  background: var(--raised);
+  border: 1px solid var(--line-2);
+  border-radius: 12px;
+}
+
+.box.robotic {
+  background: #2a1318;
+  border-color: #7a2a36;
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.title {
+  flex: 1;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.verdict {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.verdict.natural {
+  color: var(--ok);
+}
+
+.verdict.noticeable {
+  color: #e9d758;
+}
+
+.verdict.robotic {
+  color: #ff8a97;
+}
+
+.score {
+  min-width: 26px;
+  font-size: 18px;
+  text-align: right;
+}
+
+.bar {
+  height: 6px;
+  margin: 8px 0 8px;
+  overflow: hidden;
+  background: #05070a;
+  border-radius: 3px;
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  background: #2fe3a5;
+  border-radius: 3px;
+  transition: width 0.2s;
+}
+
+.fill.noticeable {
+  background: #e9d758;
+}
+
+.fill.robotic {
+  background: #ff5c6c;
+}
+
+.advice {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--soft);
+}

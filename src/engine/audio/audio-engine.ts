@@ -31,6 +31,8 @@ export interface EngineEvents {
   meters: EngineMeters;
   /** a new music bus exists (engine started) or null (engine stopped) */
   musicBus: MusicBus | null;
+  /** the microphone stream ended by itself (unplugged, disabled, taken over) */
+  inputLost: null;
 }
 
 type SinkTarget = { setSinkId?: (id: string) => Promise<void> };
@@ -110,6 +112,12 @@ export class AudioEngine {
           channelCount: 1,
         },
       });
+
+      for (const track of stream.getAudioTracks()) {
+        track.addEventListener('ended', () => {
+          if (this.stream === stream) this.events.emit('inputLost', null);
+        });
+      }
 
       const source = ctx.createMediaStreamSource(stream);
       const node = new AudioWorkletNode(ctx, PROCESSOR_NAME, {

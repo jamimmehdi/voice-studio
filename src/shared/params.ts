@@ -67,6 +67,15 @@ export interface DeEsserParams {
   listen: boolean;
 }
 
+/** Softens mouth clicks and loud breaths. */
+export interface BreathParams {
+  on: boolean;
+  /** 0..100 click reduction */
+  clicks: number;
+  /** 0..100 breath reduction */
+  breath: number;
+}
+
 export interface EqBand {
   type: BandType;
   freq: number;
@@ -111,6 +120,7 @@ export interface StudioParams {
   noise: NoiseParams;
   exp: ExpanderParams;
   deess: DeEsserParams;
+  breath: BreathParams;
   eq: EqParams;
   fx: FxParams;
   comp: CompressorParams;
@@ -118,13 +128,14 @@ export interface StudioParams {
 }
 
 /** Keys of the sub-sections that have an `on` switch. */
-export type ModuleKey = 'voice' | 'hpf' | 'noise' | 'exp' | 'deess' | 'eq' | 'fx' | 'comp' | 'lim';
+export type ModuleKey = 'voice' | 'hpf' | 'noise' | 'exp' | 'deess' | 'breath' | 'eq' | 'fx' | 'comp' | 'lim';
 export const MODULE_KEYS: readonly ModuleKey[] = [
   'voice',
   'hpf',
   'noise',
   'exp',
   'deess',
+  'breath',
   'eq',
   'fx',
   'comp',
@@ -152,6 +163,7 @@ export function createDefaultParams(): StudioParams {
     noise: { on: false, amount: 70 },
     exp: { on: true, thresh: -58, ratio: 2, attack: 3, release: 200, hold: 80, range: 18 },
     deess: { on: true, freq: 6500, q: 1.2, thresh: -32, ratio: 4, range: 12, mode: 0, listen: false },
+    breath: { on: false, clicks: 60, breath: 50 },
     eq: {
       on: true,
       bands: [
@@ -237,6 +249,8 @@ const RANGES: Record<string, readonly [number, number]> = {
   'comp.mix': [0, 100],
   'lim.ceiling': [-12, 0],
   'lim.release': [5, 500],
+  'breath.clicks': [0, 100],
+  'breath.breath': [0, 100],
   'fx.reverb': [0, 100],
   'fx.echo': [0, 100],
   'fx.chorus': [0, 100],

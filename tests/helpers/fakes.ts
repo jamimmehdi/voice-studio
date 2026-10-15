@@ -140,6 +140,7 @@ export function fakeApi(over: Partial<StudioApi> = {}): StudioApi {
       onDevices: vi.fn(noop),
     },
     communityVoices: vi.fn(async () => null),
+    stateBackup: { write: vi.fn(), read: vi.fn(async () => null) },
     quick: { onCommand: vi.fn(noop), pushState: vi.fn() },
     update: {
       check: vi.fn(async () => ({ ok: true as const })),

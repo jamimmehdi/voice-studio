@@ -1,0 +1,40 @@
+.bar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 14px;
+  padding: 9px 24px;
+  font-size: 13px;
+  border-bottom: 1px solid;
+}
+
+.warn {
+  color: #ffb689;
+  background: #2a1710;
+  border-color: #5a3519;
+}
+
+.info {
+  color: #8ff5e0;
+  background: #0f2a26;
+  border-color: #1f6b5c;
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+}
+
+.dismiss {
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: inherit;
+  background: transparent;
+  border: 1px solid currentcolor;
+  border-radius: 8px;
+}
+
+.dismiss:hover {
+  background: rgba(255, 255, 255, 0.06);
+}

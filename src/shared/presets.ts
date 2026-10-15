@@ -220,6 +220,7 @@ export function applyBuiltinPreset(current: StudioParams, name: PresetName): Stu
     outGain: current.outGain,
     hpf: current.hpf,
     noise: current.noise,
+    breath: current.breath,
     fx: current.fx,
     exp: current.exp,
     deess: current.deess,

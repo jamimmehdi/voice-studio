@@ -4,18 +4,24 @@ import '../styles/fonts';
 import { App } from './App';
 import { RuntimeProvider } from './runtime/react';
 import { createRuntime } from './runtime/runtime';
-
-const runtime = createRuntime();
+import { restoreFromBackup } from './store/persistence';
 
 const container = document.getElementById('root');
 if (!container) throw new Error('#root element is missing');
 
-createRoot(container).render(
-  <StrictMode>
-    <RuntimeProvider runtime={runtime}>
-      <App />
-    </RuntimeProvider>
-  </StrictMode>,
-);
+async function start(): Promise<void> {
+  // browser storage can come back empty; the copy kept by the main process puts the settings back
+  await restoreFromBackup(window.localStorage, () => window.studio.stateBackup.read()).catch(() => false);
 
-window.addEventListener('beforeunload', () => runtime.dispose());
+  const runtime = createRuntime();
+  createRoot(container!).render(
+    <StrictMode>
+      <RuntimeProvider runtime={runtime}>
+        <App />
+      </RuntimeProvider>
+    </StrictMode>,
+  );
+  window.addEventListener('beforeunload', () => runtime.dispose());
+}
+
+void start();

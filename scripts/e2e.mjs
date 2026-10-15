@@ -77,9 +77,9 @@ try {
     assert.ok(await studio.getByText('Voice Studio').first().isVisible());
   });
 
-  await step('eleven chain stages, Voice selected by default', async () => {
+  await step('twelve chain stages, Voice selected by default', async () => {
     const nodes = studio.locator('[data-stage]');
-    assert.equal(await nodes.count(), 11);
+    assert.equal(await nodes.count(), 12);
     assert.equal(await studio.locator('[data-stage="voice"]').getAttribute('aria-pressed'), 'true');
   });
 

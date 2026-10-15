@@ -4,6 +4,7 @@ import { DevicesCard } from './components/Devices/DevicesCard';
 import { LevelsCard } from './components/Levels/LevelsCard';
 import { LiveOutput } from './components/LiveOutput/LiveOutput';
 import { Modals } from './components/Modals/Modals';
+import { NoticeBar } from './components/Notice/NoticeBar';
 import { MusicDock } from './components/Music/MusicDock';
 import { EngineHealth } from './components/Panels/EngineHealth';
 import { QuickFixes } from './components/Panels/QuickFixes';
@@ -31,6 +32,7 @@ export function App(): React.ReactElement {
   return (
     <div className={`${styles.app} ${showMusic ? styles.withMusic : ''}`}>
       <TopBar />
+      <NoticeBar />
       <ChainStrip />
       <main className={styles.workspace}>
         <aside className={`${styles.col} ${styles.left}`}>

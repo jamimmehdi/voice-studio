@@ -4,6 +4,7 @@ export * from './fft';
 export * from './pitch-shifter';
 export * from './expander';
 export * from './deesser';
+export * from './breath-reducer';
 export * from './effects';
 export * from './noise-suppressor';
 export * from './compressor';

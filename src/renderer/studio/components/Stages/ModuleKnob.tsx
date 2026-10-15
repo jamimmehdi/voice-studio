@@ -2,7 +2,7 @@ import { Knob, type KnobProps } from '../../../ui/Knob';
 import type { StudioParams } from '@shared/params';
 import { useStudio } from '../../runtime/react';
 
-type KnobModule = 'hpf' | 'exp' | 'deess' | 'comp' | 'lim';
+type KnobModule = 'hpf' | 'exp' | 'deess' | 'breath' | 'comp' | 'lim';
 
 type NumericKeys<M extends KnobModule> = {
   [K in keyof StudioParams[M]]: StudioParams[M][K] extends number ? K : never;

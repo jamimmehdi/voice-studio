@@ -13,7 +13,8 @@ import { paths } from './paths';
 import { CommandRelay } from './relay';
 import { RemoteController } from './remote/remote-controller';
 import { RemoteServer } from './remote/remote-server';
-import { SettingsStore, DEFAULT_SETTINGS } from './settings-store';
+import { SettingsStore, DEFAULT_SETTINGS, nodeFileIo } from './settings-store';
+import { StateBackup } from './state-backup';
 import { ShortcutService } from './shortcut-service';
 import { SoundStore } from './sound-store';
 import { AppTray } from './tray';
@@ -160,6 +161,7 @@ export function startApp(): void {
       foreground,
       listRunningApps: () => listRunningApps(),
       sounds: new SoundStore(join(app.getPath('userData'), 'sounds')),
+      stateBackup: new StateBackup(app.getPath('userData'), nodeFileIo),
       remote,
       remoteServer,
       fetchCommunity: async () => {

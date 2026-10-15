@@ -22,7 +22,13 @@ import { applyBuiltinPreset, applyUserPreset } from '@shared/presets';
 import type { StageId } from '@shared/stages';
 import type { UpdateInfo } from '@shared/ipc';
 
-export type EngineStatus = 'stopped' | 'starting' | 'running';
+export type EngineStatus = 'stopped' | 'starting' | 'running' | 'waiting';
+
+export interface Notice {
+  id: number;
+  kind: 'info' | 'warn';
+  text: string;
+}
 export type ModalId =
   | 'about'
   | 'guide'
@@ -86,6 +92,8 @@ export interface StudioState {
   /** the voice that was active before a quick-switch hotkey, so it can go back */
   quickReturn: { params: StudioParams; preset: string | null } | null;
   toast: string | null;
+  /** a message shown under the top bar (device unplugged, feedback, ...) */
+  notice: Notice | null;
 }
 
 export interface StudioActions {
@@ -144,6 +152,8 @@ export interface StudioActions {
   /** stores voices (imported or from the community list) as user presets */
   importVoices(voices: Record<string, StudioParams>): void;
   showToast(text: string | null): void;
+  setNotice(kind: Notice['kind'], text: string): void;
+  dismissNotice(): void;
 
   // session
   setEngine(status: EngineStatus): void;
@@ -208,6 +218,7 @@ export function createStudioStore(seed: StoreSeed = {}): StudioStoreApi {
       muted: false,
       quickReturn: null,
       toast: null,
+      notice: null,
 
       setStage: (stage) => set({ stage }),
 
@@ -352,6 +363,8 @@ export function createStudioStore(seed: StoreSeed = {}): StudioStoreApi {
           return { userPresets: next };
         }),
       showToast: (toast) => set({ toast }),
+      setNotice: (kind, text) => set((s) => ({ notice: { id: (s.notice?.id ?? 0) + 1, kind, text } })),
+      dismissNotice: () => set({ notice: null }),
 
       setEngine: (engine) => set({ engine }),
       setStatus: (status) => set({ status }),

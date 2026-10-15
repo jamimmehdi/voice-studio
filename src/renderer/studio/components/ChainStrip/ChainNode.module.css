@@ -4,7 +4,7 @@
   flex-direction: column;
   gap: 5px;
   min-width: 0;
-  padding: 11px 6px 12px 9px;
+  padding: 11px 5px 12px 8px;
   font-size: 13.3333px;
   line-height: normal;
   text-align: left;
@@ -52,7 +52,7 @@
 
 .name {
   overflow: hidden;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;

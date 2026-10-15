@@ -50,6 +50,31 @@ export async function listDevices(): Promise<DeviceLists> {
   }
 }
 
+export type DeviceRole = 'microphone' | 'output' | 'headphones';
+
+export interface MissingDevice {
+  role: DeviceRole;
+  deviceId: string;
+}
+
+/**
+ * The selected devices that are no longer plugged in. "default" always counts as present, and when
+ * the browser has not revealed device names yet (no permission) nothing can be judged.
+ */
+export function missingDevices(
+  selection: { in: string; out: string; mon: string },
+  lists: DeviceLists,
+): MissingDevice[] {
+  if (!lists.hasLabels) return [];
+  const has = (list: readonly AudioDevice[], id: string): boolean =>
+    id === 'default' || list.some((d) => d.deviceId === id);
+  const missing: MissingDevice[] = [];
+  if (!has(lists.inputs, selection.in)) missing.push({ role: 'microphone', deviceId: selection.in });
+  if (!has(lists.outputs, selection.out)) missing.push({ role: 'output', deviceId: selection.out });
+  if (!has(lists.outputs, selection.mon)) missing.push({ role: 'headphones', deviceId: selection.mon });
+  return missing;
+}
+
 /** Short device name without the trailing "(Vendor)" part, for compact display. */
 export function shortDeviceLabel(label: string): string {
   return label.replace(/\s*\(.*\)\s*$/, '') || label;

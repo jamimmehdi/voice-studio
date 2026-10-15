@@ -2,7 +2,7 @@ import type { ModuleKey } from './params';
 
 /** The stages of the signal chain, left to right. */
 export type StageId =
-  'mic' | 'hpf' | 'noise' | 'exp' | 'voice' | 'deess' | 'eq' | 'fx' | 'comp' | 'lim' | 'out';
+  'mic' | 'hpf' | 'noise' | 'exp' | 'voice' | 'deess' | 'breath' | 'eq' | 'fx' | 'comp' | 'lim' | 'out';
 
 export interface StageDef {
   id: StageId;
@@ -24,6 +24,7 @@ export const STAGES: readonly StageDef[] = [
   { id: 'exp', name: 'Gate', group: 'Clean', module: 'exp', meter: 'exp' },
   { id: 'voice', name: 'Voice', group: 'Voice', module: 'voice' },
   { id: 'deess', name: 'De-esser', group: 'Tone', module: 'deess', meter: 'deess' },
+  { id: 'breath', name: 'Breath & clicks', short: 'Breath', group: 'Tone', module: 'breath' },
   { id: 'eq', name: 'EQ', group: 'Tone', module: 'eq' },
   { id: 'fx', name: 'Effects', group: 'Space', module: 'fx' },
   { id: 'comp', name: 'Compressor', group: 'Dynamics', module: 'comp', meter: 'comp' },
@@ -45,6 +46,10 @@ export const STAGE_INFO: Readonly<Record<StageId, { title: string; description: 
   hpf: {
     title: 'High-pass filter',
     description: 'Removes rumble, desk bumps and breath plosives below the cut-off.',
+  },
+  breath: {
+    title: 'Breath & clicks',
+    description: 'Softens mouth clicks and loud breaths, which pitch shifting exaggerates.',
   },
   noise: {
     title: 'Noise removal',

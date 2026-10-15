@@ -10,6 +10,7 @@ import type { HotkeyService } from './hotkey-service';
 import type { RemoteController } from './remote/remote-controller';
 import type { RemoteServer } from './remote/remote-server';
 import type { SoundStore } from './sound-store';
+import type { StateBackup } from './state-backup';
 import type { OverlayController } from './overlay-controller';
 import type { CommandRelay } from './relay';
 import type { SettingsStore } from './settings-store';
@@ -32,6 +33,7 @@ export interface IpcDeps {
   foreground: ForegroundWatcher;
   listRunningApps(): Promise<RunningApp[]>;
   sounds: SoundStore;
+  stateBackup: StateBackup;
   remote: RemoteController;
   remoteServer: Pick<RemoteServer, 'broadcast'>;
   fetchCommunity(): Promise<string | null>;
@@ -135,6 +137,9 @@ export function registerIpc(deps: IpcDeps): void {
   });
 
   ipcMain.handle(IPC.communityFetch, () => deps.fetchCommunity());
+
+  ipcMain.on(IPC.stateBackupWrite, (_e, json: unknown) => void deps.stateBackup.write(json));
+  ipcMain.handle(IPC.stateBackupRead, () => deps.stateBackup.read());
   // floating icon drag
   ipcMain.on(IPC.iconDrag, (_e, d: { dx: number; dy: number }) => {
     if (d && Number.isFinite(d.dx) && Number.isFinite(d.dy)) overlay.dragIcon(d.dx, d.dy);

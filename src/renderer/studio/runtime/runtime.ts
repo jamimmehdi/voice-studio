@@ -1,10 +1,13 @@
 import { AudioEngine } from '@engine/audio/audio-engine';
 import { MusicPlayer } from '@engine/audio/music-player';
+import { listDevices } from '@engine/audio/devices';
 import { SoundPlayer } from '@engine/audio/sound-player';
 import type { StudioApi } from '@shared/ipc';
 import { loadSeed, startPersistence, type KeyValueStorage } from '../store/persistence';
 import { createStudioStore, type StudioStoreApi } from '../store/studio-store';
 import { StudioController } from './controller';
+import { DeviceRecovery } from './device-recovery';
+import { FeedbackGuard } from './feedback-guard';
 import { startHotkeySync } from './hotkey-sync';
 import { ProfileRuntime } from './profile-runtime';
 import { SoundController } from './sound-controller';
@@ -50,9 +53,30 @@ export function createRuntime(options: RuntimeOptions = {}): Runtime {
   });
 
   const disposers: Array<() => void> = [];
-  disposers.push(startPersistence(store, storage));
+  disposers.push(startPersistence(store, storage, undefined, (json) => api.stateBackup.write(json)));
   disposers.push(controller.wire());
   disposers.push(sounds.wire());
+  disposers.push(
+    new DeviceRecovery({
+      store,
+      engine,
+      controller,
+      listDevices,
+      onDeviceChange: (cb) => {
+        const devices = typeof navigator !== 'undefined' ? navigator.mediaDevices : undefined;
+        if (!devices?.addEventListener) return () => undefined;
+        devices.addEventListener('devicechange', cb);
+        return () => devices.removeEventListener('devicechange', cb);
+      },
+    }).wire(),
+  );
+  disposers.push(
+    new FeedbackGuard({
+      store,
+      getAnalyser: () => engine.analyser,
+      sampleRate: () => engine.context?.sampleRate ?? 48000,
+    }).start(),
+  );
   disposers.push(startHotkeySync(store, api));
   disposers.push(
     new ProfileRuntime({

@@ -29,6 +29,8 @@ export const IPC = {
   remoteDisconnect: 'remote:disconnect',
   remoteDevices: 'remote:devices',
   communityFetch: 'library:community',
+  stateBackupWrite: 'state:backupWrite',
+  stateBackupRead: 'state:backupRead',
   // events main -> renderer
   updateAvailable: 'update:available',
   updateNone: 'update:none',
@@ -124,6 +126,11 @@ export interface StudioApi {
     newCode(): Promise<RemoteView>;
     disconnect(id: string): Promise<void>;
     onDevices(cb: (devices: RemoteDevice[]) => void): Unsubscribe;
+  };
+  /** a copy of the studio state kept outside the browser storage */
+  stateBackup: {
+    write(json: string): void;
+    read(): Promise<string | null>;
   };
   /** raw text of the community voice list, or null when it cannot be reached */
   communityVoices(): Promise<string | null>;
