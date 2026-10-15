@@ -1,0 +1,85 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 460px;
+}
+
+.levels {
+  display: flex;
+  gap: 6px;
+}
+
+.level {
+  flex: 1;
+  padding: 9px 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--soft);
+  background: var(--btn);
+  border: 1px solid var(--line-2);
+  border-radius: 10px;
+}
+
+.level:hover {
+  border-color: var(--accent);
+}
+
+.levelOn {
+  font-weight: 800;
+  color: var(--accent-ink);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.sliderHead {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.sliderHead .mono {
+  color: var(--text);
+}
+
+.compare {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  background: #05070a;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.compareRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--dim);
+}
+
+.after {
+  color: #8ff5e0;
+}
+
+.beforeBar {
+  height: 22px;
+  background: linear-gradient(90deg, #3a2a1a, #5a3519, #3a2a1a);
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+
+.afterBar {
+  height: 6px;
+  background: #123a33;
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+
+.foot {
+  font-size: 12px;
+  color: var(--dim);
+}

@@ -269,3 +269,9 @@ footer a { color: var(--soft); }
   .pill i { animation: none; }
   .card, .btn { transition: none; }
 }
+
+/* remote + phone side by side */
+.duo .remote { flex: 1 1 0; min-width: 0; }
+.duo .phone { flex: none; width: 150px; }
+.row .duo { min-width: 0; }
+code { padding: 1px 6px; font-size: 0.9em; color: var(--accent); background: var(--raised); border-radius: 5px; }

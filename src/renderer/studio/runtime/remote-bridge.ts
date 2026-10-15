@@ -9,7 +9,7 @@ import { linToDb } from '@engine/dsp/math';
 import type { StudioState, StudioStoreApi } from '../store/studio-store';
 
 export interface QuickStateInput {
-  state: Pick<StudioState, 'params' | 'preset' | 'monitor' | 'engine'>;
+  state: Pick<StudioState, 'params' | 'preset' | 'monitor' | 'engine' | 'sounds' | 'muted'>;
   meters: Pick<DisplayMeters, 'inPeak'>;
   music: Pick<MusicSnapshot, 'trackCount' | 'title' | 'playing' | 'progress'>;
   latencyMs: number;
@@ -38,6 +38,8 @@ export function buildQuickState(input: QuickStateInput): QuickState {
       playing: music.playing,
       progress: Math.round(music.progress * 100) / 100,
     },
+    sounds: state.sounds.map((x) => ({ id: x.id, name: x.name })),
+    muted: state.muted,
   };
 }
 
@@ -45,6 +47,9 @@ export interface CommandTargets {
   store: StudioStoreApi;
   toggleEngine(): void;
   toggleMusic(): void;
+  playSound(id: string): void;
+  /** shows a system notification (used for hotkey voice changes) */
+  notify?(text: string): void;
 }
 
 /** Applies a command that arrived from the compact panel / floating icon. */
@@ -55,7 +60,23 @@ export function applyQuickCommand(cmd: QuickCommand, t: CommandTargets): void {
       t.toggleEngine();
       break;
     case 'preset':
-      s.applyPreset(cmd.name);
+      if (s.applyPreset(cmd.name) && cmd.toast && s.hotkeys.toast) t.notify?.(`Voice: ${cmd.name}`);
+      break;
+    case 'quickSwitch':
+      if (cmd.on) {
+        s.rememberVoice();
+        s.applyPreset(cmd.preset);
+        if (s.hotkeys.toast) t.notify?.(`Voice: ${cmd.preset}`);
+      } else {
+        s.restoreVoice();
+        if (s.hotkeys.toast) t.notify?.('Voice: back to normal');
+      }
+      break;
+    case 'mute':
+      s.setMuted(!s.muted);
+      break;
+    case 'sound':
+      t.playSound(cmd.id);
       break;
     case 'voice': {
       const patch: { on: true; pitch?: number; formant?: number } = { on: true };

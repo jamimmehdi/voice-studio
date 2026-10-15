@@ -21,6 +21,28 @@ const api: StudioApi = {
   },
   quitApp: () => ipcRenderer.invoke(IPC.appQuit),
   openCompact: () => ipcRenderer.invoke(IPC.appCompact),
+  notify: (text) => ipcRenderer.invoke(IPC.notify, text),
+  hotkeys: {
+    set: (bindings) => ipcRenderer.invoke(IPC.hotkeysSet, bindings),
+  },
+  foreground: {
+    setActive: (on) => ipcRenderer.invoke(IPC.foregroundActive, on),
+    onChange: (cb) => listen(IPC.foregroundChanged, cb),
+    listRunning: () => ipcRenderer.invoke(IPC.appsRunning),
+  },
+  sounds: {
+    add: (name, data) => ipcRenderer.invoke(IPC.soundsAdd, { name, data }),
+    read: (id) => ipcRenderer.invoke(IPC.soundsRead, id),
+    remove: (id) => ipcRenderer.invoke(IPC.soundsRemove, id),
+  },
+  remote: {
+    get: () => ipcRenderer.invoke(IPC.remoteGet),
+    setEnabled: (on) => ipcRenderer.invoke(IPC.remoteEnable, on),
+    newCode: () => ipcRenderer.invoke(IPC.remoteNewCode),
+    disconnect: (id) => ipcRenderer.invoke(IPC.remoteDisconnect, id),
+    onDevices: (cb) => listen(IPC.remoteDevices, cb),
+  },
+  communityVoices: () => ipcRenderer.invoke(IPC.communityFetch),
   quick: {
     onCommand: (cb) => listen(IPC.quickCmd, cb),
     pushState: (state) => ipcRenderer.send(IPC.quickState, state),

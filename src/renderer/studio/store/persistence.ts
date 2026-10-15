@@ -5,7 +5,7 @@ import {
   type PersistedState,
 } from '@shared/persisted-state';
 import type { StudioParams } from '@shared/params';
-import { mergeDeep, createDefaultParams, type DeepPartial } from '@shared/params';
+import { sanitiseParams } from '@shared/params';
 import { toPersisted, type StoreSeed, type StudioStoreApi } from './studio-store';
 
 /** Minimal Storage subset (so tests can pass an in-memory object). */
@@ -39,7 +39,7 @@ export function loadUserPresets(storage: KeyValueStorage): Record<string, Studio
   if (typeof raw === 'object' && raw !== null && !Array.isArray(raw)) {
     for (const [name, value] of Object.entries(raw)) {
       if (typeof value === 'object' && value !== null) {
-        out[name] = mergeDeep(createDefaultParams(), value as DeepPartial<StudioParams>);
+        out[name] = sanitiseParams(value);
       }
     }
   }

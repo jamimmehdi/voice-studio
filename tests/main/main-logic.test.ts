@@ -155,6 +155,8 @@ const state = (over: Partial<QuickState> = {}): QuickState => ({
   level: 0,
   stats: '',
   music: { has: false, title: '', playing: false, progress: 0 },
+  sounds: [],
+  muted: false,
   ...over,
 });
 

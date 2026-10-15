@@ -1,0 +1,151 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 18px;
+}
+
+.drop {
+  border-color: var(--accent);
+}
+
+.volume {
+  width: 110px;
+}
+
+.pads {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.pad {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 92px;
+  background: var(--btn);
+  border: 1px solid var(--line-2);
+  border-radius: 14px;
+}
+
+.padOn {
+  background: #10241f;
+  border-color: var(--accent);
+}
+
+.padMain {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 18px;
+  padding: 14px 14px 6px;
+  text-align: left;
+  color: var(--text);
+  background: none;
+  border: none;
+  border-radius: 14px;
+}
+
+.padMain:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.padTop {
+  display: flex;
+  align-items: center;
+  height: 18px;
+}
+
+.live {
+  background: var(--live);
+  box-shadow: 0 0 10px var(--live);
+}
+
+.idle {
+  background: #3a4458;
+}
+
+.padName {
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.padKey {
+  position: absolute;
+  top: 12px;
+  right: 10px;
+}
+
+.remove {
+  position: absolute;
+  right: 6px;
+  bottom: 4px;
+  display: none;
+  width: 22px;
+  height: 22px;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--muted);
+  background: var(--bg);
+  border: 1px solid var(--line-2);
+  border-radius: 6px;
+}
+
+.pad:hover .remove,
+.remove:focus-visible {
+  display: block;
+}
+
+.addPad {
+  min-height: 92px;
+  font-size: 26px;
+  color: var(--dim);
+  background: transparent;
+  border: 1px dashed var(--line-2);
+  border-radius: 14px;
+}
+
+.addPad:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.hint {
+  margin-top: auto;
+}
+
+.voiceList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  padding-right: 4px;
+  overflow-y: auto;
+}
+
+.quick {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.quickHead {
+  font-weight: 700;
+  color: var(--soft);
+}
+
+.quickPick {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--muted);
+}
+
+.toast {
+  margin-top: auto;
+}

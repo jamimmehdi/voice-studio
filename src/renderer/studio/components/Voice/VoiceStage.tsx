@@ -8,6 +8,7 @@ import { VoicePad } from './VoicePad';
 import styles from './VoiceStage.module.css';
 
 const QUALITY_LABEL: Record<Quality, string> = {
+  4096: 'Studio · 85 ms',
   2048: 'Clean · 43 ms',
   1024: 'Balanced · 21 ms',
   512: 'Fast · 11 ms',

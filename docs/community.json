@@ -1,0 +1,61 @@
+{
+  "app": "voice-studio",
+  "v": 1,
+  "voices": [
+    {
+      "name": "Radio host",
+      "author": "Jamim Mehdi",
+      "description": "Warm, close and slightly compressed.",
+      "params": {
+        "voice": { "on": true, "pitch": -2.5, "formant": -1.5, "mix": 100 },
+        "comp": { "on": true, "thresh": -24, "ratio": 4, "attack": 6, "release": 140, "knee": 6, "makeup": 5, "mix": 100 },
+        "fx": { "on": true, "character": "none", "reverb": 8, "echo": 0, "chorus": 0 }
+      }
+    },
+    {
+      "name": "Walkie-talkie squad",
+      "author": "Jamim Mehdi",
+      "description": "Crackly field radio with a touch of grit.",
+      "params": {
+        "voice": { "on": false },
+        "fx": { "on": true, "character": "walkie", "reverb": 0, "echo": 0, "chorus": 0 }
+      }
+    },
+    {
+      "name": "Megaphone shouter",
+      "author": "Jamim Mehdi",
+      "description": "Loud and honky, for when you really mean it.",
+      "params": {
+        "voice": { "on": false },
+        "fx": { "on": true, "character": "megaphone", "reverb": 5, "echo": 0, "chorus": 0 }
+      }
+    },
+    {
+      "name": "Cave explorer",
+      "author": "Jamim Mehdi",
+      "description": "Your normal voice, far underground.",
+      "params": {
+        "voice": { "on": false },
+        "fx": { "on": true, "character": "cave", "reverb": 70, "echo": 25, "chorus": 0 }
+      }
+    },
+    {
+      "name": "Anime girl",
+      "author": "Jamim Mehdi",
+      "description": "Bright and high, with a little chorus shimmer.",
+      "params": {
+        "voice": { "on": true, "pitch": 8, "formant": 5.5, "mix": 100 },
+        "fx": { "on": true, "character": "none", "reverb": 6, "echo": 0, "chorus": 12 }
+      }
+    },
+    {
+      "name": "Late-night narrator",
+      "author": "Jamim Mehdi",
+      "description": "Low, calm and a bit of room.",
+      "params": {
+        "voice": { "on": true, "pitch": -4.5, "formant": -2.5, "mix": 100 },
+        "fx": { "on": true, "character": "none", "reverb": 14, "echo": 0, "chorus": 0 }
+      }
+    }
+  ]
+}

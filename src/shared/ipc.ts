@@ -1,3 +1,4 @@
+import type { HotkeyBindings, HotkeyResult, RunningApp } from './features';
 import type { QuickCommand, QuickState } from './protocols';
 
 /** Every IPC channel name in one place. */
@@ -14,6 +15,20 @@ export const IPC = {
   settingsSetShortcut: 'settings:setShortcut',
   appQuit: 'app:quit',
   appCompact: 'app:compact',
+  notify: 'app:notify',
+  hotkeysSet: 'hotkeys:set',
+  foregroundActive: 'foreground:active',
+  foregroundChanged: 'foreground:changed',
+  appsRunning: 'apps:running',
+  soundsAdd: 'sounds:add',
+  soundsRead: 'sounds:read',
+  soundsRemove: 'sounds:remove',
+  remoteGet: 'remote:get',
+  remoteEnable: 'remote:enable',
+  remoteNewCode: 'remote:newCode',
+  remoteDisconnect: 'remote:disconnect',
+  remoteDevices: 'remote:devices',
+  communityFetch: 'library:community',
   // events main -> renderer
   updateAvailable: 'update:available',
   updateNone: 'update:none',
@@ -57,6 +72,23 @@ export interface UpdateInfo {
 
 export type Unsubscribe = () => void;
 
+export interface RemoteDevice {
+  id: string;
+  name: string;
+  /** ms since epoch */
+  since: number;
+}
+
+export interface RemoteView {
+  enabled: boolean;
+  /** address to open on the phone, or null while the server is off / has no network */
+  url: string | null;
+  /** the same address as a QR code (data URL) */
+  qr: string | null;
+  devices: RemoteDevice[];
+  error: string | null;
+}
+
 /** API exposed to the studio window through contextBridge. */
 export interface StudioApi {
   appInfo(): Promise<AppInfo>;
@@ -71,6 +103,30 @@ export interface StudioApi {
   };
   quitApp(): Promise<void>;
   openCompact(): Promise<boolean>;
+  notify(text: string): Promise<void>;
+  hotkeys: {
+    set(bindings: HotkeyBindings): Promise<HotkeyResult>;
+  };
+  foreground: {
+    /** starts (or stops) watching the foreground program; resolves with the current one */
+    setActive(on: boolean): Promise<string | null>;
+    onChange(cb: (exe: string | null) => void): Unsubscribe;
+    listRunning(): Promise<RunningApp[]>;
+  };
+  sounds: {
+    add(name: string, data: ArrayBuffer): Promise<string>;
+    read(id: string): Promise<ArrayBuffer | null>;
+    remove(id: string): Promise<void>;
+  };
+  remote: {
+    get(): Promise<RemoteView>;
+    setEnabled(on: boolean): Promise<RemoteView>;
+    newCode(): Promise<RemoteView>;
+    disconnect(id: string): Promise<void>;
+    onDevices(cb: (devices: RemoteDevice[]) => void): Unsubscribe;
+  };
+  /** raw text of the community voice list, or null when it cannot be reached */
+  communityVoices(): Promise<string | null>;
   quick: {
     onCommand(cb: (cmd: QuickCommand) => void): Unsubscribe;
     pushState(state: QuickState): void;

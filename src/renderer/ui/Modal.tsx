@@ -7,10 +7,21 @@ export interface ModalProps {
   children: ReactNode;
   /** centre the content (About) */
   centered?: boolean;
+  /** sheet width in px (default 620) */
+  width?: number;
+  /** `page` = the app background with cards inside (feature screens) */
+  tone?: 'panel' | 'page';
 }
 
 /** Dialog with a backdrop; closes on Escape or a click outside the sheet. */
-export function Modal({ title, onClose, children, centered }: ModalProps): React.ReactElement {
+export function Modal({
+  title,
+  onClose,
+  children,
+  centered,
+  width,
+  tone = 'panel',
+}: ModalProps): React.ReactElement {
   const sheet = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -36,7 +47,8 @@ export function Modal({ title, onClose, children, centered }: ModalProps): React
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`${styles.sheet} ${centered ? styles.centered : ''}`}
+        className={`${styles.sheet} ${centered ? styles.centered : ''} ${tone === 'page' ? styles.page : ''}`}
+        style={width ? { width: `min(${width}px, 96vw)` } : undefined}
       >
         <button type="button" className={styles.close} aria-label="Close" onClick={onClose}>
           ×

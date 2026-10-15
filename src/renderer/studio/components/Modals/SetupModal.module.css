@@ -1,0 +1,263 @@
+.shell {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin: -22px;
+  overflow: hidden;
+  border-radius: 18px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 24px;
+  background: var(--bar);
+  border-bottom: 1px solid var(--bar-line);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: linear-gradient(135deg, #1f2a44, #0b0e14);
+  border: 1px solid #2a3550;
+  border-radius: 9px;
+}
+
+.welcome {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.version {
+  font-size: 11px;
+  color: var(--dim);
+}
+
+.skip {
+  padding: 0 40px 0 12px;
+  font-size: 13px;
+  color: var(--muted);
+  background: none;
+  border: none;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+}
+
+.stepGroup {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 10px;
+}
+
+.stepGroup:first-child {
+  flex: none;
+}
+
+.stepGroup:not(:first-child) {
+  padding-left: 10px;
+}
+
+.line {
+  flex: 1;
+  height: 2px;
+  background: var(--line-2);
+}
+
+.lineDone {
+  background: #1f6b5c;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 10px;
+}
+
+.stepGroup:first-child .step {
+  padding-left: 0;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 800;
+  border: 2px solid var(--line-2);
+  border-radius: 50%;
+}
+
+.done {
+  color: var(--accent-ink);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.now {
+  color: #8ff5e0;
+  border-color: var(--accent);
+}
+
+.next {
+  color: var(--dim);
+}
+
+.stepName {
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.dimName {
+  color: var(--dim);
+}
+
+.content {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  min-height: 330px;
+  padding: 4px 24px;
+}
+
+.single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.wide {
+  width: 100%;
+}
+
+.footer {
+  display: flex;
+  gap: 10px;
+  padding: 0 24px 22px;
+}
+
+.levelHead {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.levelHead .mono {
+  color: var(--text);
+}
+
+.meter {
+  position: relative;
+  height: 22px;
+  overflow: hidden;
+  background: #05070a;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.meterFill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: linear-gradient(90deg, #2fe3a5 0%, #2fe3a5 70%, #e9d758 90%, #ff5c6c 100%);
+  transition: width 0.06s linear;
+}
+
+.zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-right: 1px dashed var(--accent);
+  border-left: 1px dashed var(--accent);
+}
+
+.zoneHint {
+  margin-top: 6px;
+}
+
+.facts {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.facts div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.facts .mono {
+  font-size: 12px;
+}
+
+.route {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--soft);
+}
+
+.route span {
+  padding: 8px 10px;
+  background: var(--raised);
+  border: 1px solid var(--line-2);
+  border-radius: 10px;
+}
+
+.route i {
+  font-style: normal;
+  color: var(--dim);
+}
+
+.routeOn {
+  color: var(--accent-ink);
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+}
+
+.voices {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.voice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: left;
+  color: var(--text);
+  background: var(--btn);
+  border: 1px solid var(--line-2);
+  border-radius: 12px;
+}
+
+.voice:hover {
+  border-color: var(--accent);
+}
+
+.voiceOn {
+  background: #10241f;
+  border-color: var(--accent);
+}

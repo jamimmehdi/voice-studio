@@ -10,6 +10,8 @@ export class MusicBus {
   private readonly duck: GainNode;
   private readonly limiter: DynamicsCompressorNode;
   private readonly monitor: GainNode;
+  /** soundboard clips enter here: not ducked by your voice, but limited and monitored */
+  readonly soundInput: GainNode;
 
   constructor(
     private readonly ctx: AudioContext,
@@ -34,12 +36,23 @@ export class MusicBus {
     this.limiter.attack.value = 0.003;
     this.limiter.release.value = 0.15;
 
+    this.soundInput = ctx.createGain();
+    this.soundInput.gain.value = 0.7;
+
     source.connect(this.volume);
     this.volume.connect(this.duck);
     this.duck.connect(this.limiter);
     this.limiter.connect(ctx.destination);
     this.volume.connect(this.monitor);
     this.monitor.connect(monitorDestination);
+
+    this.soundInput.connect(this.limiter);
+    this.soundInput.connect(this.monitor);
+  }
+
+  /** 0..1 */
+  setSoundVolume(volume: number): void {
+    this.soundInput.gain.value = Math.max(0, Math.min(1, volume));
   }
 
   /** 0..1 */

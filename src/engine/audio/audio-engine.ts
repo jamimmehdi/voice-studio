@@ -56,6 +56,8 @@ export class AudioEngine {
   private monitorElement: HTMLAudioElement | null = null;
   private bus: MusicBus | null = null;
   private recording: Float32Array[] | null = null;
+  private capture: { raw: Float32Array[]; processed: Float32Array[] } | null = null;
+  private voiceGain: GainNode | null = null;
   private lastMeters: EngineMeters | null = null;
 
   get running(): boolean {
@@ -119,9 +121,12 @@ export class AudioEngine {
       analyser.fftSize = 4096;
       analyser.smoothingTimeConstant = 0.75;
 
+      // the voice reaches the cable through its own gain so a playing sound can lower it
+      const voiceGain = ctx.createGain();
       source.connect(node);
       node.connect(analyser);
-      node.connect(ctx.destination);
+      node.connect(voiceGain);
+      voiceGain.connect(ctx.destination);
 
       // headphone monitor on its own output device (voice + music)
       const monitorDest = ctx.createMediaStreamDestination();
@@ -147,6 +152,7 @@ export class AudioEngine {
       this.node = node;
       this.stream = stream;
       this.analyserNode = analyser;
+      this.voiceGain = voiceGain;
       this.monitorGain = monitorGain;
       this.monitorElement = monitorEl;
       this.bus = bus;
@@ -188,6 +194,8 @@ export class AudioEngine {
     this.node = null;
     this.stream = null;
     this.analyserNode = null;
+    this.voiceGain = null;
+    this.capture = null;
     this.monitorGain = null;
     this.monitorElement = null;
     this.bus = null;
@@ -208,7 +216,11 @@ export class AudioEngine {
         break;
       }
       case 'rec':
-        this.recording?.push(message.data);
+        if (message.raw) this.capture?.raw.push(message.data);
+        else {
+          this.recording?.push(message.data);
+          this.capture?.processed.push(message.data);
+        }
         break;
       case 'ready':
         break;
@@ -231,8 +243,44 @@ export class AudioEngine {
     if (this.ctx) await setSink(this.ctx, deviceId);
   }
 
+  /** Lowers (or restores) the voice that goes to the cable; used while a soundboard clip plays. */
+  setVoiceLevel(gain: number, timeConstant = 0.05): void {
+    if (this.voiceGain && this.ctx)
+      this.voiceGain.gain.setTargetAtTime(gain, this.ctx.currentTime, timeConstant);
+  }
+
+  /** Starts capturing the raw microphone and the processed voice side by side. */
+  startCapture(): boolean {
+    if (!this.node || this.capture || this.recording) return false;
+    this.capture = { raw: [], processed: [] };
+    this.send({ type: 'record', on: true, raw: true });
+    return true;
+  }
+
+  /** Stops the capture and returns both signals as one buffer each. */
+  stopCapture(): { raw: Float32Array; processed: Float32Array; sampleRate: number } | null {
+    const capture = this.capture;
+    if (!capture || !this.ctx) return null;
+    this.send({ type: 'record', on: false });
+    this.capture = null;
+    const join = (chunks: Float32Array[]): Float32Array => {
+      const out = new Float32Array(chunks.reduce((n, c) => n + c.length, 0));
+      let pos = 0;
+      for (const c of chunks) {
+        out.set(c, pos);
+        pos += c.length;
+      }
+      return out;
+    };
+    return { raw: join(capture.raw), processed: join(capture.processed), sampleRate: this.ctx.sampleRate };
+  }
+
+  get isCapturing(): boolean {
+    return this.capture !== null;
+  }
+
   startRecording(): void {
-    if (!this.node || this.recording) return;
+    if (!this.node || this.recording || this.capture) return;
     this.recording = [];
     this.send({ type: 'record', on: true });
   }

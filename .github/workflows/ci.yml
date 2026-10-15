@@ -35,3 +35,30 @@ jobs:
 
       - name: End-to-end smoke test (real Electron)
         run: npm run test:e2e
+
+  # Experimental: proves the macOS / Linux packages still build. Not part of the release yet,
+  # and the virtual-cable helper and app-profile detection are Windows only.
+  package:
+    needs: verify
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            script: dist:linux
+          - os: macos-latest
+            script: dist:mac
+    runs-on: ${{ matrix.os }}
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Package
+        run: npm run ${{ matrix.script }}

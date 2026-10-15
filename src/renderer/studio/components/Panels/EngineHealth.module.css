@@ -56,3 +56,102 @@
   color: var(--text);
   background: var(--raised);
 }
+
+.model {
+  margin-bottom: 14px;
+}
+
+.modelHead {
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.models {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.modelBtn {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 11px 14px;
+  text-align: left;
+  color: var(--text);
+  background: var(--btn);
+  border: 1px solid var(--line-2);
+  border-radius: 12px;
+}
+
+.modelBtn:hover {
+  border-color: var(--accent);
+}
+
+.modelOn {
+  background: #10241f;
+  border-color: var(--accent);
+}
+
+.modelTitle {
+  font-weight: 700;
+}
+
+.modelOn .modelTitle {
+  color: #8ff5e0;
+}
+
+.modelMs {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--dim);
+}
+
+.modelOn .modelMs {
+  color: #6fbfae;
+}
+
+.modelSub {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.autoRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 14px;
+  margin-bottom: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.autoText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.autoText b {
+  font-weight: 700;
+}
+
+.autoText span {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.bufferNote {
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  font-size: 12px;
+  color: var(--soft);
+  background: var(--inset);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.bufferNote b {
+  color: var(--text);
+}

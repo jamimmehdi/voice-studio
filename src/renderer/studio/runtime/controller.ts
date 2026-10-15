@@ -1,4 +1,5 @@
 import type { AudioEngine, LatencyHint } from '@engine/audio/audio-engine';
+import { AutoBuffer } from '@engine/audio/auto-buffer';
 import { findVirtualCable, listDevices } from '@engine/audio/devices';
 import { DuckController } from '@engine/audio/ducking';
 import type { MusicPlayer } from '@engine/audio/music-player';
@@ -27,6 +28,9 @@ type EnginePort = Pick<
   | 'events'
   | 'isRecording'
   | 'context'
+  | 'startCapture'
+  | 'stopCapture'
+  | 'isCapturing'
 >;
 type PlayerPort = Pick<MusicPlayer, 'addBuffer' | 'pause' | 'loop'>;
 type ApiPort = Pick<StudioApi, 'dspSource' | 'ytFetch' | 'saveFile' | 'installVbCable'>;
@@ -55,6 +59,7 @@ const errorText = (e: unknown): string => (e instanceof Error ? e.message : Stri
  */
 export class StudioController {
   private readonly duck = new DuckController();
+  private readonly autoBuffer = new AutoBuffer();
   private readonly now: () => number;
   private disposers: Array<() => void> = [];
 
@@ -93,6 +98,20 @@ export class StudioController {
       }),
     );
     this.duck.configure({ enabled: last.music.duck });
+
+    // raise the audio buffer by itself when the audio keeps dropping out
+    this.disposers.push(
+      engine.events.on('running', () => this.autoBuffer.reset()),
+      engine.events.on('meters', (m) => {
+        const st = this.store.getState();
+        if (!st.autoBuffer) return;
+        const change = this.autoBuffer.observe(m.dropouts, this.now(), st.buffer);
+        if (!change) return;
+        st.setBuffer(change.to);
+        st.noteBufferChange({ ...change, at: Date.now() });
+        void this.restartIfRunning();
+      }),
+    );
 
     return () => {
       this.disposers.forEach((d) => d());
@@ -228,6 +247,23 @@ export class StudioController {
   async setBuffer(mode: BufferMode): Promise<void> {
     this.store.getState().setBuffer(mode);
     await this.restartIfRunning();
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* capture (A/B test, find my voice)                                  */
+  /* ------------------------------------------------------------------ */
+
+  /** Starts capturing the raw and the processed signal; false when the engine is not running. */
+  startCapture(): boolean {
+    return this.deps.engine.running && this.deps.engine.startCapture();
+  }
+
+  stopCapture(): { raw: Float32Array; processed: Float32Array; sampleRate: number } | null {
+    return this.deps.engine.stopCapture();
+  }
+
+  get capturing(): boolean {
+    return this.deps.engine.isCapturing;
   }
 
   /* ------------------------------------------------------------------ */

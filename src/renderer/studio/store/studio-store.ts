@@ -16,12 +16,24 @@ import {
   type MusicSettings,
   type PersistedState,
 } from '@shared/persisted-state';
+import type { BufferChange } from '@engine/audio/auto-buffer';
+import type { HotkeysState, ProfileApp, ProfilesState, SoundEntry, SoundOptions } from '@shared/features';
 import { applyBuiltinPreset, applyUserPreset } from '@shared/presets';
 import type { StageId } from '@shared/stages';
 import type { UpdateInfo } from '@shared/ipc';
 
 export type EngineStatus = 'stopped' | 'starting' | 'running';
-export type ModalId = 'about' | 'guide' | 'cable' | 'save-preset';
+export type ModalId =
+  | 'about'
+  | 'guide'
+  | 'cable'
+  | 'save-preset'
+  | 'setup'
+  | 'diagnose'
+  | 'soundboard'
+  | 'profiles'
+  | 'library'
+  | 'remote';
 
 export type UpdateStatus =
   | { phase: 'idle' }
@@ -47,6 +59,12 @@ export interface StudioState {
   buffer: BufferMode;
   music: MusicSettings;
   userPresets: Record<string, StudioParams>;
+  autoBuffer: boolean;
+  profiles: ProfilesState;
+  hotkeys: HotkeysState;
+  sounds: SoundEntry[];
+  soundOptions: SoundOptions;
+  setupDone: boolean;
 
   // ---- session only ----
   engine: EngineStatus;
@@ -57,6 +75,17 @@ export interface StudioState {
   recording: boolean;
   /** the stored settings came from an older version and were reset to the new defaults */
   migrated: boolean;
+  /** the last time the audio buffer was raised automatically */
+  bufferChange: BufferChange | null;
+  /** executable of the program in front (lower case), when profiles are on */
+  foreground: string | null;
+  /** ids of soundboard clips that are playing */
+  playingSounds: string[];
+  /** the microphone is muted (nothing reaches the game) */
+  muted: boolean;
+  /** the voice that was active before a quick-switch hotkey, so it can go back */
+  quickReturn: { params: StudioParams; preset: string | null } | null;
+  toast: string | null;
 }
 
 export interface StudioActions {
@@ -87,6 +116,34 @@ export interface StudioActions {
 
   // music
   setMusic(patch: Partial<MusicSettings>): void;
+
+  // 2.1 features
+  setAutoBuffer(on: boolean): void;
+  noteBufferChange(change: BufferChange | null): void;
+  setProfilesEnabled(on: boolean): void;
+  setProfileFallback(preset: string | null): void;
+  upsertProfile(app: ProfileApp): void;
+  patchProfile(exe: string, patch: Partial<Omit<ProfileApp, 'exe'>>): void;
+  removeProfile(exe: string): void;
+  setForeground(exe: string | null): void;
+  setVoiceKey(preset: string, accelerator: string | null): void;
+  setQuickKey(patch: Partial<HotkeysState['quick']>): void;
+  setSoundKey(id: string, accelerator: string | null): void;
+  setHotkeyToast(on: boolean): void;
+  addSound(entry: SoundEntry): void;
+  removeSound(id: string): void;
+  renameSound(id: string, name: string): void;
+  setSoundOptions(patch: Partial<SoundOptions>): void;
+  setPlayingSounds(ids: string[]): void;
+  setMuted(on: boolean): void;
+  /** remembers the current voice, then `quickSwitch` can return to it */
+  rememberVoice(): void;
+  /** goes back to the remembered voice (no-op when nothing was remembered) */
+  restoreVoice(): void;
+  setSetupDone(done: boolean): void;
+  /** stores voices (imported or from the community list) as user presets */
+  importVoices(voices: Record<string, StudioParams>): void;
+  showToast(text: string | null): void;
 
   // session
   setEngine(status: EngineStatus): void;
@@ -131,6 +188,12 @@ export function createStudioStore(seed: StoreSeed = {}): StudioStoreApi {
       buffer: p.buffer,
       music: p.music,
       userPresets: seed.userPresets ?? {},
+      autoBuffer: p.autoBuffer,
+      profiles: p.profiles,
+      hotkeys: p.hotkeys,
+      sounds: p.sounds,
+      soundOptions: p.soundOptions,
+      setupDone: p.setupDone,
 
       engine: 'stopped',
       status: 'VB-CABLE by VB-Audio · yt-dlp',
@@ -139,6 +202,12 @@ export function createStudioStore(seed: StoreSeed = {}): StudioStoreApi {
       update: { phase: 'idle' },
       recording: false,
       migrated: seed.migrated ?? false,
+      bufferChange: null,
+      foreground: null,
+      playingSounds: [],
+      muted: false,
+      quickReturn: null,
+      toast: null,
 
       setStage: (stage) => set({ stage }),
 
@@ -211,6 +280,79 @@ export function createStudioStore(seed: StoreSeed = {}): StudioStoreApi {
 
       setMusic: (patch) => set((s) => ({ music: { ...s.music, ...patch } })),
 
+      setAutoBuffer: (autoBuffer) => set({ autoBuffer }),
+      noteBufferChange: (bufferChange) => set({ bufferChange }),
+
+      setProfilesEnabled: (enabled) => set((s) => ({ profiles: { ...s.profiles, enabled } })),
+      setProfileFallback: (fallback) => set((s) => ({ profiles: { ...s.profiles, fallback } })),
+      upsertProfile: (app) =>
+        set((s) => {
+          const exe = app.exe.toLowerCase();
+          const others = s.profiles.apps.filter((a) => a.exe !== exe);
+          const existing = s.profiles.apps.find((a) => a.exe === exe);
+          const next = { ...app, exe };
+          const apps = existing ? s.profiles.apps.map((a) => (a.exe === exe ? next : a)) : [...others, next];
+          return { profiles: { ...s.profiles, apps } };
+        }),
+      patchProfile: (exe, patch) =>
+        set((s) => ({
+          profiles: {
+            ...s.profiles,
+            apps: s.profiles.apps.map((a) => (a.exe === exe ? { ...a, ...patch } : a)),
+          },
+        })),
+      removeProfile: (exe) =>
+        set((s) => ({ profiles: { ...s.profiles, apps: s.profiles.apps.filter((a) => a.exe !== exe) } })),
+      setForeground: (foreground) => set({ foreground }),
+
+      setVoiceKey: (preset, accelerator) =>
+        set((s) => {
+          const voices = { ...s.hotkeys.voices };
+          if (accelerator) voices[preset] = accelerator;
+          else delete voices[preset];
+          return { hotkeys: { ...s.hotkeys, voices } };
+        }),
+      setQuickKey: (patch) =>
+        set((s) => ({ hotkeys: { ...s.hotkeys, quick: { ...s.hotkeys.quick, ...patch } } })),
+      setSoundKey: (id, accelerator) =>
+        set((s) => {
+          const sounds = { ...s.hotkeys.sounds };
+          if (accelerator) sounds[id] = accelerator;
+          else delete sounds[id];
+          return { hotkeys: { ...s.hotkeys, sounds } };
+        }),
+      setHotkeyToast: (toast) => set((s) => ({ hotkeys: { ...s.hotkeys, toast } })),
+
+      addSound: (entry) => set((s) => ({ sounds: [...s.sounds, entry] })),
+      removeSound: (id) =>
+        set((s) => {
+          const sounds = { ...s.hotkeys.sounds };
+          delete sounds[id];
+          return {
+            sounds: s.sounds.filter((x) => x.id !== id),
+            hotkeys: { ...s.hotkeys, sounds },
+          };
+        }),
+      renameSound: (id, name) =>
+        set((s) => ({ sounds: s.sounds.map((x) => (x.id === id ? { ...x, name } : x)) })),
+      setSoundOptions: (patch) => set((s) => ({ soundOptions: { ...s.soundOptions, ...patch } })),
+      setPlayingSounds: (playingSounds) => set({ playingSounds }),
+      setMuted: (muted) => set({ muted }),
+      rememberVoice: () => set((s) => ({ quickReturn: { params: cloneParams(s.params), preset: s.preset } })),
+      restoreVoice: () => {
+        const saved = get().quickReturn;
+        if (!saved) return;
+        set({ params: saved.params, preset: saved.preset, quickReturn: null, warm: false });
+      },
+      setSetupDone: (setupDone) => set({ setupDone }),
+      importVoices: (voices) =>
+        set((s) => {
+          const next = { ...s.userPresets };
+          for (const [name, params] of Object.entries(voices)) next[name] = cloneParams(params);
+          return { userPresets: next };
+        }),
+      showToast: (toast) => set({ toast }),
+
       setEngine: (engine) => set({ engine }),
       setStatus: (status) => set({ status }),
       setModal: (modal) => set({ modal }),
@@ -234,6 +376,12 @@ export function toPersisted(s: StudioState): PersistedState {
     preset: s.preset,
     stage: s.stage,
     warm: s.warm,
+    autoBuffer: s.autoBuffer,
+    profiles: s.profiles,
+    hotkeys: s.hotkeys,
+    sounds: s.sounds,
+    soundOptions: s.soundOptions,
+    setupDone: s.setupDone,
   };
 }
 

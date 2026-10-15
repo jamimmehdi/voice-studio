@@ -3,16 +3,19 @@ import type { MeterSnapshot } from '@shared/protocols';
 import { Biquad, biquadCoeffs, IDENTITY_COEFFS } from './biquad';
 import { Compressor } from './compressor';
 import { DeEsser } from './deesser';
+import { Effects } from './effects';
 import { Expander } from './expander';
 import { Limiter } from './limiter';
 import { smoothingCoef, dbToLin } from './math';
+import { NoiseSuppressor } from './noise-suppressor';
 import { PitchShifter } from './pitch-shifter';
 import { RingModulator } from './ring-modulator';
 
 /**
  * The whole studio signal chain for one mono channel:
  *
- *   input gain -> high-pass -> gate -> voice changer -> de-esser -> EQ -> compressor -> output gain -> limiter
+ *   input gain -> high-pass -> noise removal -> gate -> voice changer -> de-esser -> EQ -> effects
+ *     -> compressor -> output gain -> limiter
  *
  * It is plain, allocation-free-per-sample DSP with no browser dependencies, so it runs inside the
  * AudioWorklet and under Node (unit tests) alike.
@@ -21,6 +24,8 @@ export class VoiceChain {
   private params: StudioParams = createDefaultParams();
 
   private readonly hpf: [Biquad, Biquad] = [new Biquad(), new Biquad()];
+  private readonly noise = new NoiseSuppressor();
+  private readonly fx: Effects;
   private readonly expander: Expander;
   private shifter: PitchShifter | null = null;
   private shifterSize = 0;
@@ -45,6 +50,7 @@ export class VoiceChain {
   constructor(readonly sampleRate: number) {
     this.smooth = smoothingCoef(10, sampleRate);
     this.expander = new Expander(sampleRate);
+    this.fx = new Effects(sampleRate);
     this.robot = new RingModulator(sampleRate);
     this.deesser = new DeEsser(sampleRate);
     this.compressor = new Compressor(sampleRate);
@@ -55,6 +61,7 @@ export class VoiceChain {
   /** Total processing delay with the current settings, in samples. */
   get latencySamples(): number {
     let latency = 0;
+    if (this.params.noise.on) latency += this.noise.latency;
     if (this.params.voice.on) latency += this.shifterSize;
     if (this.params.lim.on) latency += this.limiter.latency;
     return latency;
@@ -76,7 +83,9 @@ export class VoiceChain {
       this.hpf[1].set(IDENTITY_COEFFS);
     }
 
+    this.noise.setAmount(p.noise.amount);
     this.expander.set(p.exp);
+    this.fx.set(p.fx);
     this.deesser.set(p.deess);
     p.eq.bands.forEach((b, i) => {
       this.eq[i]!.set(b.on ? biquadCoeffs(b.type, fs, b.freq, b.q, b.gain) : IDENTITY_COEFFS);
@@ -125,6 +134,8 @@ export class VoiceChain {
 
       if (p.hpf.on) x = this.hpf[1].process(this.hpf[0].process(x));
 
+      if (p.noise.on) x = this.noise.process(x);
+
       if (p.exp.on) {
         x = this.expander.process(x);
         if (this.expander.gainReductionDb < grExp) grExp = this.expander.gainReductionDb;
@@ -146,6 +157,8 @@ export class VoiceChain {
       }
 
       if (p.eq.on) for (let b = 0; b < 6; b++) x = this.eq[b]!.process(x);
+
+      if (p.fx.on) x = this.fx.process(x);
 
       if (p.comp.on) {
         x = this.compressor.process(x);

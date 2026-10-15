@@ -18,8 +18,11 @@ export class ProcessorCore {
   private lastFrame = -1;
   private dropouts = 0;
   private recording = false;
+  private recordRaw = false;
   private recBuf = new Float32Array(RECORD_CHUNK);
   private recPos = 0;
+  private rawBuf = new Float32Array(RECORD_CHUNK);
+  private rawPos = 0;
 
   constructor(
     readonly sampleRate: number,
@@ -34,7 +37,9 @@ export class ProcessorCore {
       this.chain.setParams(message.params);
     } else if (message.type === 'record') {
       this.recording = message.on;
+      this.recordRaw = message.on && message.raw === true;
       this.recPos = 0;
+      this.rawPos = 0;
     }
   }
 
@@ -66,7 +71,10 @@ export class ProcessorCore {
     this.chain.process(mono, first, n);
     for (let c = 1; c < output.length; c++) output[c]!.set(first.subarray(0, n));
 
-    if (this.recording) this.captureRecording(first, n);
+    if (this.recording) {
+      this.captureRecording(first, n);
+      if (this.recordRaw) this.captureRaw(mono, n);
+    }
 
     if (++this.blocks % METER_EVERY_BLOCKS === 0) {
       this.post({
@@ -75,6 +83,17 @@ export class ProcessorCore {
         latency: this.chain.latencySamples,
         dropouts: this.dropouts,
       });
+    }
+  }
+
+  private captureRaw(samples: Float32Array, n: number): void {
+    for (let i = 0; i < n; i++) {
+      this.rawBuf[this.rawPos++] = samples[i]!;
+      if (this.rawPos === RECORD_CHUNK) {
+        const copy = this.rawBuf.slice();
+        this.post({ type: 'rec', data: copy, raw: true }, [copy.buffer]);
+        this.rawPos = 0;
+      }
     }
   }
 

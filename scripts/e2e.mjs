@@ -4,6 +4,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { _electron as electron } from 'playwright-core';
+import WebSocket from 'ws';
 
 const userData = mkdtempSync(join(tmpdir(), 'voice-studio-e2e-'));
 const results = [];
@@ -50,9 +51,25 @@ try {
     while (!splash.isClosed() && Date.now() - started < 8_000) await sleep(100);
     assert.equal(splash.isClosed(), true);
     const visible = await app.evaluate(({ BrowserWindow }) =>
-      BrowserWindow.getAllWindows().find((w) => w.webContents.getURL().includes('studio.html'))?.isVisible(),
+      BrowserWindow.getAllWindows()
+        .find((w) => w.webContents.getURL().includes('studio.html'))
+        ?.isVisible(),
     );
     assert.equal(visible, true);
+  });
+
+  await step('first run: the setup wizard opens by itself and can be walked through', async () => {
+    const dialog = studio.getByRole('dialog', { name: 'Welcome to Voice Studio' });
+    await dialog.waitFor({ timeout: 10_000 });
+    assert.ok(await dialog.getByText(/Games need a virtual microphone/).isVisible());
+    await dialog.getByRole('button', { name: 'Next' }).click();
+    assert.ok(await dialog.getByText(/Say something/).isVisible());
+    await dialog.getByRole('button', { name: 'Next' }).click();
+    assert.ok(await dialog.getByText(/Where do you hear yourself/).isVisible());
+    await dialog.getByRole('button', { name: 'Next' }).click();
+    assert.ok(await dialog.getByText(/Choose how you want to sound/).isVisible());
+    await dialog.getByRole('button', { name: 'Skip setup' }).click();
+    await dialog.waitFor({ state: 'detached' });
   });
 
   await step('window title and brand', async () => {
@@ -60,9 +77,9 @@ try {
     assert.ok(await studio.getByText('Voice Studio').first().isVisible());
   });
 
-  await step('nine chain stages, Voice selected by default', async () => {
+  await step('eleven chain stages, Voice selected by default', async () => {
     const nodes = studio.locator('[data-stage]');
-    assert.equal(await nodes.count(), 9);
+    assert.equal(await nodes.count(), 11);
     assert.equal(await studio.locator('[data-stage="voice"]').getAttribute('aria-pressed'), 'true');
   });
 
@@ -105,6 +122,79 @@ try {
     assert.equal(await studio.getByRole('combobox').first().inputValue(), '');
   });
 
+  await step('noise removal and effects stages switch on and show their controls', async () => {
+    await studio.locator('[data-stage="noise"]').click();
+    const noise = studio.getByRole('region', { name: 'Noise removal' });
+    await noise.getByRole('button', { name: 'Strong' }).click();
+    await noise.getByRole('switch', { name: 'Noise removal on/off' }).click();
+    assert.match(await studio.locator('[data-stage="noise"]').innerText(), /Strong · 90%/);
+
+    await studio.locator('[data-stage="fx"]').click();
+    const fx = studio.getByRole('region', { name: 'Effects' });
+    await fx.getByRole('button', { name: /Walkie-talkie/ }).click();
+    assert.match(await studio.locator('[data-stage="fx"]').innerText(), /walkie/);
+    await studio.locator('[data-stage="voice"]').click();
+  });
+
+  await step('the engine card picks the voice model and shows the auto buffer', async () => {
+    const models = studio.getByRole('group', { name: 'Voice model' });
+    await models.getByRole('button', { name: /Studio/ }).click();
+    assert.equal(await models.getByRole('button', { name: /Studio/ }).getAttribute('aria-pressed'), 'true');
+    assert.equal(
+      await studio.getByRole('switch', { name: 'Auto buffer' }).getAttribute('aria-checked'),
+      'true',
+    );
+    await models.getByRole('button', { name: /Clean/ }).click();
+  });
+
+  await step('every Tools screen opens and closes', async () => {
+    const screens = [
+      ['Soundboard & hotkeys', 'Soundboard and hotkeys'],
+      ['App profiles', 'App profiles'],
+      ['Voice library', 'Voice library'],
+      ['Phone remote', 'Phone remote'],
+      ["Why can't they hear me?", "Why can't they hear me?"],
+      ['Setup wizard', 'Welcome to Voice Studio'],
+    ];
+    for (const [item, title] of screens) {
+      await studio.getByRole('button', { name: /Tools/ }).click();
+      await studio.getByRole('menuitem', { name: new RegExp(item.replace(/[?&']/g, '.')) }).click();
+      await studio.getByRole('dialog', { name: title }).waitFor({ timeout: 5_000 });
+      await studio.keyboard.press('Escape');
+      await studio.getByRole('dialog').waitFor({ state: 'detached' });
+    }
+  });
+
+  await step('the phone remote serves its page and relays a command over a WebSocket', async () => {
+    const view = await studio.evaluate(() => window.studio.remote.setEnabled(true));
+    assert.equal(view.enabled, true);
+    assert.ok(view.url, 'no pairing address (is the PC on a network?)');
+    const url = new URL(view.url);
+    const local = `http://127.0.0.1:${url.port}`;
+
+    const denied = await fetch(local + '/');
+    assert.equal(denied.status, 403);
+    const page = await fetch(`${local}/?t=${url.searchParams.get('t')}`);
+    assert.equal(page.status, 200);
+    assert.match(await page.text(), /Voice Studio/);
+
+    const ws = new WebSocket(`ws://127.0.0.1:${url.port}/ws?t=${url.searchParams.get('t')}`);
+    const first = await new Promise((resolve, reject) => {
+      ws.once('message', (m) => resolve(JSON.parse(m.toString())));
+      ws.once('error', reject);
+      setTimeout(() => reject(new Error('no state from the PC')), 8_000);
+    });
+    assert.equal(first.type, 'state');
+    ws.send(JSON.stringify({ type: 'preset', name: 'Robot' }));
+    await studio.waitForFunction(
+      () => /−2\.0 · \+0\.0 st/.test(document.querySelector('[data-stage="voice"]')?.textContent ?? ''),
+      null,
+      { timeout: 5_000 },
+    );
+    ws.close();
+    await studio.evaluate(() => window.studio.remote.setEnabled(false));
+  });
+
   await step('music switch shows and hides the floating dock', async () => {
     assert.equal(await studio.locator('footer[aria-label="Music player"]').count(), 0);
     await studio.getByRole('switch', { name: 'Show music player' }).click();
@@ -131,7 +221,11 @@ try {
 
   await step('engine start without a microphone reports an error instead of crashing', async () => {
     await studio.getByRole('button', { name: /Start engine/ }).click();
-    await studio.waitForFunction(() => /Error|Running/.test(document.querySelector('[data-testid="status"]')?.textContent ?? ''), null, { timeout: 15_000 });
+    await studio.waitForFunction(
+      () => /Error|Running/.test(document.querySelector('[data-testid="status"]')?.textContent ?? ''),
+      null,
+      { timeout: 15_000 },
+    );
     assert.ok(await studio.getByRole('button', { name: /Start engine|LIVE/ }).isVisible());
   });
 
@@ -140,7 +234,11 @@ try {
       const source = await window.studio.dspSource();
       const ctx = new AudioContext({ latencyHint: 'interactive' });
       await ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([source], { type: 'text/javascript' })));
-      const node = new AudioWorkletNode(ctx, 'voice-studio', { numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [2] });
+      const node = new AudioWorkletNode(ctx, 'voice-studio', {
+        numberOfInputs: 1,
+        numberOfOutputs: 1,
+        outputChannelCount: [2],
+      });
       const messages = [];
       node.port.onmessage = (e) => messages.push(e.data);
       const osc = ctx.createOscillator();
@@ -155,7 +253,15 @@ try {
       await new Promise((r) => setTimeout(r, 1200));
       const meters = messages.filter((m) => m.type === 'meters');
       const last = meters[meters.length - 1];
-      const out = { sampleRate: ctx.sampleRate, ready: messages.some((m) => m.type === 'ready'), meters: meters.length, inPeak: last?.inPeak ?? 0, outPeak: last?.outPeak ?? 0, latency: last?.latency ?? 0, dropouts: last?.dropouts ?? -1 };
+      const out = {
+        sampleRate: ctx.sampleRate,
+        ready: messages.some((m) => m.type === 'ready'),
+        meters: meters.length,
+        inPeak: last?.inPeak ?? 0,
+        outPeak: last?.outPeak ?? 0,
+        latency: last?.latency ?? 0,
+        dropouts: last?.dropouts ?? -1,
+      };
       osc.stop();
       await ctx.close();
       return out;
@@ -192,7 +298,11 @@ try {
     assert.deepEqual(focusable, { visible: true, alwaysOnTop: true, focusable: false });
 
     await page.getByRole('button', { name: 'Robot' }).click();
-    await studio.waitForFunction(() => /−2\.0 · \+0\.0 st/.test(document.querySelector('[data-stage="voice"]')?.textContent ?? ''), null, { timeout: 5_000 });
+    await studio.waitForFunction(
+      () => /−2\.0 · \+0\.0 st/.test(document.querySelector('[data-stage="voice"]')?.textContent ?? ''),
+      null,
+      { timeout: 5_000 },
+    );
   });
 
   await step('the compact panel shrinks to a floating icon and back', async () => {
@@ -220,7 +330,9 @@ try {
     await quick.getByRole('button', { name: /Full studio/ }).click();
     await new Promise((r) => setTimeout(r, 400));
     const visible = await app.evaluate(({ BrowserWindow }) =>
-      BrowserWindow.getAllWindows().find((w) => w.webContents.getURL().includes('studio.html'))?.isVisible(),
+      BrowserWindow.getAllWindows()
+        .find((w) => w.webContents.getURL().includes('studio.html'))
+        ?.isVisible(),
     );
     assert.equal(visible, true);
   });

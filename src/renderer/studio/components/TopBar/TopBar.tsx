@@ -2,6 +2,7 @@ import { BrandMark } from './BrandMark';
 import { LivePill } from './LivePill';
 import { MusicSwitch } from './MusicSwitch';
 import { PresetControls } from './PresetControls';
+import { ToolsMenu } from './ToolsMenu';
 import { UpdateChip } from './UpdateChip';
 import { BypassButton } from './BypassButton';
 import { useStudio } from '../../runtime/react';
@@ -20,6 +21,7 @@ export function TopBar(): React.ReactElement {
       <LivePill />
       <div className={styles.spacer} />
       <PresetControls />
+      <ToolsMenu />
       <MusicSwitch />
       <BypassButton />
       <UpdateChip />

@@ -33,9 +33,14 @@ export interface OverlayDeps {
  * remembers where the user left them and feeds them the engine state.
  */
 export class OverlayController {
-  private lastState: QuickState | null = null;
+  private latest: QuickState | null = null;
 
   constructor(private readonly deps: OverlayDeps) {}
+
+  /** the most recent state the engine window reported (also handed to the phone remote) */
+  get lastState(): QuickState | null {
+    return this.latest;
+  }
 
   get panelVisible(): boolean {
     return this.deps.panel.isVisible();
@@ -52,7 +57,7 @@ export class OverlayController {
     const saved = settings.value.panelPosition;
     const at = saved ? clampToArea(saved, panel.size, area) : defaultPanelPosition(area, panel.size);
     panel.showAt(at);
-    if (this.lastState) panel.sendState(this.lastState);
+    if (this.latest) panel.sendState(this.latest);
   }
 
   showIcon(): void {
@@ -63,7 +68,7 @@ export class OverlayController {
     const saved = settings.value.iconPosition;
     const at = saved ? clampToArea(saved, icon.size, area) : defaultIconPosition(area, icon.size);
     icon.showAt(at);
-    if (this.lastState) icon.sendState(this.lastState);
+    if (this.latest) icon.sendState(this.latest);
   }
 
   hidePanel(): void {
@@ -101,7 +106,7 @@ export class OverlayController {
   }
 
   pushState(state: QuickState): void {
-    this.lastState = state;
+    this.latest = state;
     if (this.deps.panel.isVisible()) this.deps.panel.sendState(state);
     if (this.deps.icon.isVisible()) this.deps.icon.sendState(state);
   }

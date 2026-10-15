@@ -158,7 +158,10 @@ describe('AudioEngine', () => {
     expect(FakeContext.last!.audioWorklet.addModule).toHaveBeenCalledWith('blob:worklet');
     expect(FakeWorkletNode.last!.name).toBe('voice-studio');
     expect(FakeWorkletNode.last!.port.postMessage).toHaveBeenCalledWith({ type: 'params', params });
-    expect(FakeWorkletNode.last!.connections).toContain(FakeContext.last!.destination);
+    // the voice reaches the destination through its own gain (so a soundboard clip can lower it)
+    const voiceGain = FakeContext.last!.gains[0]!;
+    expect(FakeWorkletNode.last!.connections).toContain(voiceGain);
+    expect(voiceGain.connections).toContain(FakeContext.last!.destination);
     expect(running).toEqual([true]);
     expect(buses[0]).toBeInstanceOf(MusicBus);
     expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:worklet');
@@ -255,13 +258,13 @@ describe('AudioEngine', () => {
     const engine = new AudioEngine();
     await engine.start(options({ monitor: { on: true, volume: 0.5 } }));
     const ctx = FakeContext.last!;
-    // gains created in order: monitor gain, music volume, duck, monitor-of-music
-    expect(ctx.gains[0]!.gain.value).toBe(0.5);
-    expect(ctx.gains[1]!.gain.value).toBe(0.6);
+    // gains created in order: voice, monitor, music volume, duck, monitor-of-music, sound input
+    expect(ctx.gains[1]!.gain.value).toBe(0.5);
+    expect(ctx.gains[2]!.gain.value).toBe(0.6);
     engine.setMonitor(false, 0.5);
-    expect(ctx.gains[0]!.gain.value).toBe(0);
+    expect(ctx.gains[1]!.gain.value).toBe(0);
     engine.setMonitor(true, 0.9);
-    expect(ctx.gains[0]!.gain.value).toBe(0.9);
+    expect(ctx.gains[1]!.gain.value).toBe(0.9);
   });
 
   it('retargets the output and monitor devices live; "default" clears the sink', async () => {

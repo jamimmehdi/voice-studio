@@ -2,6 +2,8 @@ import { vi } from 'vitest';
 import type { AudioEngine, EngineEvents, EngineMeters, EngineStartOptions } from '@engine/audio/audio-engine';
 import { Emitter } from '@engine/audio/emitter';
 import { MusicPlayer } from '@engine/audio/music-player';
+import { SoundPlayer } from '@engine/audio/sound-player';
+import { SoundController } from '@renderer/studio/runtime/sound-controller';
 import type { StudioApi } from '@shared/ipc';
 import type { StudioParams } from '@shared/params';
 import { MemoryStorage } from '@renderer/studio/store/persistence';
@@ -13,6 +15,8 @@ export interface FakeBus {
   element: object;
   setVolume: ReturnType<typeof vi.fn>;
   setDuck: ReturnType<typeof vi.fn>;
+  setSoundVolume: ReturnType<typeof vi.fn>;
+  soundInput: object;
 }
 
 /** Stand-in for AudioEngine that records calls instead of touching Web Audio. */
@@ -42,7 +46,13 @@ export class FakeEngine {
     this.startOptions = opts;
     this.running = true;
     this.context = { sampleRate: 48000 };
-    this.musicBus = { element: {}, setVolume: vi.fn(), setDuck: vi.fn() };
+    this.musicBus = {
+      element: {},
+      setVolume: vi.fn(),
+      setDuck: vi.fn(),
+      setSoundVolume: vi.fn(),
+      soundInput: {},
+    };
   });
 
   stop = vi.fn(async (): Promise<void> => {
@@ -63,6 +73,17 @@ export class FakeEngine {
 
   setMonitorDevice = vi.fn(async (_id: string): Promise<void> => undefined);
   setOutputDevice = vi.fn(async (_id: string): Promise<void> => undefined);
+
+  isCapturing = false;
+  setVoiceLevel = vi.fn();
+  startCapture = vi.fn((): boolean => {
+    this.isCapturing = true;
+    return true;
+  });
+  stopCapture = vi.fn(() => {
+    this.isCapturing = false;
+    return null;
+  });
 
   startRecording = vi.fn((): void => {
     this.isRecording = true;
@@ -93,6 +114,32 @@ export function fakeApi(over: Partial<StudioApi> = {}): StudioApi {
     },
     quitApp: vi.fn(async () => undefined),
     openCompact: vi.fn(async () => true),
+    notify: vi.fn(async () => undefined),
+    hotkeys: { set: vi.fn(async () => ({ ok: true as const })) },
+    foreground: {
+      setActive: vi.fn(async () => null),
+      onChange: vi.fn(noop),
+      listRunning: vi.fn(async () => []),
+    },
+    sounds: {
+      add: vi.fn(async () => 'a1b2c3d4e5f60718'),
+      read: vi.fn(async () => null),
+      remove: vi.fn(async () => undefined),
+    },
+    remote: {
+      get: vi.fn(async () => ({ enabled: false, url: null, qr: null, devices: [], error: null })),
+      setEnabled: vi.fn(async (on: boolean) => ({
+        enabled: on,
+        url: null,
+        qr: null,
+        devices: [],
+        error: null,
+      })),
+      newCode: vi.fn(async () => ({ enabled: false, url: null, qr: null, devices: [], error: null })),
+      disconnect: vi.fn(async () => undefined),
+      onDevices: vi.fn(noop),
+    },
+    communityVoices: vi.fn(async () => null),
     quick: { onCommand: vi.fn(noop), pushState: vi.fn() },
     update: {
       check: vi.fn(async () => ({ ok: true as const })),
@@ -115,6 +162,7 @@ export interface Harness {
   storage: MemoryStorage;
   hub: MeterHub;
   controller: StudioController;
+  sounds: SoundController;
 }
 
 /** A controller wired to fakes, plus everything needed to inspect it. */
@@ -134,5 +182,11 @@ export function createHarness(seed: StoreSeed = {}, apiOver: Partial<StudioApi> 
     hub,
     now: () => 0,
   });
-  return { store, engine, player, api, storage, hub, controller };
+  const sounds = new SoundController({
+    store,
+    engine: engine.asEngine(),
+    player: new SoundPlayer(),
+    api,
+  });
+  return { store, engine, player, api, storage, hub, controller, sounds };
 }

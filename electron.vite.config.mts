@@ -7,7 +7,9 @@ import type { Plugin } from 'vite';
 const csp: Plugin = {
   name: 'voice-studio-csp',
   apply: 'build',
-  transformIndexHtml(html) {
+  transformIndexHtml(html, ctx) {
+    // the phone remote page talks to the PC over a WebSocket on the same host
+    const isRemote = typeof ctx.filename === 'string' && ctx.filename.endsWith('remote.html');
     const policy = [
       "default-src 'self'",
       "script-src 'self' blob:",
@@ -16,7 +18,7 @@ const csp: Plugin = {
       "font-src 'self' data:",
       "img-src 'self' data:",
       "media-src 'self' blob:",
-      "connect-src 'self' blob:",
+      isRemote ? "connect-src 'self' ws: wss:" : "connect-src 'self' blob:",
     ].join('; ');
     return html.replace(
       '<head>',
@@ -60,6 +62,7 @@ export default defineConfig({
           studio: resolve('src/renderer/studio.html'),
           quick: resolve('src/renderer/quick.html'),
           icon: resolve('src/renderer/icon.html'),
+          remote: resolve('src/renderer/remote.html'),
         },
       },
     },

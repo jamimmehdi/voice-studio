@@ -20,6 +20,8 @@ export const EMPTY_QUICK_STATE: QuickState = {
   level: 0,
   stats: '',
   music: { has: false, title: '', playing: false, progress: 0 },
+  sounds: [],
+  muted: false,
 };
 
 interface QuickAppProps {

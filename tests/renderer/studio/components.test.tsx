@@ -28,17 +28,31 @@ function mockDevices(list: Array<{ kind: MediaDeviceKind; deviceId: string; labe
 beforeEach(() => mockDevices([]));
 
 describe('ChainStrip', () => {
-  it('renders the nine stages in order', () => {
+  it('renders the eleven stages in order', () => {
     renderWithRuntime(<ChainStrip />);
-    const names = ['Mic', 'High-pass', 'Gate', 'Voice', 'De-esser', 'EQ', 'Compressor', 'Limiter', 'Output'];
+    const names = [
+      'Mic',
+      'High-pass',
+      'Noise removal',
+      'Gate',
+      'Voice',
+      'De-esser',
+      'EQ',
+      'Effects',
+      'Compressor',
+      'Limiter',
+      'Output',
+    ];
     const nodes = screen.getAllByRole('button', { name: /stage$/ });
     expect(nodes.map((n) => n.getAttribute('data-stage'))).toEqual([
       'mic',
       'hpf',
+      'noise',
       'exp',
       'voice',
       'deess',
       'eq',
+      'fx',
       'comp',
       'lim',
       'out',

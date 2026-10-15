@@ -68,7 +68,7 @@ export function ChainNode({ stage }: ChainNodeProps): React.ReactElement {
           />
         )}
       </span>
-      <span className={styles.name}>{stage.name}</span>
+      <span className={styles.name}>{stage.short ?? stage.name}</span>
       <span className={`${styles.value} mono`}>{summary}</span>
       <span className={styles.gr}>
         <span ref={bar} className={styles.grFill} />

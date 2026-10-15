@@ -23,6 +23,7 @@ export function renderWithRuntime(
     player: h.player,
     hub: h.hub,
     controller: h.controller,
+    sounds: h.sounds,
     api: h.api,
     dispose: () => undefined,
   } as unknown as Runtime;

@@ -79,6 +79,7 @@ describe('applyQuickCommand', () => {
       store,
       toggleEngine: () => calls.push('engine'),
       toggleMusic: () => calls.push('music'),
+      playSound: (id: string) => calls.push(`sound:${id}`),
     };
     return { store, calls, apply: (c: QuickCommand) => applyQuickCommand(c, targets) };
   };
@@ -160,6 +161,7 @@ describe('startRemoteBridge', () => {
       api,
       toggleEngine: () => toggles.push('engine'),
       toggleMusic: () => toggles.push('music'),
+      playSound: () => undefined,
       getMeters: () => ({ inPeak: 0 }),
       getMusic: () => music,
       getEngineStats: () => ({ latencyMs: 0, dropouts: 0 }),

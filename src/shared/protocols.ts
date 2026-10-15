@@ -15,12 +15,15 @@ export interface MeterSnapshot {
   lim: number;
 }
 
-export type ToWorklet = { type: 'params'; params: StudioParams } | { type: 'record'; on: boolean };
+export type ToWorklet =
+  | { type: 'params'; params: StudioParams }
+  /** `raw` also captures the unprocessed microphone (used by the A/B test and "Find my voice") */
+  | { type: 'record'; on: boolean; raw?: boolean };
 
 export type FromWorklet =
   | { type: 'ready'; sampleRate: number }
   | ({ type: 'meters'; latency: number; dropouts: number } & MeterSnapshot)
-  | { type: 'rec'; data: Float32Array };
+  | { type: 'rec'; data: Float32Array; raw?: boolean };
 
 /* ------------------------------------------------------------------ */
 /* Compact panel / floating icon <-> engine window                    */
@@ -44,16 +47,24 @@ export interface QuickState {
   level: number;
   stats: string;
   music: { has: boolean; title: string; playing: boolean; progress: number };
+  /** soundboard pads, in order */
+  sounds: { id: string; name: string }[];
+  muted: boolean;
 }
 
 export type QuickCommand =
   | { type: 'toggleEngine' }
-  | { type: 'preset'; name: string }
+  /** `toast` asks the studio to show a notification (set for global hotkeys) */
+  | { type: 'preset'; name: string; toast?: boolean }
   | { type: 'voice'; pitch?: number; formant?: number }
   | { type: 'monitor' }
   | { type: 'bypass' }
   | { type: 'gate' }
   | { type: 'music' }
+  | { type: 'mute' }
+  | { type: 'sound'; id: string }
+  /** `on` switches to `preset`, off returns to the voice that was active before */
+  | { type: 'quickSwitch'; preset: string; on: boolean }
   // handled by the main process itself
   | { type: 'openStudio' }
   | { type: 'minimizeToIcon' }

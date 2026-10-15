@@ -1,5 +1,15 @@
-import { clamp, createDefaultParams, mergeDeep, type DeepPartial, type StudioParams } from './params';
+import { clamp, createDefaultParams, sanitiseParams, type StudioParams } from './params';
 import { DEFAULT_PRESET } from './presets';
+import {
+  createDefaultHotkeys,
+  createDefaultProfiles,
+  createDefaultSoundOptions,
+  type HotkeysState,
+  type ProfileApp,
+  type ProfilesState,
+  type SoundEntry,
+  type SoundOptions,
+} from './features';
 import { DEFAULT_STAGE, isStageId, type StageId } from './stages';
 
 /** localStorage key. Unchanged from the JavaScript version so existing settings carry over. */
@@ -36,6 +46,14 @@ export interface PersistedState {
   preset: string | null;
   stage: StageId;
   warm: boolean;
+  /** raise the buffer automatically when audio starts to drop out */
+  autoBuffer: boolean;
+  profiles: ProfilesState;
+  hotkeys: HotkeysState;
+  sounds: SoundEntry[];
+  soundOptions: SoundOptions;
+  /** the first-run setup wizard was completed or skipped */
+  setupDone: boolean;
 }
 
 export function createDefaultPersisted(): PersistedState {
@@ -51,6 +69,12 @@ export function createDefaultPersisted(): PersistedState {
     preset: DEFAULT_PRESET,
     stage: DEFAULT_STAGE,
     warm: false,
+    autoBuffer: true,
+    profiles: createDefaultProfiles(),
+    hotkeys: createDefaultHotkeys(),
+    sounds: [],
+    soundOptions: createDefaultSoundOptions(),
+    setupDone: false,
   };
 }
 
@@ -60,6 +84,69 @@ const str = (v: unknown, fallback: string): string => (typeof v === 'string' && 
 const bool = (v: unknown, fallback: boolean): boolean => (typeof v === 'boolean' ? v : fallback);
 const num = (v: unknown, fallback: number): number =>
   typeof v === 'number' && Number.isFinite(v) ? v : fallback;
+
+const text = (v: unknown, max: number): string | null =>
+  typeof v === 'string' && v.length > 0 ? v.slice(0, max) : null;
+
+function readProfiles(raw: unknown): ProfilesState {
+  const base = createDefaultProfiles();
+  if (!isRecord(raw)) return base;
+  const apps: ProfileApp[] = [];
+  if (Array.isArray(raw.apps)) {
+    for (const a of raw.apps.slice(0, 50)) {
+      if (!isRecord(a)) continue;
+      const exe = text(a.exe, 120);
+      if (!exe) continue;
+      apps.push({
+        exe: exe.toLowerCase(),
+        name: text(a.name, 60) ?? exe,
+        preset: text(a.preset, 80),
+        start: bool(a.start, false),
+      });
+    }
+  }
+  return { enabled: bool(raw.enabled, false), fallback: text(raw.fallback, 80), apps };
+}
+
+function readStringMap(raw: unknown, max = 100): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (!isRecord(raw)) return out;
+  for (const [key, value] of Object.entries(raw).slice(0, max)) {
+    const v = text(value, 60);
+    if (v && key.length <= 80) out[key] = v;
+  }
+  return out;
+}
+
+function readHotkeys(raw: unknown): HotkeysState {
+  const base = createDefaultHotkeys();
+  if (!isRecord(raw)) return base;
+  const quick = isRecord(raw.quick) ? raw.quick : {};
+  return {
+    voices: readStringMap(raw.voices),
+    quick: { preset: text(quick.preset, 80), accelerator: text(quick.accelerator, 60) },
+    sounds: readStringMap(raw.sounds),
+    toast: bool(raw.toast, true),
+  };
+}
+
+function readSounds(raw: unknown): SoundEntry[] {
+  if (!Array.isArray(raw)) return [];
+  const out: SoundEntry[] = [];
+  for (const s of raw.slice(0, 64)) {
+    if (!isRecord(s)) continue;
+    const id = text(s.id, 64);
+    const name = text(s.name, 60);
+    if (id && name && /^[a-z0-9-]+$/i.test(id)) out.push({ id, name });
+  }
+  return out;
+}
+
+function readSoundOptions(raw: unknown): SoundOptions {
+  const base = createDefaultSoundOptions();
+  if (!isRecord(raw)) return base;
+  return { duckVoice: bool(raw.duckVoice, true), volume: clamp(num(raw.volume, base.volume), 0, 100) };
+}
 
 /**
  * Turns whatever is in storage (current format, an older version, or garbage) into a valid state.
@@ -91,10 +178,17 @@ export function migratePersisted(raw: unknown): { state: PersistedState; migrate
     preset: typeof raw.preset === 'string' ? raw.preset : raw.preset === null ? null : base.preset,
     stage: isStageId(raw.stage) ? raw.stage : DEFAULT_STAGE,
     warm: bool(raw.warm, false),
+    autoBuffer: bool(raw.autoBuffer, true),
+    profiles: readProfiles(raw.profiles),
+    hotkeys: readHotkeys(raw.hotkeys),
+    sounds: readSounds(raw.sounds),
+    soundOptions: readSoundOptions(raw.soundOptions),
+    // anyone who already has stored settings has been through the app before
+    setupDone: bool(raw.setupDone, true),
   };
 
   if (modern && isRecord(raw.params)) {
-    state.params = mergeDeep(createDefaultParams(), raw.params as DeepPartial<StudioParams>);
+    state.params = sanitiseParams(raw.params);
   }
   return { state, migrated: !modern };
 }

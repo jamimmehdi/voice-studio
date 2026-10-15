@@ -8,6 +8,10 @@ export interface AppSettings {
   iconPosition: Point | null;
   /** the "still running in the tray" balloon is shown once */
   trayHintShown: boolean;
+  /** the phone remote is switched on */
+  remoteEnabled: boolean;
+  /** pairing token of the phone remote */
+  remoteToken: string;
 }
 
 export const DEFAULT_SETTINGS: Readonly<AppSettings> = {
@@ -15,6 +19,8 @@ export const DEFAULT_SETTINGS: Readonly<AppSettings> = {
   panelPosition: null,
   iconPosition: null,
   trayHintShown: false,
+  remoteEnabled: false,
+  remoteToken: '',
 };
 
 export interface FileIo {
@@ -64,6 +70,8 @@ export class SettingsStore {
         panelPosition: isPoint(r.panelPosition) ? { x: r.panelPosition.x, y: r.panelPosition.y } : null,
         iconPosition: isPoint(r.iconPosition) ? { x: r.iconPosition.x, y: r.iconPosition.y } : null,
         trayHintShown: r.trayHintShown === true,
+        remoteEnabled: r.remoteEnabled === true,
+        remoteToken: typeof r.remoteToken === 'string' ? r.remoteToken.slice(0, 64) : '',
       };
     } catch {
       return { ...DEFAULT_SETTINGS };

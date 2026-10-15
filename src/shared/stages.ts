@@ -1,13 +1,16 @@
 import type { ModuleKey } from './params';
 
 /** The stages of the signal chain, left to right. */
-export type StageId = 'mic' | 'hpf' | 'exp' | 'voice' | 'deess' | 'eq' | 'comp' | 'lim' | 'out';
+export type StageId =
+  'mic' | 'hpf' | 'noise' | 'exp' | 'voice' | 'deess' | 'eq' | 'fx' | 'comp' | 'lim' | 'out';
 
 export interface StageDef {
   id: StageId;
   name: string;
   /** small caps tag above the name */
   group: string;
+  /** shorter name for the narrow chain tiles */
+  short?: string;
   /** which params section the on/off switch controls (none for mic / output) */
   module?: ModuleKey;
   /** which gain-reduction meter belongs to this stage */
@@ -17,10 +20,12 @@ export interface StageDef {
 export const STAGES: readonly StageDef[] = [
   { id: 'mic', name: 'Mic', group: 'In' },
   { id: 'hpf', name: 'High-pass', group: 'Clean', module: 'hpf' },
+  { id: 'noise', name: 'Noise removal', short: 'Noise', group: 'Clean', module: 'noise' },
   { id: 'exp', name: 'Gate', group: 'Clean', module: 'exp', meter: 'exp' },
   { id: 'voice', name: 'Voice', group: 'Voice', module: 'voice' },
   { id: 'deess', name: 'De-esser', group: 'Tone', module: 'deess', meter: 'deess' },
   { id: 'eq', name: 'EQ', group: 'Tone', module: 'eq' },
+  { id: 'fx', name: 'Effects', group: 'Space', module: 'fx' },
   { id: 'comp', name: 'Compressor', group: 'Dynamics', module: 'comp', meter: 'comp' },
   { id: 'lim', name: 'Limiter', group: 'Dynamics', module: 'lim', meter: 'lim' },
   { id: 'out', name: 'Output', group: 'Out' },
@@ -40,6 +45,14 @@ export const STAGE_INFO: Readonly<Record<StageId, { title: string; description: 
   hpf: {
     title: 'High-pass filter',
     description: 'Removes rumble, desk bumps and breath plosives below the cut-off.',
+  },
+  noise: {
+    title: 'Noise removal',
+    description: 'Removes fans, keyboards and room hum, even while you talk.',
+  },
+  fx: {
+    title: 'Effects',
+    description: 'Radio, megaphone and walkie-talkie voices, plus reverb, echo and chorus.',
   },
   exp: {
     title: 'Gate (downward expander)',

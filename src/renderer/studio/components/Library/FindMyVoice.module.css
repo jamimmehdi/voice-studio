@@ -1,0 +1,49 @@
+.sentence {
+  padding: 12px 14px;
+  font-size: 14px;
+  background: #05070a;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.boxes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.box {
+  padding: 10px 12px;
+  background: var(--inset);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.suggested {
+  background: #10241f;
+  border-color: #1f6b5c;
+}
+
+.key {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--dim);
+}
+
+.suggested .key {
+  color: #6fbfae;
+}
+
+.value {
+  font-size: 18px;
+}
+
+.suggested .value {
+  color: #8ff5e0;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}

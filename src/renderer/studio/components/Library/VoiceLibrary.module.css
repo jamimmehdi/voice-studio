@@ -1,0 +1,108 @@
+.card {
+  min-height: 560px;
+}
+
+.drop {
+  border-color: var(--accent);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  background: var(--inset);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.itemNew {
+  background: #10241f;
+  border-color: #1f6b5c;
+}
+
+.itemNew b {
+  color: #8ff5e0;
+}
+
+.itemMain {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  padding: 0;
+  text-align: left;
+  color: var(--text);
+  background: none;
+  border: none;
+}
+
+div.itemMain {
+  cursor: default;
+}
+
+.itemMain b {
+  overflow: hidden;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itemMain span {
+  font-size: 11px;
+  color: var(--dim);
+}
+
+.itemNew .itemMain span {
+  color: #6fbfae;
+}
+
+.desc {
+  font-family: var(--sans);
+  color: var(--muted) !important;
+}
+
+.remove {
+  width: 30px;
+  height: 30px;
+  font-size: 18px;
+  color: var(--muted);
+  background: var(--btn);
+  border: 1px solid var(--line-2);
+  border-radius: 9px;
+}
+
+.remove:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.note {
+  padding: 14px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.dropzone {
+  padding: 18px;
+  margin-top: auto;
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+  background: #05070a;
+  border: 1px dashed var(--line-2);
+  border-radius: 14px;
+}
+
+.dropzone .mono {
+  color: var(--soft);
+}

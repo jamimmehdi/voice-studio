@@ -27,13 +27,14 @@
   display: flex;
   align-items: stretch;
   padding-bottom: 6px;
+  overflow-x: auto;
 }
 
 .cell {
   display: flex;
   align-items: stretch;
   flex: 1 1 0;
-  min-width: 0;
+  min-width: 100px;
 }
 
 .chevron {
@@ -41,5 +42,5 @@
   flex: none;
   align-items: center;
   justify-content: center;
-  width: 14px;
+  width: 11px;
 }

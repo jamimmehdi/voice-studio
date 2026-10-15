@@ -1,7 +1,7 @@
 {
   "name": "voice-studio",
-  "version": "2.0.0",
-  "description": "Real-time voice changer and vocal-processing studio for Windows",
+  "version": "2.1.0",
+  "description": "Real-time voice changer and vocal-processing studio",
   "main": "out/main/index.js",
   "homepage": "https://github.com/jamimmehdi/voice-studio",
   "repository": {
@@ -25,7 +25,10 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "node scripts/e2e.mjs",
     "icon": "node tools/make-icon.js",
-    "dist": "npm run build && electron-builder --win --publish never"
+    "dist": "npm run build && electron-builder --win --publish never",
+    "dist:mac": "npm run build && electron-builder --mac --publish never",
+    "dist:linux": "npm run build && electron-builder --linux --publish never",
+    "screenshots": "node scripts/screenshots.mjs"
   },
   "keywords": [
     "voice-changer",
@@ -36,7 +39,8 @@
   ],
   "author": {
     "name": "Jamim Mehdi",
-    "email": "jamimmehdi.sec@gmail.com"
+    "email": "jamimmehdi@gmail.com",
+    "url": "https://github.com/jamimmehdi"
   },
   "license": "MIT",
   "type": "commonjs",
@@ -48,8 +52,10 @@
     "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.8",
     "@types/node": "^26.6.5",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "@types/ws": "^8.18.2",
     "@vitejs/plugin-react": "^6.1.2",
     "@vitest/coverage-v8": "^5.0.4",
     "electron": "^44.7.2",
@@ -73,7 +79,9 @@
     "zustand": "^5.0.15"
   },
   "dependencies": {
-    "electron-updater": "^6.8.9"
+    "electron-updater": "^6.8.9",
+    "qrcode": "^1.5.4",
+    "ws": "^8.22.0"
   },
   "build": {
     "appId": "com.voicestudio.app",
@@ -110,6 +118,25 @@
       "shortcutName": "Voice Studio",
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico"
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "category": "public.app-category.music",
+      "icon": "build/icon.png",
+      "artifactName": "Voice-Studio-${version}-mac.${ext}"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "AudioVideo",
+      "icon": "build/icon.png",
+      "maintainer": "Jamim Mehdi <jamimmehdi@gmail.com>",
+      "artifactName": "Voice-Studio-${version}-linux.${ext}"
     }
   }
 }

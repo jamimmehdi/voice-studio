@@ -1,0 +1,92 @@
+.recordRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rec {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: #3a1519;
+  border: 2px solid #ff5c6c;
+  border-radius: 50%;
+}
+
+.rec span {
+  display: block;
+  width: 14px;
+  height: 14px;
+  background: #ff5c6c;
+  border-radius: 50%;
+}
+
+.recOn span {
+  border-radius: 3px;
+}
+
+.rec:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.recTitle {
+  font-weight: 700;
+}
+
+.waves {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: #05070a;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.waveRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.waveLabel {
+  width: 62px;
+  font-size: 12px;
+  color: var(--soft);
+}
+
+.processed {
+  color: #8ff5e0;
+}
+
+.bars {
+  display: flex;
+  flex: 1;
+  gap: 2px;
+  align-items: center;
+  height: 28px;
+}
+
+.bars i {
+  flex: 1;
+  min-height: 2px;
+  background: #3a4458;
+  border-radius: 1px;
+}
+
+.barsOn i {
+  background: var(--accent);
+}
+
+.play {
+  display: flex;
+  gap: 8px;
+}
+
+.play button {
+  flex: 1;
+}

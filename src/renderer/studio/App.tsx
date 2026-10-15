@@ -9,12 +9,25 @@ import { EngineHealth } from './components/Panels/EngineHealth';
 import { QuickFixes } from './components/Panels/QuickFixes';
 import { StageEditor } from './components/Stages/StageEditor';
 import { TopBar } from './components/TopBar/TopBar';
+import { useEffect } from 'react';
 import { useStudio } from './runtime/react';
 import styles from './App.module.css';
 
 /** Layout of the studio window: fixed top bar, chain strip, three columns, floating music dock. */
 export function App(): React.ReactElement {
-  const showMusic = useStudio((s) => s.music.show);
+  const { showMusic, setupDone, setModal } = useStudio((s) => ({
+    showMusic: s.music.show,
+    setupDone: s.setupDone,
+    setModal: s.setModal,
+  }));
+
+  // first run: walk the user through the setup once the window is up
+  useEffect(() => {
+    if (setupDone) return undefined;
+    const timer = setTimeout(() => setModal('setup'), 900);
+    return () => clearTimeout(timer);
+  }, [setupDone, setModal]);
+
   return (
     <div className={`${styles.app} ${showMusic ? styles.withMusic : ''}`}>
       <TopBar />

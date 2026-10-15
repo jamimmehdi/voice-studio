@@ -4,13 +4,20 @@ import { app, globalShortcut, screen, session } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import { prettyAccelerator } from '@shared/format';
 import { IPC } from '@shared/ipc';
+import { ForegroundWatcher, listRunningApps } from './foreground-watcher';
+import { HotkeyService } from './hotkey-service';
 import { registerIpc } from './ipc';
+import { getText } from './net/http';
 import { OverlayController } from './overlay-controller';
 import { paths } from './paths';
 import { CommandRelay } from './relay';
+import { RemoteController } from './remote/remote-controller';
+import { RemoteServer } from './remote/remote-server';
 import { SettingsStore, DEFAULT_SETTINGS } from './settings-store';
 import { ShortcutService } from './shortcut-service';
+import { SoundStore } from './sound-store';
 import { AppTray } from './tray';
+import QRCode from 'qrcode';
 import { UpdateService, type AutoUpdaterLike } from './update-service';
 import { VbCableInstaller } from './vbcable/vbcable-installer';
 import { ElectronOverlayWindow } from './windows/overlay-window';
@@ -23,6 +30,9 @@ const PANEL_SIZE = { width: 440, height: 720 };
 const ICON_SIZE = { width: 64, height: 64 };
 /** if the studio page never paints, show it anyway after this long */
 const STARTUP_TIMEOUT_MS = 15_000;
+const REMOTE_PORT = 7777;
+const COMMUNITY_URL = 'https://jamimmehdi.github.io/voice-studio/community.json';
+const COMMUNITY_MAX_CHARS = 512 * 1024;
 
 /** Composition root of the main process: builds the services and wires them together. */
 export function startApp(): void {
@@ -84,6 +94,26 @@ export function startApp(): void {
       shortcut.register(DEFAULT_SETTINGS.shortcut);
     }
 
+    const hotkeys = new HotkeyService(globalShortcut, (cmd) => studioWindow.send(IPC.quickCmd, cmd));
+    const foreground = new ForegroundWatcher();
+    foreground.onChange((exe) => studioWindow.send(IPC.foregroundChanged, exe));
+
+    const remoteServer = new RemoteServer({
+      staticDir: paths.rendererDir(),
+      port: REMOTE_PORT,
+      token: () => settings.value.remoteToken,
+      onCommand: (cmd) => relay.handle(cmd),
+      currentState: () => overlay.lastState,
+    });
+    const remote = new RemoteController({
+      settings,
+      server: remoteServer,
+      qr: (text) =>
+        QRCode.toDataURL(text, { margin: 1, width: 300, color: { dark: '#0a0d12', light: '#e8ecf3' } }),
+    });
+    remoteServer.onDevices((devices) => studioWindow.send(IPC.remoteDevices, devices));
+    void remote.init();
+
     const quit = (): void => {
       studioWindow.markQuitting();
       app.quit();
@@ -126,6 +156,23 @@ export function startApp(): void {
       settings,
       overlay,
       relay,
+      hotkeys,
+      foreground,
+      listRunningApps: () => listRunningApps(),
+      sounds: new SoundStore(join(app.getPath('userData'), 'sounds')),
+      remote,
+      remoteServer,
+      fetchCommunity: async () => {
+        try {
+          const text = await Promise.race([
+            getText(COMMUNITY_URL),
+            new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000)),
+          ]);
+          return text.slice(0, COMMUNITY_MAX_CHARS);
+        } catch {
+          return null;
+        }
+      },
       onShortcutChanged: (label) => tray?.setShortcutLabel(label),
       quit,
     });
@@ -136,6 +183,9 @@ export function startApp(): void {
       splash.destroy();
     });
     app.on('will-quit', () => {
+      hotkeys.clear();
+      foreground.stop();
+      remoteServer.stop();
       shortcut.dispose();
       tray?.destroy();
     });

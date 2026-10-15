@@ -41,6 +41,16 @@
   color: var(--accent);
 }
 
+.page {
+  padding: 22px;
+  background: var(--bg);
+  border-radius: 18px;
+}
+
+.page h2 {
+  margin-bottom: 0;
+}
+
 .centered {
   text-align: center;
 }
