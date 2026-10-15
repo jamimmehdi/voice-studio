@@ -125,6 +125,7 @@ describe('GainReadout', () => {
     fireEvent.pointerMove(el, { clientY: 60, pointerId: 1 }); // 40 px up
     expect(store.getState().params.outGain).toBe(10);
     fireEvent.pointerUp(el, { pointerId: 1 });
+    act(() => el.focus());
     fireEvent.wheel(el, { deltaY: 100 });
     expect(store.getState().params.outGain).toBe(9.5);
     fireEvent.keyDown(el, { key: 'ArrowDown' });

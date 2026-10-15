@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { BarSlider } from '@renderer/ui/BarSlider';
 import { Button } from '@renderer/ui/Button';
 import { Card } from '@renderer/ui/Card';
@@ -108,6 +108,7 @@ describe('Knob', () => {
   it('mouse wheel and arrow keys step the value', () => {
     render(<Harness />);
     const knob = screen.getByRole('slider');
+    act(() => knob.focus());
     fireEvent.wheel(knob, { deltaY: -100 });
     expect(knob).toHaveAttribute('aria-valuenow', '0.5');
     fireEvent.keyDown(knob, { key: 'ArrowDown' });
@@ -116,6 +117,28 @@ describe('Knob', () => {
     expect(knob).toHaveAttribute('aria-valuenow', '12');
     fireEvent.keyDown(knob, { key: 'Home' });
     expect(knob).toHaveAttribute('aria-valuenow', '-12');
+  });
+
+  it('lets the page scroll over a knob that is not focused, and takes the wheel once it is', () => {
+    render(<Harness />);
+    const knob = screen.getByRole('slider');
+    const idle = new WheelEvent('wheel', { deltaY: -100, bubbles: true, cancelable: true });
+    knob.dispatchEvent(idle);
+    expect(idle.defaultPrevented).toBe(false);
+    expect(knob).toHaveAttribute('aria-valuenow', '0');
+
+    act(() => knob.focus());
+    const active = new WheelEvent('wheel', { deltaY: -100, bubbles: true, cancelable: true });
+    act(() => {
+      knob.dispatchEvent(active);
+    });
+    expect(active.defaultPrevented).toBe(true);
+    expect(knob).toHaveAttribute('aria-valuenow', '0.5');
+
+    act(() => knob.blur());
+    const after = new WheelEvent('wheel', { deltaY: -100, bubbles: true, cancelable: true });
+    knob.dispatchEvent(after);
+    expect(after.defaultPrevented).toBe(false);
   });
 
   it('does not call onChange when the value would not change', () => {

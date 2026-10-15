@@ -89,7 +89,7 @@
 
 .lit .ticks i.on {
   background: #34f5c5;
-  filter: drop-shadow(0 0 2.2px rgba(52, 245, 197, 0.95)) drop-shadow(0 0 5px rgba(52, 245, 197, 0.45));
+  box-shadow: 0 0 4px 1px rgba(52, 245, 197, 0.55);
 }
 
 /* the ridged cap */

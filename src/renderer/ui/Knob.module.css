@@ -56,10 +56,16 @@
   stroke: #3f6b63;
 }
 
-/* switched on: the lit part of the ring glows green */
+/* switched on: the lit part of the ring glows green (a soft wide under-stroke, no filters) */
 .lit .tickOn {
   stroke: #34f5c5;
-  filter: drop-shadow(0 0 2.2px rgba(52, 245, 197, 0.95)) drop-shadow(0 0 5px rgba(52, 245, 197, 0.45));
+}
+
+.tickGlow {
+  stroke: #34f5c5;
+  stroke-width: 7;
+  stroke-linecap: round;
+  opacity: 0.28;
 }
 
 .knob:hover .lit .tickOn,

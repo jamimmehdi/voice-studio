@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useWheel } from '../../../ui/use-wheel';
 import { formatGain } from '@shared/format';
 import { useStudio } from '../../runtime/react';
@@ -16,10 +16,15 @@ export function GainReadout({ which, label }: GainReadoutProps): React.ReactElem
   const { value, setGain } = useStudio((s) => ({ value: s.params[which], setGain: s.setGain }));
   const drag = useRef<{ y: number; value: number } | null>(null);
   const root = useRef<HTMLDivElement>(null);
-  useWheel(root, (e) => {
-    e.preventDefault();
-    setGain(which, clampGain(value + (e.deltaY < 0 ? 0.5 : -0.5)));
-  });
+  const [focused, setFocused] = useState(false);
+  useWheel(
+    root,
+    (e) => {
+      e.preventDefault();
+      setGain(which, clampGain(value + (e.deltaY < 0 ? 0.5 : -0.5)));
+    },
+    focused,
+  );
 
   return (
     <div
@@ -31,7 +36,9 @@ export function GainReadout({ which, label }: GainReadoutProps): React.ReactElem
       aria-valuemax={24}
       aria-valuenow={value}
       aria-valuetext={formatGain(value)}
-      title="Drag up/down to change, double-click to reset"
+      title="Drag up/down to change, click then scroll for fine steps, double-click to reset"
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
       className={`${styles.readout} mono`}
       onPointerDown={(e) => {
         drag.current = { y: e.clientY, value };

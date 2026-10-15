@@ -65,6 +65,8 @@ export function Knob(props: KnobProps): React.ReactElement {
   const drag = useRef<{ startY: number; startValue: number } | null>(null);
   const root = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState(false);
+  // the wheel only turns a knob you have clicked or tabbed to; otherwise it scrolls the page
+  const [focused, setFocused] = useState(false);
 
   const angle = angleFor(spec, value);
   const zero = isBipolar(spec) ? angleFor(spec, 0) : KNOB_START_DEG;
@@ -79,10 +81,14 @@ export function Knob(props: KnobProps): React.ReactElement {
     if (q !== value) onChange(q);
   };
 
-  useWheel(root, (e) => {
-    e.preventDefault();
-    commit(wheelValue(spec, value, e.deltaY, e.shiftKey));
-  });
+  useWheel(
+    root,
+    (e) => {
+      e.preventDefault();
+      commit(wheelValue(spec, value, e.deltaY, e.shiftKey));
+    },
+    focused,
+  );
 
   return (
     <div
@@ -95,6 +101,9 @@ export function Knob(props: KnobProps): React.ReactElement {
       aria-valuemax={spec.max}
       aria-valuenow={value}
       aria-valuetext={text}
+      title="Drag to change. Click, then scroll for fine steps. Double-click to reset."
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
       onPointerDown={(e) => {
         drag.current = { startY: e.clientY, startValue: value };
         setDragging(true);
@@ -163,14 +172,10 @@ export function Knob(props: KnobProps): React.ReactElement {
           const [bx, by] = onEllipse(CX, BASE_Y, 33, 33 * FLAT, deg);
           const on = deg >= lo && deg <= hi;
           return (
-            <line
-              key={i}
-              x1={ax}
-              y1={ay}
-              x2={bx}
-              y2={by}
-              className={`${styles.tick} ${on ? styles.tickOn : ''}`}
-            />
+            <g key={i}>
+              {on && lit && <line x1={ax} y1={ay} x2={bx} y2={by} className={styles.tickGlow} />}
+              <line x1={ax} y1={ay} x2={bx} y2={by} className={`${styles.tick} ${on ? styles.tickOn : ''}`} />
+            </g>
           );
         })}
         <path
