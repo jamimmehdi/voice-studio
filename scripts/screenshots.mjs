@@ -161,6 +161,15 @@ try {
     await dialog.getByRole('button', { name: `Hotkey for ${name}` }).click();
     await studio.keyboard.press(`Control+Alt+${key}`);
   }
+  // quick switch: Cartoon on Ctrl+Alt+9, and show the top of the voice list
+  await dialog.getByRole('combobox').selectOption('Cartoon / Chipmunk');
+  await dialog.getByRole('button', { name: 'Quick switch key' }).click();
+  await studio.keyboard.press('Control+Alt+9');
+  await studio.evaluate(() => {
+    for (const el of document.querySelectorAll('[role="dialog"] div')) {
+      if (getComputedStyle(el).overflowY === 'auto') el.scrollTop = 0;
+    }
+  });
   await sleep(500);
   await shot(studio, 'soundboard');
   await closeTool();

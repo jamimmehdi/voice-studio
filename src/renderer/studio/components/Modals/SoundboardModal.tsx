@@ -207,7 +207,7 @@ export function SoundboardModal(): React.ReactElement {
           <div className={styles.quick}>
             <div className={`${features.small} ${styles.quickHead}`}>Quick switch</div>
             <div className={features.item}>
-              <span className={features.itemName}>Press once, press again to go back</span>
+              <span className={features.itemName}>Press, then press again to return</span>
               <AcceleratorButton
                 ariaLabel="Quick switch key"
                 value={hotkeys.quick.accelerator}
