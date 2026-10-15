@@ -24,25 +24,29 @@
 
 ## Features
 
-|                                  |                                                                                                                                                                                     |
-| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Voice pad**                    | One draggable dot moves between male, female and cartoon voices. Pitch and formant are independent (phase vocoder with cepstral formant control).                                   |
-| **Ten built-in voices**          | Female natural / soft / bright, Girl, Male deep / strong, Cartoon, Giant, Robot, Broadcast. Save your own presets.                                                                  |
-| **Studio chain**                 | High-pass, noise removal, downward expander (gate), split-band de-esser, 6-band parametric EQ with a draggable curve, effects, compressor, look-ahead limiter, input / output gain. |
-| **Noise removal**                | Removes fans, keyboards and room hum even while you talk. Three strengths and a fine slider, about 10 ms, no model download.                                                        |
-| **Effects**                      | Radio, megaphone, walkie-talkie and cave characters plus reverb, echo and chorus.                                                                                                   |
-| **Voice models**                 | Fast (about 11 ms), Clean (43 ms, default) and Studio (85 ms). **Auto buffer** raises the audio buffer by itself if audio starts to drop out.                                       |
-| **Music through the mic**        | Local files, playlist or a link. Ducks while you talk. Teammates hear it.                                                                                                           |
-| **Soundboard and hotkeys**       | Pads with their own keys, plus a global hotkey per voice and a quick-switch key.                                                                                                    |
-| **App profiles**                 | The voice follows the program in front: Valorant gets one voice, Discord another.                                                                                                   |
-| **Voice library**                | Import, export and share `.vsp` voices, community voices, a 10-second A/B test and "Find my voice".                                                                                 |
-| **Phone remote**                 | Control Voice Studio from your phone, in any game mode, including exclusive fullscreen.                                                                                             |
-| **Setup wizard and diagnostics** | First-run wizard for the virtual mic, microphone level and headphones, plus a one-click "Why can't they hear me?" check.                                                            |
-| **Compact mode**                 | Tray icon, global shortcut (default `Ctrl+Alt+V`), an always-on-top panel that never steals focus, and a floating icon.                                                             |
-| **Live scope and meters**        | Spectrum, level meters and a gain-reduction meter per dynamics stage.                                                                                                               |
-| **Recorder**                     | Saves a WAV of exactly what your teammates hear.                                                                                                                                    |
-| **Auto-updates**                 | Checks GitHub Releases on launch; one click installs.                                                                                                                               |
-| **One-click virtual mic**        | Downloads and starts the official VB-CABLE installer, after verifying its signature.                                                                                                |
+|                                  |                                                                                                                                                                                                                            |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Voice pad**                    | One draggable dot moves between male, female and cartoon voices. Pitch and formant are independent (phase vocoder with cepstral formant control).                                                                          |
+| **Ten built-in voices**          | Female natural / soft / bright, Girl, Male deep / strong, Cartoon, Giant, Robot, Broadcast. Save your own presets.                                                                                                         |
+| **Studio chain**                 | High-pass, noise removal, downward expander (gate), split-band de-esser, 6-band parametric EQ with a draggable curve, effects, compressor, look-ahead limiter, input / output gain.                                        |
+| **Noise removal**                | Removes fans, keyboards and room hum even while you talk. Three strengths and a fine slider, about 10 ms, no model download.                                                                                               |
+| **Naturalness meter**            | A live 0–100 score under the voice pad that says how natural your pitch / formant combination will sound, with one tip ("Formant is low for this pitch. Try +3.7 st").                                                     |
+| **Breath & clicks**              | Softens mouth clicks and loud breaths, which pitch shifting exaggerates.                                                                                                                                                   |
+| **Effects**                      | Radio, megaphone, walkie-talkie and cave characters plus reverb, echo and chorus.                                                                                                                                          |
+| **Voice models**                 | Fast (about 11 ms), Clean (43 ms, default) and Studio (85 ms). **Auto buffer** raises the audio buffer by itself if audio starts to drop out.                                                                              |
+| **Music through the mic**        | Local files, playlist or a link. Ducks while you talk. Teammates hear it.                                                                                                                                                  |
+| **Soundboard and hotkeys**       | Pads with their own keys, plus a global hotkey per voice and a quick-switch key.                                                                                                                                           |
+| **App profiles**                 | The voice follows the program in front: Valorant gets one voice, Discord another.                                                                                                                                          |
+| **Voice library**                | Import, export and share `.vsp` voices, community voices, a 10-second A/B test and "Find my voice".                                                                                                                        |
+| **Phone remote**                 | Control Voice Studio from your phone, in any game mode, including exclusive fullscreen.                                                                                                                                    |
+| **Setup wizard and diagnostics** | First-run wizard for the virtual mic, microphone level and headphones, plus a one-click "Why can't they hear me?" check.                                                                                                   |
+| **Compact mode**                 | Tray icon, global shortcut (default `Ctrl+Alt+V`), an always-on-top panel that never steals focus, and a floating icon.                                                                                                    |
+| **Live scope and meters**        | Spectrum, level meters and a gain-reduction meter per dynamics stage.                                                                                                                                                      |
+| **Recorder**                     | Saves a WAV of exactly what your teammates hear.                                                                                                                                                                           |
+| **Resilient**                    | The engine pauses and resumes by itself when a headset or the cable is unplugged, switches "Hear myself" off when it starts to howl, and keeps backups of your settings so a damaged file never loses presets or profiles. |
+| **3D controls**                  | Knurled knobs and faders with a ring of lights that glows green while a stage is on.                                                                                                                                       |
+| **Auto-updates**                 | Checks GitHub Releases on launch; one click installs.                                                                                                                                                                      |
+| **One-click virtual mic**        | Downloads and starts the official VB-CABLE installer, after verifying its signature.                                                                                                                                       |
 
 ### Screenshots
 
@@ -182,19 +186,22 @@ network. The page shows the voices, pitch and formant, Hear myself / Bypass / Mu
 
 ## Troubleshooting
 
-| Problem                                      | Fix                                                                                                                                              |
-| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| No `CABLE` device listed                     | Run the VB-CABLE installer from the Devices card, click **Install Driver**, restart the PC.                                                      |
-| Teammates can't hear me                      | Output must be **CABLE Input**, the **LIVE** pill must be on, and the game's input must be **CABLE Output**.                                     |
-| I hear nothing in my headphones              | Turn on **Hear myself** and choose your headphones as the monitor device.                                                                        |
-| Voice sounds choppy or robotic               | Set **Quality** to **Clean**, raise **Audio buffer** in Engine health and keep large pitch moves within about ±6 st, using formant for the rest. |
-| Dropouts counter keeps rising                | Raise the audio buffer; close heavy apps; use a 48 kHz device.                                                                                   |
-| Compact panel hidden in game                 | Switch the game from exclusive fullscreen to borderless / windowed.                                                                              |
-| Shortcut does nothing                        | Another app may own the combination. Pick a different one in **About**.                                                                          |
-| Teammates can't hear me and I don't know why | **Tools → Why can't they hear me?** checks the engine, microphone, cable and output and can fix the common ones.                                 |
-| Audio keeps dropping out                     | Leave **Auto buffer** on in the Engine card, or choose the **Safe** buffer.                                                                      |
-| The phone page does not open                 | Same Wi-Fi? Some guest networks block device-to-device traffic. Allow Voice Studio in the Windows Firewall prompt.                               |
-| A link won't load                            | Some age-restricted videos can't be fetched. Download the audio elsewhere and use **Add files**.                                                 |
+| Problem                                        | Fix                                                                                                                                              |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| No `CABLE` device listed                       | Run the VB-CABLE installer from the Devices card, click **Install Driver**, restart the PC.                                                      |
+| Teammates can't hear me                        | Output must be **CABLE Input**, the **LIVE** pill must be on, and the game's input must be **CABLE Output**.                                     |
+| I hear nothing in my headphones                | Turn on **Hear myself** and choose your headphones as the monitor device.                                                                        |
+| Voice sounds choppy or robotic                 | Set **Quality** to **Clean**, raise **Audio buffer** in Engine health and keep large pitch moves within about ±6 st, using formant for the rest. |
+| Dropouts counter keeps rising                  | Raise the audio buffer; close heavy apps; use a 48 kHz device.                                                                                   |
+| Compact panel hidden in game                   | Switch the game from exclusive fullscreen to borderless / windowed.                                                                              |
+| Shortcut does nothing                          | Another app may own the combination. Pick a different one in **About**.                                                                          |
+| Teammates can't hear me and I don't know why   | **Tools → Why can't they hear me?** checks the engine, microphone, cable and output and can fix the common ones.                                 |
+| The engine stopped when I unplugged my headset | It waits and resumes by itself when the device is back (the top bar says "Waiting for device…").                                                 |
+| "Feedback detected" appeared                   | "Hear myself" was switched off because the speakers were feeding the microphone. Use headphones for the monitor.                                 |
+| Scrolling over a knob does not change it       | Click the knob first, then scroll. Otherwise the wheel scrolls the page.                                                                         |
+| Audio keeps dropping out                       | Leave **Auto buffer** on in the Engine card, or choose the **Safe** buffer.                                                                      |
+| The phone page does not open                   | Same Wi-Fi? Some guest networks block device-to-device traffic. Allow Voice Studio in the Windows Firewall prompt.                               |
+| A link won't load                              | Some age-restricted videos can't be fetched. Download the audio elsewhere and use **Add files**.                                                 |
 
 ## Architecture
 
