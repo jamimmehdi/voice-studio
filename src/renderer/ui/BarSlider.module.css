@@ -1,8 +1,8 @@
 /* A 3D fader, seen from above like the knobs. All sizes come from three variables. */
 .fader {
-  --cap-w: 46px;
-  --cap-h: 30px;
-  --groove-h: 12px;
+  --cap-w: 28px;
+  --cap-h: 26px;
+  --groove-h: 10px;
   --half: calc(var(--cap-w) / 2);
 
   position: relative;
@@ -12,8 +12,8 @@
 }
 
 .sm {
-  --cap-w: 30px;
-  --cap-h: 22px;
+  --cap-w: 22px;
+  --cap-h: 20px;
   --groove-h: 8px;
 }
 
