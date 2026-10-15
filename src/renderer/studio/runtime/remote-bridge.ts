@@ -3,17 +3,25 @@ import { meterPercent } from '@engine/audio/meter-smoother';
 import type { MusicSnapshot } from '@engine/audio/music-player';
 import { formatEngineStats } from '@shared/format';
 import type { StudioApi } from '@shared/ipc';
-import { QUICK_CHIPS } from '@shared/presets';
+import { BUILTIN_PRESET_NAMES, QUICK_CHIPS, VOICE_TILES } from '@shared/presets';
 import type { QuickCommand, QuickState } from '@shared/protocols';
 import { linToDb } from '@engine/dsp/math';
 import type { StudioState, StudioStoreApi } from '../store/studio-store';
 
 export interface QuickStateInput {
-  state: Pick<StudioState, 'params' | 'preset' | 'monitor' | 'engine' | 'sounds' | 'muted'>;
+  state: Pick<StudioState, 'params' | 'preset' | 'monitor' | 'engine' | 'sounds' | 'muted' | 'userPresets'>;
   meters: Pick<DisplayMeters, 'inPeak'>;
   music: Pick<MusicSnapshot, 'trackCount' | 'title' | 'playing' | 'progress'>;
   latencyMs: number;
   dropouts: number;
+}
+
+/** Built-in presets first (with the friendly names of the voice tiles), then the user's own. */
+export function listPresets(userPresets: Record<string, unknown>): QuickState['presets'] {
+  const labels = new Map(VOICE_TILES.map((t) => [t.key, t.label]));
+  const builtin = BUILTIN_PRESET_NAMES.map((key) => ({ key, label: labels.get(key) ?? key, user: false }));
+  const own = Object.keys(userPresets).map((key) => ({ key, label: key, user: true }));
+  return [...builtin, ...own];
 }
 
 /** Snapshot of everything the compact panel and floating icon show. Pure. */
@@ -25,6 +33,7 @@ export function buildQuickState(input: QuickStateInput): QuickState {
     running,
     preset: state.preset,
     chips: QUICK_CHIPS.map((c) => ({ ...c })),
+    presets: listPresets(state.userPresets),
     pitch: state.params.voice.pitch,
     formant: state.params.voice.formant,
     monitor: state.monitor.on,

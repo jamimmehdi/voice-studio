@@ -38,6 +38,12 @@ const state = (over: Partial<QuickState> = {}): QuickState => ({
     { key: 'Robot', label: 'Robot' },
     { key: 'Giant / Monster', label: 'Giant' },
   ],
+  presets: [
+    { key: 'Robot', label: 'Robot', user: false },
+    { key: 'Giant / Monster', label: 'Giant', user: false },
+    { key: 'Clean mic (no voice change)', label: 'Clean mic', user: false },
+    { key: 'Anime girl', label: 'Anime girl', user: true },
+  ],
   pitch: 2,
   formant: -1,
   monitor: false,
@@ -79,6 +85,31 @@ describe('RemoteApp (phone page)', () => {
     expect(screen.getByText('LIVE')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Robot' })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByText('connected')).toBeInTheDocument();
+  });
+
+  it('lists every preset: built-in voices, then my voices', () => {
+    render(<RemoteApp />);
+    const socket = FakeSocket.instances[0]!;
+    act(() => {
+      socket.open();
+      socket.push(state());
+    });
+    expect(screen.getByRole('button', { name: 'Clean mic' })).toBeInTheDocument();
+    const mine = screen.getByRole('region', { name: 'My voices' });
+    expect(mine).toHaveTextContent('Anime girl');
+    fireEvent.click(screen.getByRole('button', { name: 'Anime girl' }));
+    expect(JSON.parse(socket.sent.at(-1)!)).toEqual({ type: 'preset', name: 'Anime girl' });
+  });
+
+  it('falls back to the short list when the PC sends no presets', () => {
+    render(<RemoteApp />);
+    const socket = FakeSocket.instances[0]!;
+    act(() => {
+      socket.open();
+      socket.push(state({ presets: [] }));
+    });
+    expect(screen.getByRole('button', { name: 'Giant' })).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'My voices' })).toBeNull();
   });
 
   it('sends commands for voices, switches and sounds', () => {

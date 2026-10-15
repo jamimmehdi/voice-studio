@@ -295,6 +295,7 @@ describe('RemoteServer (real sockets)', () => {
     running: true,
     preset: 'Robot',
     chips: [{ key: 'Robot', label: 'Robot' }],
+    presets: [{ key: 'Robot', label: 'Robot', user: false }],
     pitch: 0,
     formant: 0,
     monitor: false,

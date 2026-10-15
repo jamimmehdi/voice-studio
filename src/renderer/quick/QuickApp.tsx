@@ -12,6 +12,7 @@ export const EMPTY_QUICK_STATE: QuickState = {
   running: false,
   preset: null,
   chips: [],
+  presets: [],
   pitch: 0,
   formant: 0,
   monitor: false,

@@ -34,10 +34,17 @@ export interface QuickChip {
   label: string;
 }
 
+/** A voice the phone remote can load: a built-in preset or one of the user's own. */
+export interface QuickPreset extends QuickChip {
+  user: boolean;
+}
+
 export interface QuickState {
   running: boolean;
   preset: string | null;
   chips: QuickChip[];
+  /** every preset (built-in and saved), for the phone remote */
+  presets: QuickPreset[];
   pitch: number;
   formant: number;
   monitor: boolean;

@@ -44,6 +44,13 @@ export function RemoteApp(): React.ReactElement {
   }
 
   const disabled = connection !== 'open';
+  // older PCs only send the short list
+  const all =
+    state.presets && state.presets.length > 0
+      ? state.presets
+      : state.chips.map((c) => ({ ...c, user: false }));
+  const builtin = all.filter((p) => !p.user);
+  const own = all.filter((p) => p.user);
 
   return (
     <div className={styles.page}>
@@ -77,20 +84,22 @@ export function RemoteApp(): React.ReactElement {
         </div>
       </section>
 
-      <section className={styles.voices} aria-label="Voices">
-        {state.chips.map((chip) => (
-          <button
-            key={chip.key}
-            type="button"
-            className={`${styles.voice} ${state.preset === chip.key ? styles.voiceOn : ''}`}
-            aria-pressed={state.preset === chip.key}
-            disabled={disabled}
-            onClick={() => send({ type: 'preset', name: chip.key })}
-          >
-            {chip.label}
-          </button>
-        ))}
-      </section>
+      <VoiceGrid
+        title="Voices"
+        presets={builtin}
+        active={state.preset}
+        disabled={disabled}
+        onPick={(key) => send({ type: 'preset', name: key })}
+      />
+      {own.length > 0 && (
+        <VoiceGrid
+          title="My voices"
+          presets={own}
+          active={state.preset}
+          disabled={disabled}
+          onPick={(key) => send({ type: 'preset', name: key })}
+        />
+      )}
 
       <section className={styles.tune} aria-label="Fine tune">
         <Slider
@@ -145,6 +154,40 @@ export function RemoteApp(): React.ReactElement {
         </section>
       )}
     </div>
+  );
+}
+
+function VoiceGrid({
+  title,
+  presets,
+  active,
+  disabled,
+  onPick,
+}: {
+  title: string;
+  presets: ReadonlyArray<{ key: string; label: string }>;
+  active: string | null;
+  disabled: boolean;
+  onPick(key: string): void;
+}): React.ReactElement {
+  return (
+    <section aria-label={title}>
+      <h2 className={styles.groupTitle}>{title}</h2>
+      <div className={styles.voices}>
+        {presets.map((p) => (
+          <button
+            key={p.key}
+            type="button"
+            className={`${styles.voice} ${active === p.key ? styles.voiceOn : ''}`}
+            aria-pressed={active === p.key}
+            disabled={disabled}
+            onClick={() => onPick(p.key)}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+    </section>
   );
 }
 

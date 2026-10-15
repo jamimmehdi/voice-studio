@@ -3,6 +3,7 @@ import { bindingsFrom, startHotkeySync } from '@renderer/studio/runtime/hotkey-s
 import { ProfileRuntime } from '@renderer/studio/runtime/profile-runtime';
 import { applyQuickCommand, buildQuickState } from '@renderer/studio/runtime/remote-bridge';
 import { SoundController, cleanName, voiceLevel } from '@renderer/studio/runtime/sound-controller';
+import { createDefaultParams } from '@shared/params';
 import { createStudioStore } from '@renderer/studio/store/studio-store';
 import { fakeApi } from '../../helpers/fakes';
 
@@ -343,6 +344,26 @@ describe('quick commands from hotkeys and phones', () => {
     expect(store.getState().muted).toBe(false);
     applyQuickCommand({ type: 'sound', id: 'abc' }, t);
     expect(played).toEqual(['abc']);
+  });
+
+  it('the phone gets every preset: built-in first, then your own', () => {
+    const store = createStudioStore({ userPresets: { 'Anime girl': createDefaultParams() } });
+    const state = buildQuickState({
+      state: store.getState(),
+      meters: { inPeak: 0 },
+      music: { trackCount: 0, title: '', playing: false, progress: 0 },
+      latencyMs: 0,
+      dropouts: 0,
+    });
+    const keys = state.presets.map((p) => p.key);
+    expect(keys).toContain('Female – Bright / Young');
+    expect(keys).toContain('Clean mic (no voice change)');
+    expect(keys.at(-1)).toBe('Anime girl');
+    expect(state.presets.find((p) => p.key === 'Girl / Child')?.label).toBe('Girl / Child');
+    expect(state.presets.at(-1)?.user).toBe(true);
+    expect(state.presets.filter((p) => !p.user).length).toBeGreaterThanOrEqual(10);
+    // the compact panel keeps its short list
+    expect(state.chips.length).toBe(8);
   });
 
   it('the state sent to panels and phones includes the soundboard and mute', () => {
