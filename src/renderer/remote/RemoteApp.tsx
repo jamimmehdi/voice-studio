@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { BarSlider } from '../ui/BarSlider';
 import { useRemote } from './use-remote';
 import styles from './RemoteApp.module.css';
@@ -19,7 +19,7 @@ export function RemoteApp(): React.ReactElement {
   /** sliders fire a lot: send at most one update every 60 ms */
   const sendVoice = (patch: { pitch?: number; formant?: number }): void => {
     if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(() => send({ type: 'voice', ...patch }), 60);
+    timer.current = setTimeout(() => send({ type: 'voice', ...patch }), 30);
   };
 
   const status =
@@ -238,6 +238,9 @@ function Toggle({
   );
 }
 
+/** how long the slider keeps your finger's value before it follows the PC again */
+const HOLD_MS = 600;
+
 function Slider({
   label,
   value,
@@ -249,7 +252,17 @@ function Slider({
   disabled: boolean;
   onChange(v: number): void;
 }): React.ReactElement {
-  const shown = `${value >= 0 ? '+' : '−'}${Math.abs(value).toFixed(1)} st`;
+  // while you drag, show your own value at once; the PC's echo would otherwise make the cap lag and jump
+  const [mine, setMine] = useState<number | null>(null);
+  const release = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(
+    () => () => {
+      if (release.current) clearTimeout(release.current);
+    },
+    [],
+  );
+  const shownValue = mine ?? value;
+  const shown = `${shownValue >= 0 ? '+' : '−'}${Math.abs(shownValue).toFixed(1)} st`;
   return (
     <div className={`${styles.slider} ${disabled ? styles.sliderOff : ''}`}>
       <span className={styles.sliderHead}>
@@ -258,14 +271,18 @@ function Slider({
       </span>
       <BarSlider
         label={label}
-        size="lg"
+        size="touch"
         min={-SEMITONES}
         max={SEMITONES}
         step={0.1}
-        value={value}
+        value={shownValue}
         defaultValue={0}
         onChange={(v) => {
-          if (!disabled) onChange(v);
+          if (disabled) return;
+          setMine(v);
+          if (release.current) clearTimeout(release.current);
+          release.current = setTimeout(() => setMine(null), HOLD_MS);
+          onChange(v);
         }}
       />
     </div>

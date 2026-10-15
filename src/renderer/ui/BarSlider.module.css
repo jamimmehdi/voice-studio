@@ -23,6 +23,13 @@
   --groove-h: 16px;
 }
 
+/* slim cap, tall enough to grab with a thumb */
+.touch {
+  --cap-w: 28px;
+  --cap-h: 38px;
+  --groove-h: 12px;
+}
+
 .groove {
   position: absolute;
   top: calc(var(--cap-h) / 2 - var(--groove-h) / 2);

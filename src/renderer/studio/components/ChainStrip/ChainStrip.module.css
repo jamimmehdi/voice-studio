@@ -34,7 +34,7 @@
   display: flex;
   align-items: stretch;
   flex: 1 1 0;
-  min-width: 100px;
+  min-width: 0;
 }
 
 .chevron {
@@ -42,5 +42,5 @@
   flex: none;
   align-items: center;
   justify-content: center;
-  width: 11px;
+  width: 9px;
 }

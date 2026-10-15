@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
 import styles from './BarSlider.module.css';
 
-export type BarSliderSize = 'sm' | 'md' | 'lg';
+export type BarSliderSize = 'sm' | 'md' | 'lg' | 'touch';
 
 export interface BarSliderProps {
   value: number;
@@ -10,7 +10,7 @@ export interface BarSliderProps {
   step?: number;
   onChange(value: number): void;
   label: string;
-  /** cap size: `sm` for tight rows (music dock), `lg` for touch screens */
+  /** cap size: `sm` for tight rows (music dock), `touch` is a slim cap with a tall grip for fingers */
   size?: BarSliderSize;
   className?: string;
   /** reset target for double click */
@@ -19,7 +19,7 @@ export interface BarSliderProps {
   lit?: boolean;
 }
 
-const TICKS: Record<BarSliderSize, number> = { sm: 13, md: 25, lg: 25 };
+const TICKS: Record<BarSliderSize, number> = { sm: 13, md: 25, lg: 25, touch: 25 };
 
 /**
  * A 3D fader: a recessed groove with a row of lights that glow up to a ridged cap, matching the
