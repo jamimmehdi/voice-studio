@@ -33,6 +33,12 @@
   stroke-width: 0.8;
 }
 
+.notch {
+  stroke: #0a0e15;
+  stroke-width: 1.3;
+  opacity: 0.55;
+}
+
 .ridge {
   stroke: #0a0e15;
   stroke-width: 1.4;

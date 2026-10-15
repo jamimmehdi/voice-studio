@@ -34,11 +34,13 @@ const CX = 50;
  * Camera elevation above the table, in degrees: 0 = edge-on, 90 = looking straight down.
  * This is the one number that sets how much the knob faces the user.
  */
-export const CAMERA_ELEVATION_DEG = 70;
+export const CAMERA_ELEVATION_DEG = 90;
 /** how round the circles look at that elevation (the sine of the angle) */
 const FLAT = Math.sin((CAMERA_ELEVATION_DEG * Math.PI) / 180);
 const BASE_Y = 48;
-const TOP_Y = 34;
+/** height of the knob body; what the camera sees of it shrinks to nothing when looking straight down */
+const BODY_HEIGHT = 24;
+const TOP_Y = BASE_Y - 3 - BODY_HEIGHT * Math.cos((CAMERA_ELEVATION_DEG * Math.PI) / 180);
 const BODY_RX = 17;
 const TICKS = 21;
 const TICK_STEP = (KNOB_END_DEG - KNOB_START_DEG) / (TICKS - 1);
@@ -51,6 +53,7 @@ function onEllipse(cx: number, cy: number, rx: number, ry: number, deg: number):
 
 const TICK_ANGLES = Array.from({ length: TICKS }, (_, i) => KNOB_START_DEG + i * TICK_STEP);
 const RIDGES = [-4, -3, -2, -1, 0, 1, 2, 3, 4];
+const NOTCHES = Array.from({ length: 28 }, (_, i) => (i * 360) / 28);
 
 /**
  * Rotary control: drag vertically (Shift = fine), scroll, arrow keys, double-click to reset.
@@ -192,6 +195,11 @@ export function Knob(props: KnobProps): React.ReactElement {
           fill={`url(#${ids}t)`}
           className={styles.top}
         />
+        {NOTCHES.map((deg) => {
+          const [nx0, ny0] = onEllipse(CX, TOP_Y, BODY_RX * 0.84, BODY_RX * 0.84 * FLAT, deg);
+          const [nx1, ny1] = onEllipse(CX, TOP_Y, BODY_RX * 0.98, BODY_RX * 0.98 * FLAT, deg);
+          return <line key={deg} x1={nx0} y1={ny0} x2={nx1} y2={ny1} className={styles.notch} />;
+        })}
         <line className={styles.ind} x1={x0} y1={y0} x2={x1} y2={y1} />
       </svg>
       <div className={`${styles.value} mono`}>{text}</div>
