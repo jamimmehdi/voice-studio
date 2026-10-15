@@ -87,6 +87,7 @@ export function MusicDock(): React.ReactElement | null {
           value={Math.round(music.progress * 1000)}
           min={0}
           max={1000}
+          size="sm"
           onChange={(v) => player.seek(v / 1000)}
         />
         <span className={`${styles.time} mono`}>{formatTime(music.duration)}</span>
@@ -101,8 +102,7 @@ export function MusicDock(): React.ReactElement | null {
             value={vol}
             min={0}
             max={100}
-            height={5}
-            fill="var(--soft)"
+            size="sm"
             onChange={(v) => setMusic({ vol: v })}
           />
           <span className="mono">{Math.round(vol)}%</span>

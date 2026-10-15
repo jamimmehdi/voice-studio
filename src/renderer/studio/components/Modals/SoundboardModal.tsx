@@ -96,6 +96,7 @@ export function SoundboardModal(): React.ReactElement {
                 label="Soundboard volume"
                 min={0}
                 max={100}
+                size="sm"
                 value={options.volume}
                 defaultValue={70}
                 onChange={(v) => setSoundOptions({ volume: v })}

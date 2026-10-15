@@ -45,7 +45,7 @@ export function MonitorControls(): React.ReactElement {
         min={0}
         max={1}
         step={0.01}
-        height={4}
+        size="sm"
         onChange={(vol) => setMonitor({ vol })}
       />
     </div>

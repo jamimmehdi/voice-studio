@@ -1,31 +1,159 @@
-.slider {
-  display: block;
+/* A 3D fader, seen from above like the knobs. All sizes come from three variables. */
+.fader {
+  --cap-w: 46px;
+  --cap-h: 30px;
+  --groove-h: 12px;
+  --half: calc(var(--cap-w) / 2);
+
+  position: relative;
   width: 100%;
-  height: var(--h, 6px);
+  height: calc(var(--cap-h) + 14px);
+  touch-action: none;
+}
+
+.sm {
+  --cap-w: 30px;
+  --cap-h: 22px;
+  --groove-h: 8px;
+}
+
+.lg {
+  --cap-w: 62px;
+  --cap-h: 44px;
+  --groove-h: 16px;
+}
+
+.groove {
+  position: absolute;
+  top: calc(var(--cap-h) / 2 - var(--groove-h) / 2);
+  right: calc(var(--half) - var(--groove-h) / 2);
+  left: calc(var(--half) - var(--groove-h) / 2);
+  height: var(--groove-h);
+  background: linear-gradient(180deg, #05070a, #1a2130);
+  border: 1px solid #2a3347;
+  border-radius: 999px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+/* the lit part of the groove */
+.fill {
+  position: absolute;
+  top: calc(var(--cap-h) / 2 - 2px);
+  left: calc(var(--half) + (100% - var(--cap-w)) * var(--lo));
+  width: calc((100% - var(--cap-w)) * (var(--hi) - var(--lo)));
+  height: 4px;
+  background: #3f6b63;
+  border-radius: 2px;
+}
+
+.lit .fill {
+  background: #34f5c5;
+  box-shadow: 0 0 6px rgba(52, 245, 197, 0.7);
+}
+
+/* the row of lights under the groove */
+.ticks {
+  position: absolute;
+  top: calc(var(--cap-h) + 3px);
+  right: var(--half);
+  left: var(--half);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  height: 9px;
+}
+
+.ticks i {
+  display: block;
+  width: 2.4px;
+  height: 5px;
+  margin-inline: -1.2px;
+  background: #2b3446;
+  border-radius: 2px;
+}
+
+.ticks i.long {
+  height: 9px;
+}
+
+.ticks i.on {
+  background: #3f6b63;
+}
+
+.lit .ticks i.on {
+  background: #34f5c5;
+  filter: drop-shadow(0 0 2.2px rgba(52, 245, 197, 0.95)) drop-shadow(0 0 5px rgba(52, 245, 197, 0.45));
+}
+
+/* the ridged cap */
+.cap {
+  position: absolute;
+  top: 0;
+  left: calc(var(--half) + (100% - var(--cap-w)) * var(--pn));
+  width: var(--cap-w);
+  height: var(--cap-h);
+  background:
+    repeating-linear-gradient(
+      180deg,
+      transparent 0,
+      transparent 20%,
+      rgba(10, 14, 21, 0.65) 20%,
+      rgba(10, 14, 21, 0.65) 28%
+    ),
+    linear-gradient(180deg, #56637e 0%, #35405a 45%, #1b2231 100%);
+  border: 1px solid #64718c;
+  border-radius: 7px;
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.45);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.cap::after {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 50%;
+  width: 3px;
+  content: '';
+  background: var(--accent);
+  border-radius: 2px;
+  transform: translateX(-50%);
+}
+
+.input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--cap-h);
   margin: 0;
-  cursor: pointer;
+  cursor: ew-resize;
+  opacity: 0;
+  appearance: none;
+  -webkit-appearance: none;
   background: transparent;
+}
+
+/* the native thumb is as wide as the cap, so a drag maps onto the same positions the cap uses */
+.input::-webkit-slider-thumb {
+  width: var(--cap-w);
+  height: var(--cap-h);
   appearance: none;
   -webkit-appearance: none;
 }
 
-.slider::-webkit-slider-runnable-track {
-  height: var(--h, 6px);
-  background: linear-gradient(90deg, var(--fill, var(--accent)) var(--p, 50%), #05070a var(--p, 50%));
-  border-radius: 3px;
+.input::-webkit-slider-runnable-track {
+  height: var(--cap-h);
+  background: transparent;
 }
 
-.slider::-webkit-slider-thumb {
-  width: 0;
-  height: 0;
-  -webkit-appearance: none;
+.fader:has(.input:focus-visible) .cap {
+  border-color: var(--accent);
+  box-shadow:
+    0 0 0 2px rgba(94, 234, 212, 0.35),
+    0 6px 8px rgba(0, 0, 0, 0.45);
 }
 
-.slider:hover::-webkit-slider-thumb,
-.slider:focus-visible::-webkit-slider-thumb {
-  width: 12px;
-  height: 12px;
-  margin-top: calc((var(--h, 6px) - 12px) / 2);
-  background: #fff;
-  border-radius: 50%;
+.fader:hover .cap {
+  border-color: #8a97b2;
 }

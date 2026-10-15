@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { BarSlider } from '../ui/BarSlider';
 import { useRemote } from './use-remote';
 import styles from './RemoteApp.module.css';
 
@@ -250,21 +251,23 @@ function Slider({
 }): React.ReactElement {
   const shown = `${value >= 0 ? '+' : '−'}${Math.abs(value).toFixed(1)} st`;
   return (
-    <label className={styles.slider}>
+    <div className={`${styles.slider} ${disabled ? styles.sliderOff : ''}`}>
       <span className={styles.sliderHead}>
         <span>{label}</span>
         <span className="mono">{shown}</span>
       </span>
-      <input
-        type="range"
+      <BarSlider
+        label={label}
+        size="lg"
         min={-SEMITONES}
         max={SEMITONES}
         step={0.1}
         value={value}
-        disabled={disabled}
-        aria-label={label}
-        onChange={(e) => onChange(Number(e.target.value))}
+        defaultValue={0}
+        onChange={(v) => {
+          if (!disabled) onChange(v);
+        }}
       />
-    </label>
+    </div>
   );
 }

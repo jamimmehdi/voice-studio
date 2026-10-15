@@ -1,6 +1,8 @@
 import type { CSSProperties } from 'react';
 import styles from './BarSlider.module.css';
 
+export type BarSliderSize = 'sm' | 'md' | 'lg';
+
 export interface BarSliderProps {
   value: number;
   min: number;
@@ -8,16 +10,22 @@ export interface BarSliderProps {
   step?: number;
   onChange(value: number): void;
   label: string;
-  /** track thickness in px (the design uses 4, 5 and 6) */
-  height?: number;
-  /** colour of the filled part */
-  fill?: string;
+  /** cap size: `sm` for tight rows (music dock), `lg` for touch screens */
+  size?: BarSliderSize;
   className?: string;
   /** reset target for double click */
   defaultValue?: number;
+  /** the lights glow while the thing the slider belongs to is switched on (default true) */
+  lit?: boolean;
 }
 
-/** Flat bar slider (native range input underneath, so keyboard and screen readers just work). */
+const TICKS: Record<BarSliderSize, number> = { sm: 13, md: 25, lg: 25 };
+
+/**
+ * A 3D fader: a recessed groove with a row of lights that glow up to a ridged cap, matching the
+ * knobs. A real (invisible) `<input type="range">` sits on top, so pointer, touch, keyboard and
+ * screen readers all work exactly like a native slider.
+ */
 export function BarSlider({
   value,
   min,
@@ -25,27 +33,55 @@ export function BarSlider({
   step = 1,
   onChange,
   label,
-  height = 6,
-  fill = 'var(--accent)',
+  size = 'md',
   className,
   defaultValue,
+  lit = true,
 }: BarSliderProps): React.ReactElement {
-  const percent = max === min ? 0 : ((value - min) / (max - min)) * 100;
-  const style = { '--p': `${percent}%`, '--h': `${height}px`, '--fill': fill } as CSSProperties;
+  const norm = max === min ? 0 : Math.min(1, Math.max(0, (value - min) / (max - min)));
+  const bipolar = min < 0 && max > 0;
+  const zero = bipolar ? -min / (max - min) : 0;
+  const lo = Math.min(zero, norm);
+  const hi = Math.max(zero, norm);
+  const count = TICKS[size];
+
+  const style = {
+    '--p': `${norm * 100}%`,
+    '--pn': String(norm),
+    '--lo': String(lo),
+    '--hi': String(hi),
+  } as CSSProperties;
+
   return (
-    <input
-      type="range"
-      className={`${styles.slider} ${className ?? ''}`}
+    <div
+      className={`${styles.fader} ${styles[size]} ${lit ? styles.lit : ''} ${className ?? ''}`}
       style={style}
-      min={min}
-      max={max}
-      step={step}
-      value={value}
-      aria-label={label}
-      onChange={(e) => onChange(Number(e.target.value))}
-      onDoubleClick={() => {
-        if (defaultValue !== undefined) onChange(defaultValue);
-      }}
-    />
+    >
+      <span className={styles.groove} aria-hidden="true" />
+      <span className={styles.fill} aria-hidden="true" />
+      <span className={styles.ticks} aria-hidden="true">
+        {Array.from({ length: count }, (_, i) => {
+          const t = i / (count - 1);
+          const on = t >= lo - 0.0001 && t <= hi + 0.0001;
+          const long = i % 6 === 0;
+          return <i key={i} className={`${on ? styles.on : ''} ${long ? styles.long : ''}`} />;
+        })}
+      </span>
+      <span className={styles.cap} aria-hidden="true" />
+      <input
+        type="range"
+        className={styles.input}
+        style={style}
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        aria-label={label}
+        onChange={(e) => onChange(Number(e.target.value))}
+        onDoubleClick={() => {
+          if (defaultValue !== undefined) onChange(defaultValue);
+        }}
+      />
+    </div>
   );
 }
