@@ -33,6 +33,9 @@
 
 .install {
   margin-top: 8px;
+  white-space: normal;
+  line-height: 1.25;
+  text-align: center;
 }
 
 .divider {
