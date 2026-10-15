@@ -28,12 +28,12 @@ export interface KnobProps extends KnobSpec {
   lit?: boolean;
 }
 
-/** 3D geometry, in the 100 x 84 viewBox of the knob, seen from above and in front */
+/** 3D geometry, in the 100 x 90 viewBox of the knob, seen from above and in front */
 const CX = 50;
 /** how flat the circles look: 0 = edge-on, 1 = looking straight down at the knob */
-const FLAT = 0.62;
+const FLAT = 0.8;
 const BASE_Y = 50;
-const TOP_Y = 36;
+const TOP_Y = 34;
 const BODY_RX = 17;
 const TICKS = 21;
 const TICK_STEP = (KNOB_END_DEG - KNOB_START_DEG) / (TICKS - 1);
@@ -125,7 +125,7 @@ export function Knob(props: KnobProps): React.ReactElement {
         }
       }}
     >
-      <svg viewBox="0 0 100 84" aria-hidden="true" className={lit ? styles.lit : ''}>
+      <svg viewBox="0 0 100 90" aria-hidden="true" className={lit ? styles.lit : ''}>
         <defs>
           <linearGradient id={`${ids}s`} x1="0" x2="1" y1="0" y2="0">
             <stop offset="0" stopColor="#0f141d" />
@@ -144,7 +144,7 @@ export function Knob(props: KnobProps): React.ReactElement {
             <stop offset="1" stopColor="#080b11" />
           </linearGradient>
         </defs>
-        <ellipse cx={CX} cy={BASE_Y + 11} rx="42" ry={36 * FLAT * 0.62} fill="#000" opacity="0.35" />
+        <ellipse cx={CX} cy={BASE_Y + 12} rx="42" ry="12" fill="#000" opacity="0.35" />
         <path
           d={`M${CX - 36},${BASE_Y} a36,${36 * FLAT} 0 0 0 72,0 v6 a36,${36 * FLAT} 0 0 1 -72,0 z`}
           fill={`url(#${ids}b)`}
