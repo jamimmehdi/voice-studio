@@ -25,14 +25,16 @@ export function ModuleKnob<M extends KnobModule>({
   def,
   ...rest
 }: ModuleKnobProps<M>): React.ReactElement {
-  const { value, patch } = useStudio((s) => ({
+  const { value, on, patch } = useStudio((s) => ({
     value: (s.params[module] as unknown as Record<string, number>)[param] ?? def,
+    on: s.params[module].on,
     patch: s.patchModule,
   }));
   return (
     <Knob
       {...rest}
       value={value}
+      lit={on}
       defaultValue={def}
       onChange={(v) => patch(module, { [param]: v } as unknown as Partial<StudioParams[M]>)}
     />

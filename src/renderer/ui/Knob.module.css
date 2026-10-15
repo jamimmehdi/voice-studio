@@ -8,7 +8,7 @@
 
 .knob svg {
   display: block;
-  width: 56px;
+  width: 76px;
   height: 56px;
   margin: 0 auto;
 }
@@ -18,32 +18,52 @@
 }
 
 .compact svg {
-  width: 44px;
+  width: 60px;
   height: 44px;
 }
 
-.track {
-  fill: none;
-  stroke: #2a303b;
-  stroke-width: 4;
+.plate {
+  fill: #161c28;
+  stroke: #2a3347;
+  stroke-width: 1;
+}
+
+.top {
+  stroke: #64718c;
+  stroke-width: 0.8;
+}
+
+.ridge {
+  stroke: #0a0e15;
+  stroke-width: 1.4;
+  opacity: 0.7;
+}
+
+/* the ring of lights around the base */
+.tick {
+  stroke: #2b3446;
+  stroke-width: 2.6;
   stroke-linecap: round;
 }
 
-.val {
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 4;
-  stroke-linecap: round;
+.tickOn {
+  stroke: #3f6b63;
 }
 
-.knob:hover .val,
-.dragging .val {
-  stroke: #7ff0e3;
+/* switched on: the lit part of the ring glows green */
+.lit .tickOn {
+  stroke: #34f5c5;
+  filter: drop-shadow(0 0 2.2px rgba(52, 245, 197, 0.95)) drop-shadow(0 0 5px rgba(52, 245, 197, 0.45));
+}
+
+.knob:hover .lit .tickOn,
+.dragging .lit .tickOn {
+  stroke: #7ff7dc;
 }
 
 .ind {
-  stroke: var(--text);
-  stroke-width: 2.4;
+  stroke: var(--accent);
+  stroke-width: 2.6;
   stroke-linecap: round;
 }
 

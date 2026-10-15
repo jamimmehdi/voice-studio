@@ -1,13 +1,11 @@
-import { useRef, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import {
   KNOB_END_DEG,
   KNOB_START_DEG,
   angleFor,
-  arcPath,
   dragValue,
   formatKnobValue,
   isBipolar,
-  polar,
   quantize,
   toNorm,
   wheelValue,
@@ -26,26 +24,44 @@ export interface KnobProps extends KnobSpec {
   format?: (value: number) => string;
   /** compact variant used inside EQ bands */
   compact?: boolean;
+  /** the light ring glows while the knob's module is switched on (default true) */
+  lit?: boolean;
 }
 
-const CX = 32;
-const CY = 32;
+/** 3D geometry, in the 100 x 74 viewBox of the knob */
+const CX = 50;
+const BASE_Y = 56;
+const TOP_Y = 31;
+const BODY_RX = 17;
+const TICKS = 21;
+const TICK_STEP = (KNOB_END_DEG - KNOB_START_DEG) / (TICKS - 1);
+
+/** Point on a flattened circle (the knob is seen from slightly above), 0 deg = straight back. */
+function onEllipse(cx: number, cy: number, rx: number, ry: number, deg: number): [number, number] {
+  const a = (deg * Math.PI) / 180;
+  return [cx + rx * Math.sin(a), cy - ry * Math.cos(a)];
+}
+
+const TICK_ANGLES = Array.from({ length: TICKS }, (_, i) => KNOB_START_DEG + i * TICK_STEP);
+const RIDGES = [-4, -3, -2, -1, 0, 1, 2, 3, 4];
 
 /**
  * Rotary control: drag vertically (Shift = fine), scroll, arrow keys, double-click to reset.
  * Exposed as an ARIA slider.
  */
 export function Knob(props: KnobProps): React.ReactElement {
-  const { label, value, defaultValue, onChange, format, compact, ...spec } = props;
+  const { label, value, defaultValue, onChange, format, compact, lit = true, ...spec } = props;
+  const ids = useId().replace(/[^a-zA-Z0-9]/g, '');
   const drag = useRef<{ startY: number; startValue: number } | null>(null);
   const root = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState(false);
 
   const angle = angleFor(spec, value);
   const zero = isBipolar(spec) ? angleFor(spec, 0) : KNOB_START_DEG;
-  const valuePath = Math.abs(angle - zero) < 0.5 ? '' : arcPath(CX, CY, 24, zero, angle);
-  const [x0, y0] = polar(CX, CY, 9, angle);
-  const [x1, y1] = polar(CX, CY, 20, angle);
+  const lo = Math.min(zero, angle) - 0.5;
+  const hi = Math.max(zero, angle) + 0.5;
+  const [x0, y0] = onEllipse(CX, TOP_Y, BODY_RX * 0.2, BODY_RX * 0.2 * 0.38, angle);
+  const [x1, y1] = onEllipse(CX, TOP_Y, BODY_RX * 0.82, BODY_RX * 0.82 * 0.38, angle);
   const text = format ? format(value) : formatKnobValue(spec, value);
 
   const commit = (next: number): void => {
@@ -107,9 +123,65 @@ export function Knob(props: KnobProps): React.ReactElement {
         }
       }}
     >
-      <svg viewBox="0 0 64 64" aria-hidden="true">
-        <path className={styles.track} d={arcPath(CX, CY, 24, KNOB_START_DEG, KNOB_END_DEG)} />
-        <path className={styles.val} d={valuePath} />
+      <svg viewBox="0 0 100 74" aria-hidden="true" className={lit ? styles.lit : ''}>
+        <defs>
+          <linearGradient id={`${ids}s`} x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0" stopColor="#0f141d" />
+            <stop offset="0.28" stopColor="#3b475f" />
+            <stop offset="0.5" stopColor="#2a3447" />
+            <stop offset="1" stopColor="#0c1018" />
+          </linearGradient>
+          <radialGradient id={`${ids}t`} cx="0.35" cy="0.3" r="0.9">
+            <stop offset="0" stopColor="#56637e" />
+            <stop offset="0.6" stopColor="#323d54" />
+            <stop offset="1" stopColor="#1e2535" />
+          </radialGradient>
+          <linearGradient id={`${ids}b`} x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0" stopColor="#0b0f16" />
+            <stop offset="0.5" stopColor="#202838" />
+            <stop offset="1" stopColor="#080b11" />
+          </linearGradient>
+        </defs>
+        <ellipse cx={CX} cy={BASE_Y + 9} rx="42" ry="8" fill="#000" opacity="0.35" />
+        <path d={`M${CX - 36},${BASE_Y} a36,12 0 0 0 72,0 v6 a36,12 0 0 1 -72,0 z`} fill={`url(#${ids}b)`} />
+        <ellipse cx={CX} cy={BASE_Y} rx="36" ry="12" className={styles.plate} />
+        {TICK_ANGLES.map((deg, i) => {
+          const [ax, ay] = onEllipse(CX, BASE_Y, 27, 8.8, deg);
+          const [bx, by] = onEllipse(CX, BASE_Y, 33, 10.8, deg);
+          const on = deg >= lo && deg <= hi;
+          return (
+            <line
+              key={i}
+              x1={ax}
+              y1={ay}
+              x2={bx}
+              y2={by}
+              className={`${styles.tick} ${on ? styles.tickOn : ''}`}
+            />
+          );
+        })}
+        <path
+          d={`M${CX - BODY_RX},${BASE_Y - 3} L${CX - BODY_RX},${TOP_Y} a${BODY_RX},${BODY_RX * 0.38} 0 0 0 ${BODY_RX * 2},0 L${CX + BODY_RX},${BASE_Y - 3} a${BODY_RX},${BODY_RX * 0.38} 0 0 1 ${-BODY_RX * 2},0 z`}
+          fill={`url(#${ids}s)`}
+        />
+        {RIDGES.map((r) => (
+          <line
+            key={r}
+            x1={CX + r * (BODY_RX / 4.6)}
+            y1={BASE_Y - 3 + BODY_RX * 0.3}
+            x2={CX + r * (BODY_RX / 4.6)}
+            y2={TOP_Y + BODY_RX * 0.3}
+            className={styles.ridge}
+          />
+        ))}
+        <ellipse
+          cx={CX}
+          cy={TOP_Y}
+          rx={BODY_RX}
+          ry={BODY_RX * 0.38}
+          fill={`url(#${ids}t)`}
+          className={styles.top}
+        />
         <line className={styles.ind} x1={x0} y1={y0} x2={x1} y2={y1} />
       </svg>
       <div className={`${styles.value} mono`}>{text}</div>
