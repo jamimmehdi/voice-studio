@@ -1,6 +1,7 @@
 import { STAGE_INFO } from '@shared/stages';
 import { Knob } from '../../../ui/Knob';
 import { SelectField } from '../../../ui/SelectField';
+import { Switch } from '../../../ui/Switch';
 import { ToggleButton } from '../../../ui/ToggleButton';
 import { selectedDeviceLabel } from '../../lib/stage-summary';
 import { useController, useStudio } from '../../runtime/react';
@@ -40,22 +41,28 @@ export function MicStage(): React.ReactElement {
         panel.
       </div>
       <div className={styles.options}>
-        <label className={styles.check}>
-          <input
-            type="checkbox"
+        <div className={styles.option}>
+          <span className={styles.optionText}>
+            <b>Windows noise suppression</b>
+            <span>Let Windows clean the microphone before Voice Studio gets it.</span>
+          </span>
+          <Switch
+            label="Windows noise suppression"
             checked={ns}
-            onChange={(e) => void controller.setNoiseSuppression(e.target.checked)}
+            onChange={(on) => void controller.setNoiseSuppression(on)}
           />
-          Windows noise suppression
-        </label>
-        <label className={styles.check}>
-          <input
-            type="checkbox"
+        </div>
+        <div className={styles.option}>
+          <span className={styles.optionText}>
+            <b>Windows auto-gain</b>
+            <span>Let Windows raise and lower the microphone level by itself.</span>
+          </span>
+          <Switch
+            label="Windows auto-gain"
             checked={agc}
-            onChange={(e) => void controller.setAutoGain(e.target.checked)}
+            onChange={(on) => void controller.setAutoGain(on)}
           />
-          Windows auto-gain
-        </label>
+        </div>
       </div>
     </StageCard>
   );
