@@ -33,12 +33,15 @@
   color: var(--muted);
 }
 
-/* non-knob controls sit level with the knob dials (56 px tall) instead of hanging from the top */
+/* five knobs plus the mode column still fit in the narrowest window */
+.tight {
+  column-gap: 6px;
+}
+
+/* the mode select and the listen button form one column, level with the knob dials */
 .aside {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: 8px;
   align-self: flex-start;
-  gap: 10px;
-  height: 56px;
-  margin-left: 6px;
 }

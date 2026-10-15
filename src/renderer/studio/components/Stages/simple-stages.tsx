@@ -159,7 +159,7 @@ export function DeEsserStage(): React.ReactElement {
   const info = STAGE_INFO.deess;
   return (
     <StageCard title={info.title} description={info.description} module="deess">
-      <div className={styles.grid}>
+      <div className={`${styles.grid} ${styles.tight}`}>
         <ModuleKnob
           module="deess"
           param="freq"
@@ -221,8 +221,12 @@ export function DeEsserStage(): React.ReactElement {
             ]}
             onChange={(v) => patchModule('deess', { mode: v === 1 ? 1 : 0 })}
           />
-          <ToggleButton pressed={listen} onChange={(v) => patchModule('deess', { listen: v })}>
-            Listen to the “S” band
+          <ToggleButton
+            pressed={listen}
+            title="Listen to the “S” band"
+            onChange={(v) => patchModule('deess', { listen: v })}
+          >
+            Listen to S
           </ToggleButton>
         </div>
       </div>
