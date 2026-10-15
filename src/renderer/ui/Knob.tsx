@@ -28,10 +28,12 @@ export interface KnobProps extends KnobSpec {
   lit?: boolean;
 }
 
-/** 3D geometry, in the 100 x 74 viewBox of the knob */
+/** 3D geometry, in the 100 x 84 viewBox of the knob, seen from above and in front */
 const CX = 50;
-const BASE_Y = 56;
-const TOP_Y = 31;
+/** how flat the circles look: 0 = edge-on, 1 = looking straight down at the knob */
+const FLAT = 0.62;
+const BASE_Y = 50;
+const TOP_Y = 36;
 const BODY_RX = 17;
 const TICKS = 21;
 const TICK_STEP = (KNOB_END_DEG - KNOB_START_DEG) / (TICKS - 1);
@@ -60,8 +62,8 @@ export function Knob(props: KnobProps): React.ReactElement {
   const zero = isBipolar(spec) ? angleFor(spec, 0) : KNOB_START_DEG;
   const lo = Math.min(zero, angle) - 0.5;
   const hi = Math.max(zero, angle) + 0.5;
-  const [x0, y0] = onEllipse(CX, TOP_Y, BODY_RX * 0.2, BODY_RX * 0.2 * 0.38, angle);
-  const [x1, y1] = onEllipse(CX, TOP_Y, BODY_RX * 0.82, BODY_RX * 0.82 * 0.38, angle);
+  const [x0, y0] = onEllipse(CX, TOP_Y, BODY_RX * 0.2, BODY_RX * 0.2 * FLAT, angle);
+  const [x1, y1] = onEllipse(CX, TOP_Y, BODY_RX * 0.82, BODY_RX * 0.82 * FLAT, angle);
   const text = format ? format(value) : formatKnobValue(spec, value);
 
   const commit = (next: number): void => {
@@ -123,7 +125,7 @@ export function Knob(props: KnobProps): React.ReactElement {
         }
       }}
     >
-      <svg viewBox="0 0 100 74" aria-hidden="true" className={lit ? styles.lit : ''}>
+      <svg viewBox="0 0 100 84" aria-hidden="true" className={lit ? styles.lit : ''}>
         <defs>
           <linearGradient id={`${ids}s`} x1="0" x2="1" y1="0" y2="0">
             <stop offset="0" stopColor="#0f141d" />
@@ -142,12 +144,15 @@ export function Knob(props: KnobProps): React.ReactElement {
             <stop offset="1" stopColor="#080b11" />
           </linearGradient>
         </defs>
-        <ellipse cx={CX} cy={BASE_Y + 9} rx="42" ry="8" fill="#000" opacity="0.35" />
-        <path d={`M${CX - 36},${BASE_Y} a36,12 0 0 0 72,0 v6 a36,12 0 0 1 -72,0 z`} fill={`url(#${ids}b)`} />
-        <ellipse cx={CX} cy={BASE_Y} rx="36" ry="12" className={styles.plate} />
+        <ellipse cx={CX} cy={BASE_Y + 11} rx="42" ry={36 * FLAT * 0.62} fill="#000" opacity="0.35" />
+        <path
+          d={`M${CX - 36},${BASE_Y} a36,${36 * FLAT} 0 0 0 72,0 v6 a36,${36 * FLAT} 0 0 1 -72,0 z`}
+          fill={`url(#${ids}b)`}
+        />
+        <ellipse cx={CX} cy={BASE_Y} rx="36" ry={36 * FLAT} className={styles.plate} />
         {TICK_ANGLES.map((deg, i) => {
-          const [ax, ay] = onEllipse(CX, BASE_Y, 27, 8.8, deg);
-          const [bx, by] = onEllipse(CX, BASE_Y, 33, 10.8, deg);
+          const [ax, ay] = onEllipse(CX, BASE_Y, 27, 27 * FLAT, deg);
+          const [bx, by] = onEllipse(CX, BASE_Y, 33, 33 * FLAT, deg);
           const on = deg >= lo && deg <= hi;
           return (
             <line
@@ -161,16 +166,16 @@ export function Knob(props: KnobProps): React.ReactElement {
           );
         })}
         <path
-          d={`M${CX - BODY_RX},${BASE_Y - 3} L${CX - BODY_RX},${TOP_Y} a${BODY_RX},${BODY_RX * 0.38} 0 0 0 ${BODY_RX * 2},0 L${CX + BODY_RX},${BASE_Y - 3} a${BODY_RX},${BODY_RX * 0.38} 0 0 1 ${-BODY_RX * 2},0 z`}
+          d={`M${CX - BODY_RX},${BASE_Y - 3} L${CX - BODY_RX},${TOP_Y} a${BODY_RX},${BODY_RX * FLAT} 0 0 0 ${BODY_RX * 2},0 L${CX + BODY_RX},${BASE_Y - 3} a${BODY_RX},${BODY_RX * FLAT} 0 0 1 ${-BODY_RX * 2},0 z`}
           fill={`url(#${ids}s)`}
         />
         {RIDGES.map((r) => (
           <line
             key={r}
             x1={CX + r * (BODY_RX / 4.6)}
-            y1={BASE_Y - 3 + BODY_RX * 0.3}
+            y1={BASE_Y - 3 + BODY_RX * FLAT * 0.8}
             x2={CX + r * (BODY_RX / 4.6)}
-            y2={TOP_Y + BODY_RX * 0.3}
+            y2={TOP_Y + BODY_RX * FLAT * 0.8}
             className={styles.ridge}
           />
         ))}
@@ -178,7 +183,7 @@ export function Knob(props: KnobProps): React.ReactElement {
           cx={CX}
           cy={TOP_Y}
           rx={BODY_RX}
-          ry={BODY_RX * 0.38}
+          ry={BODY_RX * FLAT}
           fill={`url(#${ids}t)`}
           className={styles.top}
         />
