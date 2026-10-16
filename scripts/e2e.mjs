@@ -306,27 +306,31 @@ try {
   });
 
   await step('the compact panel shrinks to a floating icon and back', async () => {
-    const quick = app.windows().find((w) => w.url().includes('quick.html'));
+    const quick = await windowMatching('quick.html');
     await quick.getByRole('button', { name: 'Shrink to a floating icon' }).click();
+    // hidden compact windows are destroyed and re-created on the next show
+    await windowMatching('icon.html');
     await new Promise((r) => setTimeout(r, 400));
     const state = await app.evaluate(({ BrowserWindow }) => {
       const find = (part) => BrowserWindow.getAllWindows().find((w) => w.webContents.getURL().includes(part));
-      return { panel: find('quick.html')?.isVisible(), icon: find('icon.html')?.isVisible() };
+      return { panel: find('quick.html')?.isVisible() ?? false, icon: find('icon.html')?.isVisible() ?? false };
     });
     assert.deepEqual(state, { panel: false, icon: true });
 
-    const icon = app.windows().find((w) => w.url().includes('icon.html'));
+    const icon = await windowMatching('icon.html');
     await icon.getByRole('button', { name: 'Open the compact panel' }).click();
+    const reopened = await windowMatching('quick.html');
+    await reopened.waitForSelector('text=Voice Studio');
     await new Promise((r) => setTimeout(r, 400));
     const back = await app.evaluate(({ BrowserWindow }) => {
       const find = (part) => BrowserWindow.getAllWindows().find((w) => w.webContents.getURL().includes(part));
-      return { panel: find('quick.html')?.isVisible(), icon: find('icon.html')?.isVisible() };
+      return { panel: find('quick.html')?.isVisible() ?? false, icon: find('icon.html')?.isVisible() ?? false };
     });
     assert.deepEqual(back, { panel: true, icon: false });
   });
 
   await step('"Full studio" brings the main window back', async () => {
-    const quick = app.windows().find((w) => w.url().includes('quick.html'));
+    const quick = await windowMatching('quick.html');
     await quick.getByRole('button', { name: /Full studio/ }).click();
     await new Promise((r) => setTimeout(r, 400));
     const visible = await app.evaluate(({ BrowserWindow }) =>

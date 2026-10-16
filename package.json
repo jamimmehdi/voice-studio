@@ -1,6 +1,6 @@
 {
   "name": "voice-studio",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Real-time voice changer and vocal-processing studio",
   "main": "out/main/index.js",
   "homepage": "https://github.com/jamimmehdi/voice-studio",
