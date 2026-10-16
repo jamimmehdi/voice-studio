@@ -97,6 +97,11 @@ export class StudioWindow {
     win.moveTop();
     win.focus();
     win.setAlwaysOnTop(false);
+    // belt and braces: a window shown from the tray must repaint even if the compositor stayed asleep
+    win.webContents.invalidate();
+    setTimeout(() => {
+      if (!win.isDestroyed() && win.isVisible()) win.webContents.invalidate();
+    }, 120);
   }
 
   /** A window dragged to an unplugged monitor, or parked off-screen by Windows, is unreachable. */

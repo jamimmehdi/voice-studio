@@ -39,6 +39,9 @@ const COMMUNITY_MAX_CHARS = 512 * 1024;
 /** Composition root of the main process: builds the services and wires them together. */
 export function startApp(): void {
   app.setAppUserModelId(APP_USER_MODEL_ID);
+  // Windows' occlusion tracking can leave a window that was hidden to the tray blank (no repaint
+  // until it is resized). The studio hides to the tray all the time, so switch the tracking off.
+  app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion');
 
   if (!app.requestSingleInstanceLock()) {
     app.quit();
