@@ -87,8 +87,15 @@ export class StudioWindow {
     if (!this.isAlive) return;
     const win = this.browserWindow;
     logLine(`studio.show visible=${win.isVisible()} min=${win.isMinimized()} bounds=${JSON.stringify(win.getBounds())}`);
+    const wasHidden = !win.isVisible();
     if (win.isMinimized()) win.restore();
     if (!this.isOnScreen()) win.center();
+    // A window shown from the tray can stay black until it is resized (the compositor never presents
+    // its first frame). Grow it by 1 px while it is still hidden and put the size back right after it
+    // appears: one resize, in the same frame as the show, so nothing visibly flickers.
+    const size = win.getBounds();
+    const nudge = wasHidden && !win.isMaximized() && !win.isFullScreen();
+    if (nudge) win.setBounds({ ...size, width: size.width + 1 });
     // Windows refuses to raise a window for a click on a non-focusable overlay (the compact panel):
     // the studio would be "shown" but stay buried behind the game or browser. Briefly making it
     // always-on-top is the reliable way to bring it to the front.
@@ -97,26 +104,12 @@ export class StudioWindow {
     win.moveTop();
     win.focus();
     win.setAlwaysOnTop(false);
-    this.forceRepaint();
-  }
-
-  /**
-   * A window shown from the tray can stay black until it is resized (the compositor does not present
-   * its first frame). A resize is exactly what fixes it, so do a 1 px one and put the size back.
-   */
-  private forceRepaint(): void {
-    const win = this.browserWindow;
     win.webContents.invalidate();
-    const nudge = (): void => {
-      if (win.isDestroyed() || !win.isVisible() || win.isMaximized() || win.isFullScreen()) return;
-      const b = win.getBounds();
-      win.setBounds({ ...b, width: b.width + 1 });
+    if (nudge) {
       setTimeout(() => {
-        if (!win.isDestroyed() && !win.isMaximized()) win.setBounds(b);
-      }, 40);
-    };
-    setTimeout(nudge, 60);
-    setTimeout(nudge, 500); // in case the first nudge landed before the window was really on screen
+        if (!win.isDestroyed() && !win.isMaximized()) win.setBounds(size);
+      }, 30);
+    }
   }
 
   /** A window dragged to an unplugged monitor, or parked off-screen by Windows, is unreachable. */
