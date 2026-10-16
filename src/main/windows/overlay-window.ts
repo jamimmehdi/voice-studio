@@ -3,6 +3,7 @@ import { IPC } from '@shared/ipc';
 import type { QuickState } from '@shared/protocols';
 import type { Point, Size } from '../geometry';
 import type { OverlayWindow } from '../overlay-controller';
+import { watchWindow } from '../diag-log';
 import { loadRenderer, paths } from '../paths';
 
 export interface OverlayWindowConfig {
@@ -60,6 +61,7 @@ export class ElectronOverlayWindow implements OverlayWindow {
       this.loaded = true;
       if (this.pending) win.webContents.send(IPC.quickState, this.pending);
     });
+    watchWindow(this.config.page, win);
     win.on('closed', () => {
       this.win = null;
       this.loaded = false;

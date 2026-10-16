@@ -4,6 +4,7 @@ import { app, globalShortcut, screen, session } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import { prettyAccelerator } from '@shared/format';
 import { IPC } from '@shared/ipc';
+import { watchProcess, watchWindow } from './diag-log';
 import { ForegroundWatcher, listRunningApps } from './foreground-watcher';
 import { HotkeyService } from './hotkey-service';
 import { registerIpc } from './ipc';
@@ -69,18 +70,20 @@ export function startApp(): void {
     // the launch screen is up before anything heavy is created
     const splash = new SplashWindow(app.getVersion());
 
+    watchProcess();
     studio = new StudioWindow(() => {
       if (settings.value.trayHintShown) return;
       settings.update({ trayHintShown: true });
       tray?.showRunningHint(prettyAccelerator(shortcut.current ?? settings.value.shortcut));
     });
     const studioWindow = studio;
+    watchWindow('studio', studioWindow.browserWindow);
 
     const relay = new CommandRelay(
       {
         openStudio: () => {
-          overlay.hideAll();
           studioWindow.show();
+          overlay.hideAll();
         },
         showIcon: () => overlay.showIcon(),
         hidePanel: () => overlay.hidePanel(),
@@ -123,8 +126,8 @@ export function startApp(): void {
     tray = new AppTray(
       {
         openStudio: () => {
-          overlay.hideAll();
           studioWindow.show();
+          overlay.hideAll();
         },
         togglePanel: () => overlay.toggle(),
         showPanel: () => overlay.showPanel(),

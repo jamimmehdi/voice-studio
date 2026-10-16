@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs';
-import { BrowserWindow, shell } from 'electron';
+import { BrowserWindow, screen, shell } from 'electron';
 import { loadRenderer, paths } from '../paths';
 
 const STARTED_MINIMISED_GRACE_MS = 4000;
@@ -56,6 +56,9 @@ export class StudioWindow {
         this.browserWindow.restore();
         return;
       }
+      // Hiding a window that is still minimised leaves it in a state Windows cannot always bring back
+      // (it reappears off-screen or stays dead). Restore it first, then hide it as a normal window.
+      if (this.browserWindow.isMinimized()) this.browserWindow.restore();
       this.hideToTray();
     });
 
@@ -80,9 +83,21 @@ export class StudioWindow {
 
   show(): void {
     if (!this.isAlive) return;
-    if (this.browserWindow.isMinimized()) this.browserWindow.restore();
-    this.browserWindow.show();
-    this.browserWindow.focus();
+    const win = this.browserWindow;
+    if (win.isMinimized()) win.restore();
+    if (!this.isOnScreen()) win.center();
+    win.show();
+    win.moveTop();
+    win.focus();
+  }
+
+  /** A window dragged to an unplugged monitor, or parked off-screen by Windows, is unreachable. */
+  private isOnScreen(): boolean {
+    const b = this.browserWindow.getBounds();
+    const area = screen.getDisplayMatching(b).workArea;
+    const visibleW = Math.min(b.x + b.width, area.x + area.width) - Math.max(b.x, area.x);
+    const visibleH = Math.min(b.y + b.height, area.y + area.height) - Math.max(b.y, area.y);
+    return visibleW >= 200 && visibleH >= 100;
   }
 
   send(channel: string, payload?: unknown): void {
