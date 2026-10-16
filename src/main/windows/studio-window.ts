@@ -1,5 +1,6 @@
 import { existsSync } from 'node:fs';
 import { BrowserWindow, screen, shell } from 'electron';
+import { logLine } from '../diag-log';
 import { loadRenderer, paths } from '../paths';
 
 const STARTED_MINIMISED_GRACE_MS = 4000;
@@ -77,6 +78,7 @@ export class StudioWindow {
 
   hideToTray(): void {
     if (!this.isAlive) return;
+    logLine('studio.hide');
     this.browserWindow.hide();
     this.onHidden();
   }
@@ -84,11 +86,17 @@ export class StudioWindow {
   show(): void {
     if (!this.isAlive) return;
     const win = this.browserWindow;
+    logLine(`studio.show visible=${win.isVisible()} min=${win.isMinimized()} bounds=${JSON.stringify(win.getBounds())}`);
     if (win.isMinimized()) win.restore();
     if (!this.isOnScreen()) win.center();
+    // Windows refuses to raise a window for a click on a non-focusable overlay (the compact panel):
+    // the studio would be "shown" but stay buried behind the game or browser. Briefly making it
+    // always-on-top is the reliable way to bring it to the front.
+    win.setAlwaysOnTop(true);
     win.show();
     win.moveTop();
     win.focus();
+    win.setAlwaysOnTop(false);
   }
 
   /** A window dragged to an unplugged monitor, or parked off-screen by Windows, is unreachable. */

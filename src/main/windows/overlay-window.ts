@@ -3,7 +3,7 @@ import { IPC } from '@shared/ipc';
 import type { QuickState } from '@shared/protocols';
 import type { Point, Size } from '../geometry';
 import type { OverlayWindow } from '../overlay-controller';
-import { watchWindow } from '../diag-log';
+import { logLine, watchWindow } from '../diag-log';
 import { loadRenderer, paths } from '../paths';
 
 export interface OverlayWindowConfig {
@@ -77,6 +77,7 @@ export class ElectronOverlayWindow implements OverlayWindow {
 
   showAt(position: Point): void {
     const win = this.ensure();
+    logLine(`${this.config.page}.show at ${Math.round(position.x)},${Math.round(position.y)}`);
     win.setPosition(Math.round(position.x), Math.round(position.y));
     win.setAlwaysOnTop(true, 'screen-saver');
     win.showInactive();

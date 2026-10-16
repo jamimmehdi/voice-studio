@@ -4,7 +4,8 @@ import { IPC, type AppInfo, type SaveFileFilter, type SettingsView, type Shortcu
 import { prettyAccelerator } from '@shared/format';
 import type { RunningApp } from '@shared/features';
 import { sanitiseBindings } from './bindings';
-import type { QuickState } from '@shared/protocols';
+import { MAIN_PROCESS_COMMANDS, type QuickCommand, type QuickState } from '@shared/protocols';
+import { logLine } from './diag-log';
 import type { ForegroundWatcher } from './foreground-watcher';
 import type { HotkeyService } from './hotkey-service';
 import type { RemoteController } from './remote/remote-controller';
@@ -92,7 +93,11 @@ export function registerIpc(deps: IpcDeps): void {
   });
 
   // compact panel / icon -> engine window (or main-process window management)
-  ipcMain.on(IPC.quickCmd, (_e, cmd: unknown) => deps.relay.handle(cmd));
+  ipcMain.on(IPC.quickCmd, (_e, cmd: unknown) => {
+    const type = (cmd as { type?: unknown } | null)?.type;
+    if (typeof type === 'string' && MAIN_PROCESS_COMMANDS.includes(type as QuickCommand['type'])) logLine(`command ${type}`);
+    deps.relay.handle(cmd);
+  });
   // engine window -> compact panel / icon
   ipcMain.on(IPC.quickState, (_e, state: QuickState) => {
     overlay.pushState(state);

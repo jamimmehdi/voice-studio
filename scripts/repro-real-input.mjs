@@ -78,32 +78,18 @@ try {
   await sleep(2500);
   const log = async (label) => console.log(label.padEnd(34), 'engine=' + (await Promise.race([pressed(studio), sleep(2500).then(() => 'FROZEN')])), await winState());
 
-  for (let round = 1; round <= 2; round++) {
+  for (let round = 1; round <= Number(process.env.ROUNDS ?? 6); round++) {
+    await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().find((w) => w.webContents.getURL().includes('studio.html'))?.minimize());
+    await sleep(Number(process.env.GAP ?? 900));
+    await log(`r${round} minimised`);
+    await app.evaluate(({ BrowserWindow }) => { /* what the tray click does */ });
     await studio.evaluate(() => window.studio.openCompact());
-    await sleep(900);
-    await log(`r${round} compact`);
+    await sleep(Number(process.env.GAP ?? 900));
+    await log(`r${round} compact (tray)`);
+    console.log('   panel', JSON.stringify(await app.evaluate(({ BrowserWindow, screen }) => { const w = BrowserWindow.getAllWindows().find((x) => x.webContents.getURL().includes('quick.html')); return { b: w.getBounds(), c: w.getContentBounds(), sf: screen.getDisplayMatching(w.getBounds()).scaleFactor }; })));
     await realClick('quick.html', 'button[title="Open the full studio"]');
-    await log(`r${round} after Full studio click`);
+    await log(`r${round} Full studio click`);
   }
-  await studio.evaluate(() => window.studio.openCompact());
-  await sleep(900);
-  await clickNativeMinimise();
-  await log('studio minimised');
-  await realClick('quick.html', 'button[aria-label="Shrink to a floating icon"]');
-  await log('after shrink click');
-  await realClick('icon.html', '[role="button"]');
-  await log('after icon click');
-  await realClick('quick.html', 'button[title="Open the full studio"]');
-  await log('after Full studio click');
-  await studio.evaluate(() => window.studio.openCompact());
-  await sleep(900);
-  await realClick('quick.html', 'button[aria-label="Shrink to a floating icon"]');
-  await realClick('icon.html', '[role="button"]');
-  const live = await win('quick.html');
-  const btn = await live.evaluate(() => [...document.querySelectorAll('button')].map((b) => b.textContent.trim()).slice(0, 8));
-  console.log('panel buttons', btn.join(' | '));
-  await realClick('quick.html', 'button[title="Open the full studio"]');
-  await log('final Full studio click');
 } finally {
   await app.close().catch(() => {});
   rmSync(userData, { recursive: true, force: true });
