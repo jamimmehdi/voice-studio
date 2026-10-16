@@ -86,7 +86,9 @@ export class StudioWindow {
   show(): void {
     if (!this.isAlive) return;
     const win = this.browserWindow;
-    logLine(`studio.show visible=${win.isVisible()} min=${win.isMinimized()} bounds=${JSON.stringify(win.getBounds())}`);
+    logLine(
+      `studio.show visible=${win.isVisible()} min=${win.isMinimized()} bounds=${JSON.stringify(win.getBounds())}`,
+    );
     const wasHidden = !win.isVisible();
     if (win.isMinimized()) win.restore();
     if (!this.isOnScreen()) win.center();

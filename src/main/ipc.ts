@@ -95,7 +95,8 @@ export function registerIpc(deps: IpcDeps): void {
   // compact panel / icon -> engine window (or main-process window management)
   ipcMain.on(IPC.quickCmd, (_e, cmd: unknown) => {
     const type = (cmd as { type?: unknown } | null)?.type;
-    if (typeof type === 'string' && MAIN_PROCESS_COMMANDS.includes(type as QuickCommand['type'])) logLine(`command ${type}`);
+    if (typeof type === 'string' && MAIN_PROCESS_COMMANDS.includes(type as QuickCommand['type']))
+      logLine(`command ${type}`);
     deps.relay.handle(cmd);
   });
   // engine window -> compact panel / icon
