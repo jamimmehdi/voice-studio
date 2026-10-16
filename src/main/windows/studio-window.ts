@@ -97,11 +97,26 @@ export class StudioWindow {
     win.moveTop();
     win.focus();
     win.setAlwaysOnTop(false);
-    // belt and braces: a window shown from the tray must repaint even if the compositor stayed asleep
+    this.forceRepaint();
+  }
+
+  /**
+   * A window shown from the tray can stay black until it is resized (the compositor does not present
+   * its first frame). A resize is exactly what fixes it, so do a 1 px one and put the size back.
+   */
+  private forceRepaint(): void {
+    const win = this.browserWindow;
     win.webContents.invalidate();
-    setTimeout(() => {
-      if (!win.isDestroyed() && win.isVisible()) win.webContents.invalidate();
-    }, 120);
+    const nudge = (): void => {
+      if (win.isDestroyed() || !win.isVisible() || win.isMaximized() || win.isFullScreen()) return;
+      const b = win.getBounds();
+      win.setBounds({ ...b, width: b.width + 1 });
+      setTimeout(() => {
+        if (!win.isDestroyed() && !win.isMaximized()) win.setBounds(b);
+      }, 40);
+    };
+    setTimeout(nudge, 60);
+    setTimeout(nudge, 500); // in case the first nudge landed before the window was really on screen
   }
 
   /** A window dragged to an unplugged monitor, or parked off-screen by Windows, is unreachable. */
