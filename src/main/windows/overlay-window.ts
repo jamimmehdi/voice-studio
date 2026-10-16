@@ -14,7 +14,7 @@ export interface OverlayWindowConfig {
 
 /**
  * A frameless, always-on-top window that never takes focus, so clicking it cannot minimise a game.
- * Created lazily on first use.
+ * Created lazily on every show.
  */
 export class ElectronOverlayWindow implements OverlayWindow {
   private win: BrowserWindow | null = null;
@@ -63,6 +63,7 @@ export class ElectronOverlayWindow implements OverlayWindow {
     });
     watchWindow(this.config.page, win);
     win.on('closed', () => {
+      if (this.win !== win) return; // a newer window already took over
       this.win = null;
       this.loaded = false;
     });
@@ -83,8 +84,21 @@ export class ElectronOverlayWindow implements OverlayWindow {
     win.showInactive();
   }
 
+  /**
+   * Destroys the window instead of hiding it. After a number of hide / show-without-activation
+   * cycles Windows can stop delivering mouse input to an always-on-top, non-focusable window
+   * (it is drawn but dead), so every show starts from a fresh native window.
+   */
   hide(): void {
-    if (this.win && !this.win.isDestroyed()) this.win.hide();
+    const win = this.win;
+    if (!win || win.isDestroyed()) return;
+    this.win = null;
+    this.loaded = false;
+    win.hide();
+    // not inside the IPC handler that triggered the hide
+    setImmediate(() => {
+      if (!win.isDestroyed()) win.destroy();
+    });
   }
 
   sendState(state: QuickState): void {
